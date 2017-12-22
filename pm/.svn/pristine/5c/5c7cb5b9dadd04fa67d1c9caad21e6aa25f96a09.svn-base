@@ -1,0 +1,42 @@
+package com.cninsure.payment.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.payment.entity.PMAppplatformuserbankcard;
+import com.cninsure.payment.entity.PMLogRecords;
+
+public interface PMAppplatformuserbankcardDao extends BaseDao<PMAppplatformuserbankcard,Long> {
+
+	/**
+	 * 按照逻辑主键删除数据
+	 * 
+	 * @param appId
+	 * @param userId
+	 * @param payplatformId
+	 * @param cardNo
+	 * @return
+	 */
+	public int deleteByLogicId(long appId, String userId,long payplatformId, String cardNo);
+	
+	/**
+	 * 查看当前银行卡关联用户数
+	 * 
+	 * @param cardNo
+	 * @return
+	 */
+	public int selectCountByProtocolid(String protocolid);
+
+	public List<Map<Object, Object>> selectBindCardList(Map<String, Object> map);
+
+	public long getBindCardListCount(Map<String, Object> map);
+
+	public PMLogRecords getLogRecordsInfo(Map<String, Object> map);
+
+	public PMLogRecords getLogRecordsInfoByPaymentID(Map<String, Object> map);
+
+	public PMLogRecords getLogRecordsInfoByPaymentIDandProductID( Map<String, Object> map);
+
+	public PMLogRecords getLogRecordsInfoByBankcardID(Map<String, Object> map);
+}

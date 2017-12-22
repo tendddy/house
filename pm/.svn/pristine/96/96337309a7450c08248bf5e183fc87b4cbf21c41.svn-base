@@ -1,0 +1,166 @@
+package com.cninsure.payment.entity;
+
+import java.io.Serializable;
+
+import java.util.Date;
+
+public class PMAPPcustomcard implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 主键
+	 */
+	private Long id;
+
+	/**
+	 * 操作员
+	 */
+	private String operator;
+
+	/**
+	 * 创建时间
+	 */
+	private Date createtime;
+
+	/**
+	 * 修改时间
+	 */
+	private Date modifytime;
+
+	/**
+	 * 备注
+	 */
+	private String noti;
+
+	/**
+	 * 平台用户表id
+	 */
+	private String pmappcustom_id;
+
+	/**
+	 * 卡券id
+	 */
+	private String card_id;
+
+	/**
+	 * 卡券类型（优惠券：01，现金券：02）
+	 */
+	private String cardtype;
+
+	/**
+	 * 面值
+	 */
+	private String amount;
+
+	/**
+	 * 优惠券有效期起
+	 */
+	private Date validStartTime;
+
+	/**
+	 * 优惠券有效期止
+	 */
+	private Date validEndTime;
+
+	/**
+	 * 使用状态（01：已使用，02：未使用，03：已过期）
+	 */
+	private String status;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getOperator() {
+		return operator;
+	}
+
+	public void setOperator(String operator) {
+		this.operator = operator;
+	}
+
+	public Date getCreatetime() {
+		return createtime;
+	}
+
+	public void setCreatetime(Date createtime) {
+		this.createtime = createtime;
+	}
+
+	public Date getModifytime() {
+		return modifytime;
+	}
+
+	public void setModifytime(Date modifytime) {
+		this.modifytime = modifytime;
+	}
+
+	public String getNoti() {
+		return noti;
+	}
+
+	public void setNoti(String noti) {
+		this.noti = noti;
+	}
+
+	public String getPmappcustom_id() {
+		return pmappcustom_id;
+	}
+
+	public void setPmappcustom_id(String pmappcustom_id) {
+		this.pmappcustom_id = pmappcustom_id;
+	}
+
+	public String getCard_id() {
+		return card_id;
+	}
+
+	public void setCard_id(String card_id) {
+		this.card_id = card_id;
+	}
+
+	public String getCardtype() {
+		return cardtype;
+	}
+
+	public void setCardtype(String cardtype) {
+		this.cardtype = cardtype;
+	}
+
+	public String getAmount() {
+		return amount;
+	}
+
+	public void setAmount(String amount) {
+		this.amount = amount;
+	}
+
+	public Date getValidStartTime() {
+		return validStartTime;
+	}
+
+	public void setValidStartTime(Date validStartTime) {
+		this.validStartTime = validStartTime;
+	}
+
+	public Date getValidEndTime() {
+		return validEndTime;
+	}
+
+	public void setValidEndTime(Date validEndTime) {
+		this.validEndTime = validEndTime;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+}

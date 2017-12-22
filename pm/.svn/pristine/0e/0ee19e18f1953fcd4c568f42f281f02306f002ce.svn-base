@@ -1,0 +1,7 @@
+# P2P用户系统地址
+paymentuser.payment.url=https://test.cpcn.com.cn/Gateway4PaymentUser/InterfaceI
+
+paymentuser.tx.url=https://test.cpcn.com.cn/Gateway4PaymentUser/InterfaceII
+
+# 移动端支付平台支付接口地址
+mobilepaymentuser.payment.url=https://test.cpcn.com.cn/Gateway4PaymentUser/InterfaceI

@@ -1,0 +1,321 @@
+package com.cninsure.payment.service.impl;
+
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.core.dao.impl.BaseServiceImpl;
+import com.cninsure.core.utils.StringUtil;
+import com.cninsure.payment.dao.PMAppchannelDao;
+import com.cninsure.payment.dao.PMPaychannelDao;
+import com.cninsure.payment.entity.PMAppchannel;
+import com.cninsure.payment.entity.PMAppchannellmit;
+import com.cninsure.payment.model.EachplatformModel;
+import com.cninsure.payment.service.PMAppchannelService;
+
+@Service
+@Transactional
+public class PMAppchannelServiceImpl extends BaseServiceImpl<PMAppchannel,Long> implements
+		PMAppchannelService {
+	@Resource
+	private PMAppchannelDao pmAppchannelDao;
+	
+	@Resource
+	private PMPaychannelDao pmPaychannelDao;
+	
+	@Override
+	protected BaseDao<PMAppchannel,Long> getBaseDao() {
+		return pmAppchannelDao;
+	}
+
+	@Override
+	public List<Map<String, Object>> getList(String id) {
+		return  pmAppchannelDao.getList(id);
+	}
+    
+	// 查询银行模块信息，拼装
+	@Override
+	public Map<String, Object> selectBankDiv(EachplatformModel eachplatformBean) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		if(StringUtil.isNotEmpty(eachplatformBean.getCard_type())){
+			if("0".equals(eachplatformBean.getCard_type())){
+				eachplatformBean.setCard_type0("0");
+			}else{
+				eachplatformBean.setCard_type1("1");
+			}
+		}
+		List<Map<String,Object>> banklist = pmAppchannelDao.selectBankDiv(eachplatformBean);
+		String bankdiv="";
+		if(!StringUtil.isEmpty(banklist)){
+			for(int i=0;i<banklist.size();i++){
+				Map<String, Object> banks = banklist.get(i);
+				Object bankid = banks.get("id");
+				Object platform_name = banks.get("platform_name");
+				Object channel_name = banks.get("channel_name");
+				Object channel_code = banks.get("channel_code");
+				String card_type0 = String.valueOf(banks.get("card_type0"))=="null"?"":String.valueOf(banks.get("card_type0"));
+				String card_type1 = String.valueOf(banks.get("card_type1"))=="null"?"":String.valueOf(banks.get("card_type1"));
+				String type0="0".equals(card_type0)?"checked":"";
+				String type1="1".equals(card_type1)?"checked":"";
+				String max_quota_per_day0 = String.valueOf(banks.get("max_quota_per_day0"))=="null"?"":String.valueOf(banks.get("max_quota_per_day0"));
+				String max_quota_per_day1 = String.valueOf(banks.get("max_quota_per_day1"))=="null"?"":String.valueOf(banks.get("max_quota_per_day1"));
+				String max_quota_per_time0 = String.valueOf(banks.get("max_quota_per_time0"))=="null"?"":String.valueOf(banks.get("max_quota_per_time0"));
+				String max_quota_per_time1 = String.valueOf(banks.get("max_quota_per_time1"))=="null"?"":String.valueOf(banks.get("max_quota_per_time1"));
+				max_quota_per_day0 = StringUtil.isEmpty(max_quota_per_day0)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_day0).movePointLeft(2));
+				max_quota_per_day1 = StringUtil.isEmpty(max_quota_per_day1)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_day1).movePointLeft(2));
+				max_quota_per_time0 = StringUtil.isEmpty(max_quota_per_time0)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_time0).movePointLeft(2));
+				max_quota_per_time1 = StringUtil.isEmpty(max_quota_per_time1)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_time1).movePointLeft(2));
+				Object status0 = banks.get("status0");
+				String status00="0".equals(status0)?"selected":"";
+				String status01="1".equals(status0)?"selected":"";
+				Object status1 = banks.get("status1");
+				String status10="0".equals(status1)?"selected":"";
+				String status11="1".equals(status1)?"selected":"";
+				Object settlementInterval0 = banks.get("settlementInterval0");
+				String settlementInterval00="01".equals(settlementInterval0)?"selected":"";
+				String settlementInterval01="02".equals(settlementInterval0)?"selected":"";
+				Object settlementInterval1 = banks.get("settlementInterval1");
+				String settlementInterval10="01".equals(settlementInterval1)?"selected":"";
+				String settlementInterval11="02".equals(settlementInterval1)?"selected":"";
+				
+				Object status2 = banks.get("status2");
+				String status20="0".equals(status2)?"selected":"";
+				String status21="1".equals(status2)?"selected":"";
+				Object status3 = banks.get("status3");
+				String status30="0".equals(status3)?"selected":"";
+				String status31="1".equals(status3)?"selected":"";
+				String lmitid0 = String.valueOf(banks.get("lmitid0"))=="null"?"":String.valueOf(banks.get("lmitid0"));
+				String lmitid1 = String.valueOf(banks.get("lmitid1"))=="null"?"":String.valueOf(banks.get("lmitid1"));
+				
+				bankdiv+="<tr style=\"border-left: 1px solid #dddddd;\" class=\"yinhang\"><td style=\"text-align:center;vertical-align:middle;\">" +
+			"<label  class=\"col-md-2 control-label\" style=\"height:30px;line-height:30px;padding-left: 9px;\">"+(i+1)+"</label> </td>" +
+			"<td style=\"text-align:center;vertical-align:middle;\"><input type=\"text\" class=\"form-control\" id=\"platform_name\" readonly value=\""+platform_name+"\" ></td>" +	
+			"<td style=\"text-align:center;vertical-align:middle;\"><input type=\"text\" class=\"form-control\" id=\"channel_name\" readonly value=\""+channel_name+"\" ></td>" +
+			"<td style=\"text-align:center;vertical-align:middle;\"><input type=\"text\" class=\"form-control\" id=\"channel_code\" readonly value=\""+channel_code+"\" ></td>" +
+			"<td style=\"text-align:center;vertical-align:middle;\">" +
+			"<div class=\"checkbox\" style=\"padding-bottom:10px;\"><input type=\"checkbox\" style=\"position:static;\" disabled "+type0+" id=\"card_type00\" value=\"0\" >支持储蓄卡<input " +
+			"type=\"hidden\" id=\"lmitid0\" value=\""+lmitid0+"\"></div>" +
+			"<div class=\"checkbox\" style=\"padding-bottom:10px;\"><input type=\"checkbox\" style=\"position:static;\" disabled "+type1+" id=\"card_type11\" value=\"1\">支持信用卡</div><input " +
+			"type=\"hidden\" id=\"lmitid1\" value=\""+lmitid1+"\"></td>" +
+			"<td style=\"text-align:center;vertical-align:middle;\"><input type=\"text\" class=\"form-control\" id=\"max_quota_per_time0\" onkeyup=\"constraintMoneyLength(12,2);\" onblur=\"constraintMoneyLength(12,2);\" value=\""+max_quota_per_time0+"\" readonly >" +
+			"&nbsp;<input type=\"text\" class=\"form-control\" id=\"max_quota_per_time1\" onkeyup=\"constraintMoneyLength(12,2);\" onblur=\"constraintMoneyLength(12,2);\" value=\""+max_quota_per_time1+"\" readonly ></td><td style=\"text-align:center;vertical-align:middle;\">" +
+			"<input type=\"text\" class=\"form-control\" id=\"max_quota_per_day0\" onkeyup=\"constraintMoneyLength(12,2);\" onblur=\"constraintMoneyLength(12,2);\" value=\""+max_quota_per_day0+"\" readonly >&nbsp;<input type=\"text\" "
+			+ "class=\"form-control\" id=\"max_quota_per_day1\" onkeyup=\"constraintMoneyLength(12,2);\" onblur=\"constraintMoneyLength(12,2);\" value=\""+max_quota_per_day1+"\" readonly ></td>" +
+			"<td style=\"text-align:center;vertical-align:middle;\"><select class=\"col-md-1 form-control col-md-2\" disabled id=\"settlementInterval0\">" +
+			"<option value=\"\"></option><option "+settlementInterval00+" value=\"01\">即时</option><option "+settlementInterval01+" value=\"02\">T+1</option></select>&nbsp;" +
+			"<select class=\"col-md-1 form-control col-md-2\" disabled id=\"settlementInterval1\"><option value=\"\"></option><option "+settlementInterval10+" value=\"01\">即时</option>" +
+			"<option "+settlementInterval11+" value=\"02\">T+1</option></select></td><td style=\"text-align:center;vertical-align:middle;\">" +
+			"<select class=\"form-control m-left-1 col-md-2\" disabled id=\"status0\" ><option value=\"\"></option><option "+status00+" value=\"0\">启用</option>" +
+			"<option "+status01+" value=\"1\">禁用</option></select>&nbsp;<select class=\"form-control m-left-1 col-md-2\" disabled id=\"status1\" >" +
+			"<option value=\"\"></option><option "+status10+" value=\"0\">启用</option><option "+status11+" value=\"1\">禁用</option></select></td>"+
+			"<td style=\"text-align:center;vertical-align:middle;\">" +
+			"<select class=\"form-control m-left-1 col-md-2\" disabled id=\"status2\" ><option value=\"\"></option><option "+status20+" value=\"0\">启用</option>" +
+			"<option "+status21+" value=\"1\">禁用</option></select>&nbsp;<select class=\"form-control m-left-1 col-md-2\" disabled id=\"status3\" >" +
+			"<option value=\"\"></option><option "+status30+" value=\"0\">启用</option><option "+status31+" value=\"1\">禁用</option></select></td>"+ 
+			"<td style=\"text-align:center;vertical-align:middle;\">" +
+			"<button  type=\"button\"  id=\"savebank\" disabled class=\"btn btn-primary\">保存</button> " +
+			"<button  type=\"button\"  id=\"cancelbank\" disabled class=\"btn btn-primary\">取消</button> " +
+			"<button  type=\"button\"  id=\"modifybank\" class=\"btn btn-primary\">修改</button></td><input " +
+			"type=\"hidden\"id=\"id\"value=\""+bankid+"\"></tr>"; 
+			}
+		}
+		map.put("bankdiv", bankdiv);
+		return map;
+	}
+	//查询银行信息
+	@Override
+	public Map<String, Object> selectBankInfo(EachplatformModel eachplatformBean) {
+		eachplatformBean=pmAppchannelDao.selectBankInfo(eachplatformBean);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("id",eachplatformBean.getId());
+		map.put("platform_name",eachplatformBean.getPlatform_name());
+		map.put("channel_name",eachplatformBean.getChannel_name());
+		map.put("channel_code",eachplatformBean.getChannel_code());
+		map.put("card_type0",eachplatformBean.getCard_type0());
+		map.put("card_type1",eachplatformBean.getCard_type1());
+		map.put("lmitid0",eachplatformBean.getLmitid0());
+		map.put("lmitid1",eachplatformBean.getLmitid1());
+		String max_quota_per_time0 = StringUtil.isEmpty(eachplatformBean.getMax_quota_per_time0())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(eachplatformBean.getMax_quota_per_time0()).movePointLeft(2));
+		String max_quota_per_time1 = StringUtil.isEmpty(eachplatformBean.getMax_quota_per_time1())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(eachplatformBean.getMax_quota_per_time1()).movePointLeft(2));
+		String max_quota_per_day0 = StringUtil.isEmpty(eachplatformBean.getMax_quota_per_day0())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(eachplatformBean.getMax_quota_per_day0()).movePointLeft(2));
+		String max_quota_per_day1 = StringUtil.isEmpty(eachplatformBean.getMax_quota_per_day1())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(eachplatformBean.getMax_quota_per_day1()).movePointLeft(2));
+		map.put("max_quota_per_time0",max_quota_per_time0);
+		map.put("max_quota_per_time1",max_quota_per_time1);
+		map.put("max_quota_per_day0",max_quota_per_day0);
+		map.put("max_quota_per_day1",max_quota_per_day1);
+		map.put("settlementInterval0",eachplatformBean.getSettlementInterval0());
+		map.put("settlementInterval1",eachplatformBean.getSettlementInterval1());
+		map.put("status0",eachplatformBean.getStatus0());
+		map.put("status1",eachplatformBean.getStatus1());
+		map.put("status2",eachplatformBean.getStatus2());
+		map.put("status3",eachplatformBean.getStatus3());
+		return map;
+	}
+
+	//查询银行卡类型信息  
+	@Override
+	public Map<String, Object> selectLmitInfo(EachplatformModel eachplatformBean) {
+		eachplatformBean = pmAppchannelDao.selectLmitInfo(eachplatformBean);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("id", eachplatformBean.getId());
+		map.put("max_quota_per_time", new DecimalFormat("#,##0.00").format(new BigDecimal(eachplatformBean.getMax_quota_per_time0()).movePointLeft(2)));
+		map.put("max_quota_per_day", new DecimalFormat("#,##0.00").format(new BigDecimal(eachplatformBean.getMax_quota_per_day0()).movePointLeft(2)));
+		map.put("settlement_interval", eachplatformBean.getSettlementInterval0());
+		map.put("status", eachplatformBean.getStatus2());
+		return map;
+	
+	}
+
+	@Override
+	public Map<String, Object> saveOrUpdateBankInfo(EachplatformModel eachplatformBean) {
+		if(StringUtil.isNotEmpty(eachplatformBean.getMax_quota_per_time0())){
+			eachplatformBean.setMax_quota_per_time0(new DecimalFormat("####").format(new BigDecimal(eachplatformBean.getMax_quota_per_time0().replace(",", "")).movePointRight(2)));
+		}
+		if(StringUtil.isNotEmpty(eachplatformBean.getMax_quota_per_time1())){
+			eachplatformBean.setMax_quota_per_time1(new DecimalFormat("####").format(new BigDecimal(eachplatformBean.getMax_quota_per_time1().replace(",", "")).movePointRight(2)));
+		}
+		if(StringUtil.isNotEmpty(eachplatformBean.getMax_quota_per_day0())){
+			eachplatformBean.setMax_quota_per_day0(new DecimalFormat("####").format(new BigDecimal(eachplatformBean.getMax_quota_per_day0().replace(",", "")).movePointRight(2)));
+		}
+		if(StringUtil.isNotEmpty(eachplatformBean.getMax_quota_per_day1())){
+			eachplatformBean.setMax_quota_per_day1(new DecimalFormat("####").format(new BigDecimal(eachplatformBean.getMax_quota_per_day1().replace(",", "")).movePointRight(2)));
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			PMAppchannellmit appchannellmit = new PMAppchannellmit();
+			PMAppchannel appchannel= new PMAppchannel();
+			if(StringUtil.isEmpty(eachplatformBean.getId())){//新增
+				appchannel.setAppId(Long.parseLong(eachplatformBean.getAppId()));
+				appchannel.setChannelId(Long.parseLong(eachplatformBean.getChannelId()));
+				appchannel.setPaymentId(Long.parseLong(eachplatformBean.getPaymentId()));
+				pmAppchannelDao.saveAppChannel(appchannel);
+				
+				eachplatformBean.setId(String.valueOf(appchannel.getId()));
+				if("true".equals(eachplatformBean.getCard_type0())){//如果支持储蓄卡，就保存
+					appchannellmit.setAppChannelId(appchannel.getId());
+					appchannellmit.setMaxQuotaPerTime(Integer.parseInt(eachplatformBean.getMax_quota_per_time0()));
+					appchannellmit.setMaxQuotaPerDay(Integer.parseInt(eachplatformBean.getMax_quota_per_day0()));
+					appchannellmit.setCardType("0");
+					appchannellmit.setSettlementInterval(eachplatformBean.getSettlementInterval0());//到账时间
+					appchannellmit.setStatus(eachplatformBean.getStatus2());
+					pmAppchannelDao.saveAppChannellmit(appchannellmit);
+				}
+				if("true".equals(eachplatformBean.getCard_type1())){//如果支持信用卡，就保存
+					appchannellmit.setAppChannelId(appchannel.getId());
+					appchannellmit.setMaxQuotaPerTime(Integer.parseInt(eachplatformBean.getMax_quota_per_time1()));
+					appchannellmit.setMaxQuotaPerDay(Integer.parseInt(eachplatformBean.getMax_quota_per_day1()));
+					appchannellmit.setCardType("1");
+					appchannellmit.setSettlementInterval(eachplatformBean.getSettlementInterval1());//到账时间
+					appchannellmit.setStatus(eachplatformBean.getStatus3());
+					pmAppchannelDao.saveAppChannellmit(appchannellmit);
+				}
+			 }else{//修改
+			if(StringUtil.isEmpty(eachplatformBean.getLmitid0())&&"true".equals(eachplatformBean.getCard_type0())){
+				appchannellmit.setAppChannelId(appchannel.getId());
+				appchannellmit.setMaxQuotaPerTime(Integer.parseInt(eachplatformBean.getMax_quota_per_time0()));
+				appchannellmit.setMaxQuotaPerDay(Integer.parseInt(eachplatformBean.getMax_quota_per_day0()));
+				appchannellmit.setCardType("0");
+				appchannellmit.setSettlementInterval(eachplatformBean.getSettlementInterval0());//到账时间
+				appchannellmit.setStatus(eachplatformBean.getStatus2());
+				pmAppchannelDao.saveAppChannellmit(appchannellmit);
+				
+			}else{
+			  if("true".equals(eachplatformBean.getCard_type0())){//支持储蓄卡类型，就更新
+				appchannellmit.setAppChannelId(Long.parseLong(eachplatformBean.getId()));
+				appchannellmit.setMaxQuotaPerTime(Integer.parseInt(eachplatformBean.getMax_quota_per_time0()));
+				appchannellmit.setMaxQuotaPerDay(Integer.parseInt(eachplatformBean.getMax_quota_per_day0()));
+				appchannellmit.setSettlementInterval(eachplatformBean.getSettlementInterval0());//到账时间
+				appchannellmit.setCardType("0");
+				appchannellmit.setStatus(eachplatformBean.getStatus2());
+				pmAppchannelDao.updateChannelLmit(appchannellmit);
+				
+			}else{//不支持储蓄卡类型，就更新且状态禁用
+			  if(StringUtil.isNotEmpty(eachplatformBean.getMax_quota_per_time0())){//有数据
+				appchannellmit.setAppChannelId(Long.parseLong(eachplatformBean.getId()));
+				appchannellmit.setMaxQuotaPerTime(Integer.parseInt(eachplatformBean.getMax_quota_per_time0()));
+				appchannellmit.setMaxQuotaPerDay(Integer.parseInt(eachplatformBean.getMax_quota_per_day0()));
+				appchannellmit.setSettlementInterval(eachplatformBean.getSettlementInterval0());//到账时间
+				appchannellmit.setCardType("0");
+				appchannellmit.setStatus("1");
+				pmAppchannelDao.updateChannelLmit(appchannellmit);
+				
+	     	   }
+		    }
+		}
+			
+			if(StringUtil.isEmpty(eachplatformBean.getLmitid1())&&"true".equals(eachplatformBean.getCard_type1())){//修改时id为空且支持该卡类型，是新增操作
+				appchannellmit.setAppChannelId(appchannel.getId());
+				appchannellmit.setMaxQuotaPerTime(Integer.parseInt(eachplatformBean.getMax_quota_per_time1()));
+				appchannellmit.setMaxQuotaPerDay(Integer.parseInt(eachplatformBean.getMax_quota_per_day1()));
+				appchannellmit.setSettlementInterval(eachplatformBean.getSettlementInterval1());//到账时间
+				appchannellmit.setCardType("1");
+				appchannellmit.setStatus(eachplatformBean.getStatus3());
+				pmAppchannelDao.saveAppChannellmit(appchannellmit);
+				
+			}else{
+			if("true".equals(eachplatformBean.getCard_type1())){//支持信用卡类型，就更新
+				appchannellmit.setAppChannelId(Long.parseLong(eachplatformBean.getId()));
+				appchannellmit.setMaxQuotaPerTime(Integer.parseInt(eachplatformBean.getMax_quota_per_time1()));
+				appchannellmit.setMaxQuotaPerDay(Integer.parseInt(eachplatformBean.getMax_quota_per_day1()));
+				appchannellmit.setSettlementInterval(eachplatformBean.getSettlementInterval1());//到账时间
+				appchannellmit.setCardType("1");
+				appchannellmit.setStatus(eachplatformBean.getStatus3());
+				pmAppchannelDao.updateChannelLmit(appchannellmit);
+				
+			}else{//不支持信用卡类型，就更新且状态禁用
+				if(StringUtil.isNotEmpty(eachplatformBean.getMax_quota_per_time1())){//有数据
+					appchannellmit.setAppChannelId(Long.parseLong(eachplatformBean.getId()));
+					appchannellmit.setMaxQuotaPerTime(Integer.parseInt(eachplatformBean.getMax_quota_per_time1()));
+					appchannellmit.setMaxQuotaPerDay(Integer.parseInt(eachplatformBean.getMax_quota_per_day1()));
+					appchannellmit.setSettlementInterval(eachplatformBean.getSettlementInterval1());//到账时间
+					appchannellmit.setCardType("1");
+					appchannellmit.setStatus("1");
+					pmAppchannelDao.updateChannelLmit(appchannellmit);
+				}
+			 }
+		 }
+	 }
+		} catch (Exception e) {
+			e.printStackTrace();
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); 
+			map.put("status", "error");
+			return map;
+		}
+		eachplatformBean=pmAppchannelDao.selectBankInfo(eachplatformBean);//查询银行信息，且封装数据
+		map.put("status", "success");
+		map.put("id",eachplatformBean.getId());
+		map.put("platform_name",eachplatformBean.getPlatform_name());
+		map.put("channel_name",eachplatformBean.getChannel_name());
+		map.put("channel_code",eachplatformBean.getChannel_code());
+		map.put("card_type0",eachplatformBean.getCard_type0());
+		map.put("card_type1",eachplatformBean.getCard_type1());
+		map.put("lmitid0",eachplatformBean.getLmitid0());
+		map.put("lmitid1",eachplatformBean.getLmitid1());
+		String max_quota_per_time0 = StringUtil.isEmpty(eachplatformBean.getMax_quota_per_time0())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(eachplatformBean.getMax_quota_per_time0()).movePointLeft(2));
+		String max_quota_per_time1 = StringUtil.isEmpty(eachplatformBean.getMax_quota_per_time1())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(eachplatformBean.getMax_quota_per_time1()).movePointLeft(2));
+		String max_quota_per_day0 = StringUtil.isEmpty(eachplatformBean.getMax_quota_per_day0())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(eachplatformBean.getMax_quota_per_day0()).movePointLeft(2));
+		String max_quota_per_day1 = StringUtil.isEmpty(eachplatformBean.getMax_quota_per_day1())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(eachplatformBean.getMax_quota_per_day1()).movePointLeft(2));
+		map.put("max_quota_per_time0",max_quota_per_time0);
+		map.put("max_quota_per_time1",max_quota_per_time1);
+		map.put("max_quota_per_day0",max_quota_per_day0);
+		map.put("max_quota_per_day1",max_quota_per_day1);
+		map.put("settlementInterval0",eachplatformBean.getSettlementInterval0());
+		map.put("settlementInterval1",eachplatformBean.getSettlementInterval1());
+		map.put("status0",eachplatformBean.getStatus0());
+		map.put("status1",eachplatformBean.getStatus1());
+		map.put("status2",eachplatformBean.getStatus2());
+		map.put("status3",eachplatformBean.getStatus3());
+		return map;
+	}
+
+}

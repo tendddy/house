@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cninsure.payment.entity">
+	<resultMap id="PMRatefeeMap" type="com.cninsure.payment.entity.PMRatefee" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+    <result column="pay_type" property="payType" jdbcType="VARCHAR" />
+    <result column="pay_id" property="payId" jdbcType="BIGINT" />
+    <result column="orderfee" property="orderfee" jdbcType="INTEGER" />
+    <result column="payfee" property="payfee" jdbcType="INTEGER" />
+    <result column="app_receivable_ratefee" property="appReceivableRatefee" jdbcType="INTEGER" />
+    <result column="app_received_ratefee" property="appReceivedRatefee" jdbcType="INTEGER" />
+    <result column="app_ratefee_status" property="appRatefeeStatus" jdbcType="CHAR" />
+    <result column="app_ratefee_time" property="appRatefeeTime" jdbcType="TIMESTAMP" />
+    <result column="payment_receivable_ratefee" property="paymentReceivableRatefee" jdbcType="INTEGER" />
+    <result column="payment_received_ratefee" property="paymentReceivedRatefee" jdbcType="INTEGER" />
+    <result column="payment_ratefee_status" property="paymentRatefeeStatus" jdbcType="CHAR" />
+    <result column="payment_ratefee_time" property="paymentRatefeeTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+	<!-- PMRatefee -->
+	<insert id="PMRatefee_insert" useGeneratedKeys="true" keyProperty="id"  parameterType="com.cninsure.payment.entity.PMRatefee">
+		insert into PMRatefee
+		(createdate,modifydate,pay_type,pay_id,orderfee,payfee,app_receivable_ratefee,app_received_ratefee,app_ratefee_status,app_ratefee_time,payment_receivable_ratefee,payment_received_ratefee,payment_ratefee_status,payment_ratefee_time) 
+		values
+		(#{createdate, jdbcType=TIMESTAMP},#{modifydate, jdbcType=TIMESTAMP},#{payType, jdbcType=VARCHAR},#{payId, jdbcType=BIGINT},#{orderfee, jdbcType=INTEGER},#{payfee, jdbcType=INTEGER},#{appReceivableRatefee, jdbcType=INTEGER},#{appReceivedRatefee, jdbcType=INTEGER},#{appRatefeeStatus, jdbcType=CHAR},#{appRatefeeTime, jdbcType=TIMESTAMP},#{paymentReceivableRatefee, jdbcType=INTEGER},#{paymentReceivedRatefee, jdbcType=INTEGER},#{paymentRatefeeStatus, jdbcType=CHAR},#{paymentRatefeeTime, jdbcType=TIMESTAMP}) 
+	</insert>
+	<select id="PMRatefee_select" parameterType="Map" resultMap="PMRatefeeMap">
+		select * from PMRatefee
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="payType != null">
+				and pay_type = #{payType, jdbcType=VARCHAR}
+			</if>
+			<if test="payId != null">
+				and pay_id = #{payId, jdbcType=BIGINT}
+			</if>
+			<if test="orderfee != null">
+				and orderfee = #{orderfee, jdbcType=INTEGER}
+			</if>
+			<if test="payfee != null">
+				and payfee = #{payfee, jdbcType=INTEGER}
+			</if>
+			<if test="appReceivableRatefee != null">
+				and app_receivable_ratefee = #{appReceivableRatefee, jdbcType=INTEGER}
+			</if>
+			<if test="appReceivedRatefee != null">
+				and app_received_ratefee = #{appReceivedRatefee, jdbcType=INTEGER}
+			</if>
+			<if test="appRatefeeStatus != null">
+				and app_ratefee_status = #{appRatefeeStatus, jdbcType=CHAR}
+			</if>
+			<if test="appRatefeeTime != null">
+				and app_ratefee_time = #{appRatefeeTime, jdbcType=TIMESTAMP}
+			</if>
+			<if test="paymentReceivableRatefee != null">
+				and payment_receivable_ratefee = #{paymentReceivableRatefee, jdbcType=INTEGER}
+			</if>
+			<if test="paymentReceivedRatefee != null">
+				and payment_received_ratefee = #{paymentReceivedRatefee, jdbcType=INTEGER}
+			</if>
+			<if test="paymentRatefeeStatus != null">
+				and payment_ratefee_status = #{paymentRatefeeStatus, jdbcType=CHAR}
+			</if>
+			<if test="paymentRatefeeTime != null">
+				and payment_ratefee_time = #{paymentRatefeeTime, jdbcType=TIMESTAMP}
+			</if>
+		</where>
+	</select>
+	<update id="PMRatefee_updateSelectiveById" parameterType="com.cninsure.payment.entity.PMRatefee" >
+		update  PMRatefee
+		<set>
+			<if test="createdate != null">
+				 createdate = #{createdate, jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifydate != null">
+				 modifydate = #{modifydate, jdbcType=TIMESTAMP},
+			</if>
+			<if test="payType != null">
+				pay_type = #{payType, jdbcType=VARCHAR},
+			</if>
+			<if test="payId != null">
+				 pay_id = #{payId, jdbcType=BIGINT},
+			</if>
+			<if test="orderfee != null">
+				 orderfee = #{orderfee, jdbcType=INTEGER},
+			</if>
+			<if test="payfee != null">
+				 payfee = #{payfee, jdbcType=INTEGER},
+			</if>
+			<if test="appReceivableRatefee != null">
+				 app_receivable_ratefee = #{appReceivableRatefee, jdbcType=INTEGER},
+			</if>
+			<if test="appReceivedRatefee != null">
+				 app_received_ratefee = #{appReceivedRatefee, jdbcType=INTEGER},
+			</if>
+			<if test="appRatefeeStatus != null">
+				 app_ratefee_status = #{appRatefeeStatus, jdbcType=CHAR},
+			</if>
+			<if test="appRatefeeTime != null">
+				 app_ratefee_time = #{appRatefeeTime, jdbcType=TIMESTAMP},
+			</if>
+			<if test="paymentReceivableRatefee != null">
+				 payment_receivable_ratefee = #{paymentReceivableRatefee, jdbcType=INTEGER},
+			</if>
+			<if test="paymentReceivedRatefee != null">
+				 payment_received_ratefee = #{paymentReceivedRatefee, jdbcType=INTEGER},
+			</if>
+			<if test="paymentRatefeeStatus != null">
+				 payment_ratefee_status = #{paymentRatefeeStatus, jdbcType=CHAR},
+			</if>
+			<if test="paymentRatefeeTime != null">
+				 payment_ratefee_time = #{paymentRatefeeTime, jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where id = #{id, jdbcType=BIGINT}
+	</update>
+	<select id="PMRatefee_selectById" parameterType="Long" resultMap="PMRatefeeMap">
+		select * from PMRatefee where id = #{id}
+	</select>
+	<select id="PMRatefee_selectByPaymentId" parameterType="Map" resultMap="PMRatefeeMap">
+		select * from PMRatefee where pay_id = #{paymentId} and pay_type=#{payType}
+	</select>
+	<select id="PMRatefee_deleteById" parameterType="Long">
+		delete from PMRatefee where id = #{id}
+	</select>
+	<select id="PMRatefee_updateById" parameterType="com.cninsure.payment.entity.PMRatefee">
+		update PMRatefee  set id = #{id, jdbcType=BIGINT},createdate = #{createdate, jdbcType=TIMESTAMP},modifydate = #{modifydate, jdbcType=TIMESTAMP},pay_type = #{payType, jdbcType=VARCHAR},pay_id = #{payId, jdbcType=BIGINT},orderfee = #{orderfee, jdbcType=INTEGER},payfee = #{payfee, jdbcType=INTEGER},app_receivable_ratefee = #{appReceivableRatefee, jdbcType=INTEGER},app_received_ratefee = #{appReceivedRatefee, jdbcType=INTEGER},app_ratefee_status = #{appRatefeeStatus, jdbcType=CHAR},app_ratefee_time = #{appRatefeeTime, jdbcType=TIMESTAMP},payment_receivable_ratefee = #{paymentReceivableRatefee, jdbcType=INTEGER},payment_received_ratefee = #{paymentReceivedRatefee, jdbcType=INTEGER},payment_ratefee_status = #{paymentRatefeeStatus, jdbcType=CHAR},payment_ratefee_time = #{paymentRatefeeTime, jdbcType=TIMESTAMP} where id = #{id}
+	</select>
+	<select id="PMRatefee_updateByPayMentId" parameterType="com.cninsure.payment.entity.PMRatefee">
+		update PMRatefee  set
+		<if test="createdate !=null">
+			createdate = #{createdate, jdbcType=TIMESTAMP}
+		</if>
+		<if test="modifydate !=null">
+			 ,modifydate = #{modifydate, jdbcType=TIMESTAMP}
+		</if>
+		<if test="orderfee !=null">
+			,orderfee = #{orderfee, jdbcType=INTEGER}
+		</if>
+		<if test="payfee !=null">
+			,payfee = #{payfee, jdbcType=INTEGER}
+		</if>
+		<if test="appReceivableRatefee !=null">
+			,app_receivable_ratefee = #{appReceivableRatefee, jdbcType=INTEGER}
+		</if>
+		<if test="appReceivedRatefee !=null">
+			,app_received_ratefee = #{appReceivedRatefee, jdbcType=INTEGER}
+		</if>
+		<if test="appRatefeeStatus !=null">
+			,app_ratefee_status = #{appRatefeeStatus, jdbcType=CHAR}
+		</if>
+		<if test="appRatefeeTime !=null">
+			,app_ratefee_time = #{appRatefeeTime, jdbcType=TIMESTAMP}
+		</if>
+		<if test="paymentReceivableRatefee !=null">
+			,payment_receivable_ratefee = #{paymentReceivableRatefee, jdbcType=INTEGER}
+		</if>
+		<if test="paymentReceivedRatefee !=null">
+			,payment_received_ratefee = #{paymentReceivedRatefee, jdbcType=INTEGER}
+		</if>
+		<if test="paymentRatefeeStatus !=null">
+			,payment_ratefee_status = #{paymentRatefeeStatus, jdbcType=CHAR}
+		</if>
+		<if test="paymentRatefeeTime !=null">
+			,payment_ratefee_time = #{paymentRatefeeTime, jdbcType=TIMESTAMP}
+		</if>
+		
+		 where pay_id = #{payId} and pay_type = #{payType}
+	</select>
+	<select id="PMRatefee_selectCount" parameterType="Map" resultType="Long">
+		select count(1) from PMRatefee
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="pay_type != null">
+				and pay_type = #{payType, jdbcType=VARCHAR}
+			</if>
+			<if test="pay_id != null">
+				and pay_id = #{payId, jdbcType=BIGINT}
+			</if>
+			<if test="orderfee != null">
+				and orderfee = #{orderfee, jdbcType=INTEGER}
+			</if>
+			<if test="payfee != null">
+				and payfee = #{payfee, jdbcType=INTEGER}
+			</if>
+			<if test="app_receivable_ratefee != null">
+				and app_receivable_ratefee = #{appReceivableRatefee, jdbcType=INTEGER}
+			</if>
+			<if test="app_received_ratefee != null">
+				and app_received_ratefee = #{appReceivedRatefee, jdbcType=INTEGER}
+			</if>
+			<if test="app_ratefee_status != null">
+				and app_ratefee_status = #{appRatefeeStatus, jdbcType=CHAR}
+			</if>
+			<if test="app_ratefee_time != null">
+				and app_ratefee_time = #{appRatefeeTime, jdbcType=TIMESTAMP}
+			</if>
+			<if test="payment_receivable_ratefee != null">
+				and payment_receivable_ratefee = #{paymentReceivableRatefee, jdbcType=INTEGER}
+			</if>
+			<if test="payment_received_ratefee != null">
+				and payment_received_ratefee = #{paymentReceivedRatefee, jdbcType=INTEGER}
+			</if>
+			<if test="payment_ratefee_status != null">
+				and payment_ratefee_status = #{paymentRatefeeStatus, jdbcType=CHAR}
+			</if>
+			<if test="payment_ratefee_time != null">
+				and payment_ratefee_time = #{paymentRatefeeTime, jdbcType=TIMESTAMP}
+			</if>
+		</where>
+	</select>
+	<select id="PMRatefee_selectOne" parameterType="Map" resultMap="PMRatefeeMap">
+		select * from PMRatefee
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="pay_type != null">
+				and pay_type = #{payType, jdbcType=VARCHAR}
+			</if>
+			<if test="pay_id != null">
+				and pay_id = #{payId, jdbcType=BIGINT}
+			</if>
+			<if test="orderfee != null">
+				and orderfee = #{orderfee, jdbcType=INTEGER}
+			</if>
+			<if test="payfee != null">
+				and payfee = #{payfee, jdbcType=INTEGER}
+			</if>
+			<if test="app_receivable_ratefee != null">
+				and app_receivable_ratefee = #{appReceivableRatefee, jdbcType=INTEGER}
+			</if>
+			<if test="app_received_ratefee != null">
+				and app_received_ratefee = #{appReceivedRatefee, jdbcType=INTEGER}
+			</if>
+			<if test="app_ratefee_status != null">
+				and app_ratefee_status = #{appRatefeeStatus, jdbcType=CHAR}
+			</if>
+			<if test="app_ratefee_time != null">
+				and app_ratefee_time = #{appRatefeeTime, jdbcType=TIMESTAMP}
+			</if>
+			<if test="payment_receivable_ratefee != null">
+				and payment_receivable_ratefee = #{paymentReceivableRatefee, jdbcType=INTEGER}
+			</if>
+			<if test="payment_received_ratefee != null">
+				and payment_received_ratefee = #{paymentReceivedRatefee, jdbcType=INTEGER}
+			</if>
+			<if test="payment_ratefee_status != null">
+				and payment_ratefee_status = #{paymentRatefeeStatus, jdbcType=CHAR}
+			</if>
+			<if test="payment_ratefee_time != null">
+				and payment_ratefee_time = #{paymentRatefeeTime, jdbcType=TIMESTAMP}
+			</if>
+		</where>
+		LIMIT 2
+	</select>
+</mapper>

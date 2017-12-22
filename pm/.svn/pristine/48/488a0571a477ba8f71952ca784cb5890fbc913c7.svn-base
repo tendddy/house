@@ -1,0 +1,56 @@
+package com.cninsure.payment.util.biz;
+
+import java.security.Key;
+import java.security.SecureRandom;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
+import org.bouncycastle.util.encoders.Base64;
+
+
+
+
+/**
+ * 
+ * @author Administrator
+ *
+ */
+public class UtilDES {
+	
+	static String Key="i8u7y6t5+=r4e3w2q1";
+
+	
+	public static String encryptDES(String encryptString) {
+		try {
+			
+			DESKeySpec dks = new DESKeySpec((Key).getBytes());
+			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+			Key secretKey = keyFactory.generateSecret(dks);
+			Cipher cipher = Cipher.getInstance("DES");
+			cipher.init(Cipher.ENCRYPT_MODE, secretKey,  new SecureRandom());
+			byte[] encryptedData = cipher.doFinal(encryptString.getBytes("UTF-8"));
+			return new String(Base64.encode(encryptedData));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}	
+	
+	public static String decryptDES(String decryptString) {
+		try {
+			DESKeySpec dks = new DESKeySpec((Key).getBytes());
+			SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+			Key secretKey = keyFactory.generateSecret(dks);
+			Cipher cipher = Cipher.getInstance("DES");
+			cipher.init(Cipher.DECRYPT_MODE, secretKey,  new SecureRandom());
+			byte decryptedData[] = cipher.doFinal(Base64.decode(decryptString.getBytes()));
+			return new String(decryptedData,"UTF-8");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+
+
+}

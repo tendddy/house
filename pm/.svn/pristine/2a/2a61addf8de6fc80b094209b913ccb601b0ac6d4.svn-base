@@ -1,0 +1,107 @@
+package com.cninsure.payment.util;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+
+import com.alibaba.fastjson.JSONObject;
+import com.qcloud.cos.meta.FileAuthority;
+import com.qcloud.cos.request.UpdateFileRequest;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration(value = "src/main/webapp")
+@ContextConfiguration(locations = { "classpath:config/spring-config.xml", "classpath:config/spring-security-config.xml",
+		"classpath:config/spring-mvc-config.xml", "classpath:config/spring-config-db.xml", })
+public class COSUtilTest {
+
+	@Test
+	public void uploadTest()
+	{
+		JSONObject result = CosUtil.uploadFile("/test/" + System.currentTimeMillis(),
+				"C:\\Users\\tongchang\\Desktop\\welcome.html");
+		System.out.println(result);
+		result = CosUtil.uploadFile("/test/" + System.currentTimeMillis(), new byte[2]);
+		System.out.println(result);
+	}
+
+	@Test
+	public void downloadTest()
+	{
+		JSONObject result = CosUtil.downloadFile("/test/1489477492193", "C:\\Users\\tongchang\\Desktop\\file.download");
+		System.out.println(result);
+	}
+
+	@Test
+	public void moveFileTest()
+	{
+		JSONObject result = CosUtil.moveFile("/test/1489484553209", "/temp");
+		System.out.println(result);
+	}
+
+	@Test
+	public void statFile()
+	{
+		JSONObject result = CosUtil.statFile("/temp");
+		System.out.println(result);
+	}
+
+	@Test
+	public void updateFile()
+	{
+		UpdateFileRequest updateFileRequest = new UpdateFileRequest("payment", "/temp");
+		updateFileRequest.setAuthority(FileAuthority.WPRIVATE);
+		updateFileRequest.setCacheControl("no cache");
+		updateFileRequest.setContentDisposition("cos_sample.txt");
+		updateFileRequest.setContentLanguage("english");
+		updateFileRequest.setContentType("application/json");
+		updateFileRequest.setXCosMeta("x-cos-meta-xxx", "xxx");
+		updateFileRequest.setXCosMeta("x-cos-meta-yyy", "yyy");
+		JSONObject result = CosUtil.updateFile(updateFileRequest);
+		System.out.println(result);
+	}
+
+	@Test
+	public void delFile()
+	{
+		JSONObject result = CosUtil.delFile("/temp");
+		System.out.println(result);
+	}
+
+	@Test
+	public void createFolder()
+	{
+		JSONObject result = CosUtil.createFolder("/temp/", "temp目录");
+		System.out.println(result);
+	}
+
+	@Test
+	public void statFolder()
+	{
+		JSONObject result = CosUtil.statFolder("/temp/");
+		System.out.println(result);
+	}
+
+	@Test
+	public void updateFolder()
+	{
+		JSONObject result = CosUtil.updateFolder("/temp/", "updated");
+		System.out.println(result);
+	}
+
+	@Test
+	public void listFolder()
+	{
+		JSONObject result = CosUtil.listFolder("/test/");
+		System.out.println(result);
+	}
+
+	@Test
+	public void delFolder()
+	{
+		JSONObject result = CosUtil.delFolder("/test/");
+		System.out.println(result);
+
+	}
+}

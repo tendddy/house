@@ -1,0 +1,285 @@
+package com.cninsure.payment.service.impl;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.quartz.Scheduler;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.core.dao.impl.BaseServiceImpl;
+import com.cninsure.core.utils.BeanUtils;
+import com.cninsure.payment.dao.PMAPPcustomDao;
+import com.cninsure.payment.dao.PMAPPcustomaccountDao;
+import com.cninsure.payment.dao.PMAPPcustombillDao;
+import com.cninsure.payment.dao.PMAPPcustomwithdrawDao;
+import com.cninsure.payment.dao.PMBankcardDao;
+import com.cninsure.payment.dao.PMLogRecordsDao;
+import com.cninsure.payment.dao.PMPaymentplatformDao;
+import com.cninsure.payment.entity.PMAPPcustom;
+import com.cninsure.payment.entity.PMAPPcustomaccount;
+import com.cninsure.payment.entity.PMAPPcustombill;
+import com.cninsure.payment.entity.PMAPPcustomwithdraw;
+import com.cninsure.payment.entity.PMBankcard;
+import com.cninsure.payment.entity.PMLogRecords;
+import com.cninsure.payment.enumm.BillInOrOutEnum;
+import com.cninsure.payment.enumm.BillStatusEnum;
+import com.cninsure.payment.enumm.BillTypeEnum;
+import com.cninsure.payment.enumm.WithdrawStatusEnum;
+import com.cninsure.payment.model.BaseModel;
+import com.cninsure.payment.model.CustomAccountModel;
+import com.cninsure.payment.model.CustomWalletModel;
+import com.cninsure.payment.service.PMAPPcustomService;
+import com.cninsure.payment.util.TxCore;
+
+import payment.api.tx.realgathering.Tx2011Request;
+import payment.api.tx.realgathering.Tx2011Response;
+import payment.tools.util.GUID;
+import payment.tools.util.StringUtil;
+
+@Service
+@Transactional
+public class PMAPPcustomServiceImpl extends BaseServiceImpl<PMAPPcustom, Long> implements PMAPPcustomService {
+	@Resource
+	private PMAPPcustomDao customDao;
+	@Resource
+	private PMAPPcustomaccountDao customAccountDao;
+	@Resource
+	private PMAPPcustombillDao customBillDao;
+	@Resource
+	private PMAPPcustomwithdrawDao customWithdrawDao;
+	@Resource
+	private PMBankcardDao bankcardDao;
+	@Resource
+	private PMPaymentplatformDao paymentplatformDao;
+	@Resource
+	private PMLogRecordsDao logRecordsDao;
+	@Resource
+	public Scheduler sched;
+	@Resource
+	public ThreadPoolTaskExecutor taskExecutor;
+
+	@Value("${tx.institutionID}")
+	private String txInstitutionID;
+
+	@Override
+	protected BaseDao<PMAPPcustom, Long> getBaseDao()
+	{
+		return customDao;
+	}
+
+	@Override
+	public boolean checkPaypwd(Map<String, Object> param)
+	{
+		long count = customDao.queryCustomPayPwd(param);
+		if (count == 1)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public BaseModel accountRecharge(CustomWalletModel customWalletModel)
+	{
+		BaseModel result = new BaseModel();
+		// 得到订单绑定银行卡信息
+		PMBankcard bankCardModel = bankcardDao.selectDataByProtocolid(customWalletModel.getProtocalId());
+
+		result = orderPay4Tx2011(customWalletModel, bankCardModel);
+
+		// 支付成功
+		if ("OK".equals(result.getStatus()))
+		{
+			// 账户余额增加
+			CustomAccountModel customAccountModel = customAccountDao.queryCustomAccount(BeanUtils.toMap(customWalletModel));
+			BigDecimal totalOld = new BigDecimal(
+					StringUtil.isEmpty(customAccountModel.getTotalMoney()) ? "0" : customAccountModel.getTotalMoney());
+			BigDecimal totalNew = totalOld.add(new BigDecimal(customWalletModel.getAmount()));
+			PMAPPcustomaccount customAccount = new PMAPPcustomaccount();
+			customAccount.setId(customAccountModel.getId());
+			customAccount.setOperator("");
+			customAccount.setModifytime(new Date());
+			customAccount.setTotalmoney(totalNew.toString());
+			customAccountDao.updateByIdSelective(customAccount);
+			// 记账
+			PMAPPcustombill bill = new PMAPPcustombill();
+			bill.setAmount(customWalletModel.getAmount());
+			bill.setBilltype(BillTypeEnum.RECHARGE.getValue());
+			bill.setBilldate(new Date());
+			bill.setCreatetime(new Date());
+			bill.setInorout(BillInOrOutEnum.IN.getValue());
+			bill.setNoti("");
+			bill.setPmappcustom_id(customAccountModel.getPmappcustomId());
+			bill.setStatus(BillStatusEnum.SUCCESS.getValue());
+			customBillDao.insert(bill);
+		}
+		return result;
+
+	}
+
+	private BaseModel orderPay4Tx2011(CustomWalletModel customWalletModel, PMBankcard bankCardModel)
+	{
+		BaseModel result = new BaseModel();
+		Tx2011Request tx2011Request = setTx2011Request(customWalletModel, bankCardModel);
+
+		PMLogRecords pmLogRecords = new PMLogRecords();
+		pmLogRecords.setCreatedate(new Date());
+		pmLogRecords.setAppId(Long.valueOf(customWalletModel.getAppId()));
+		pmLogRecords.setPaymentId(null);
+		pmLogRecords.setAppOrderid(null);
+		pmLogRecords.setPlatformUserId(String.valueOf(customWalletModel.getAppUserId()));
+		pmLogRecords.setProductId(null);
+		pmLogRecords.setInterfaceType(0);
+		pmLogRecords.setInterfaceName("单笔代收");
+		pmLogRecords.setInterfaceMethod("2011");
+		net.sf.json.JSONObject Request = net.sf.json.JSONObject.fromObject(tx2011Request);
+		System.out.println("2011Request.toString()" + Request.toString());
+		pmLogRecords.setRequestParams(Request.toString());
+		logRecordsDao.insertLogRecords(pmLogRecords);
+		// 启动定时任务
+		// 开个timeout2011定时任务(4秒延时处理,3秒执行一次，执行4次)用于查询，防止参数过去了，而且返回报文因断网而丢失，通过查询状态更新平台订单信息
+		// String jobName = "tx2011_" + pmLogRecords.getId() + "_" +
+		// paymentMainModel.getPayProtocolid();
+		// quartzUtil.timeOut4TxQuartz(sched, jobName, "timeout2011", "2011");
+		String[] respMsg = TxCore.handlerParam(tx2011Request, "2011", "单笔代收");
+		Tx2011Response zhongjinResponse = null;
+		try
+		{
+			zhongjinResponse = new Tx2011Response(respMsg[0], respMsg[1]);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			System.out.println("2011接口反馈报文失败");
+			pmLogRecords.setRemark("2011接口反馈报文失败");
+		}
+		net.sf.json.JSONObject Response = net.sf.json.JSONObject.fromObject(zhongjinResponse);
+		System.out.println("2011Response.toString()" + Response.toString());
+		pmLogRecords.setResponseParams(Response.toString());
+		logRecordsDao.updateLogRecordsOfResponse(pmLogRecords);
+		if ("2000".equals(zhongjinResponse.getCode()))
+		{
+
+			// 有个4秒延时处理，当2011接口报文反馈回来，关闭timeout2011定时任务
+			// 取消开始90秒定时任务
+			// quartzUtil.deleteHistoryJob(sched, jobName, "timeout2011");
+
+			if (zhongjinResponse.getStatus() == 20)
+			{
+				result.setMessage("支付中");
+				result.setStatus("REST");
+				// 正在处理马上开始查询
+				// quartzUtil.poll4TxQuartz(sched, jobName, "poll2011", "2011");
+			}
+			else if (zhongjinResponse.getStatus() == 30)
+			{
+				// PMPayment updateSatusPaymentModel = new PMPayment();
+				// updateSatusPaymentModel.setId(paymentMainModel.getId());
+				// updateSatusPaymentModel.setStatus("2");
+				// pmPaymentDao.updateByIdSelective(updateSatusPaymentModel);
+				// //更新订单产品信息为支付成功
+				// productsDao.updateProductsStatusByPaymentId(paymentMainModel.getId(),"2");
+				// 接口操作日志状态更新
+				logRecordsDao.updateLogStatusById(pmLogRecords.getId());
+				// 费用统计
+				// ratefeeService.netReceiptsAppRateFee(paymentMainModel.getId(),
+				// paymentMainModel.getAppId(),
+				// paymentMainModel.getOrderfee(),"0");
+				// ratefeeService.netReceiptsPaymentRateFee(paymentMainModel.getId(),
+				// paymentMainModel.getPlatformId(),
+				// paymentMainModel.getOrderfee(),"0");
+				result.setMessage("支付成功");
+				result.setStatus("OK");
+			}
+			else if (zhongjinResponse.getStatus() == 40)
+			{
+				result.setMessage("支付失败");
+				result.setStatus("FAIL");
+			}
+		}
+		else
+		{
+			// 支付失败记录失败日志
+			result.setMessage("支付失败");
+			result.setStatus("FAIL");
+		}
+		return result;
+
+	}
+
+	private Tx2011Request setTx2011Request(CustomWalletModel customWalletModel, PMBankcard pmBankCard)
+	{
+		Tx2011Request tx2011Request = new Tx2011Request();
+		tx2011Request.setAmount(StringUtil.isEmpty(customWalletModel.getAmount()) ? 0l : Long.parseLong(customWalletModel.getAmount()));
+		tx2011Request.setInstitutionID(txInstitutionID);
+		tx2011Request.setTxSN(GUID.generateGUID());
+		// 将bankCode转换为第三方支付平台的bankCode
+		String bankcode = paymentplatformDao.getBankCodeByName("中金", pmBankCard.getBankcode());
+		tx2011Request.setBankID(bankcode); // 必填--银行ID
+		tx2011Request.setAccountType(11); // 账户类型： 11=个人账户 12=企业账户
+		tx2011Request.setValidDate(pmBankCard.getValiddate());// 当代扣信用卡时，该项必填
+		tx2011Request.setCvn2(pmBankCard.getCvn2());// 当代扣信用卡时，该项必填
+		tx2011Request.setAccountName(pmBankCard.getCustomname());
+		tx2011Request.setAccountNumber(pmBankCard.getCustomcardno());
+		tx2011Request.setBranchName("");
+		tx2011Request.setProvince("");// 当AccountType=12时，该项必填
+		tx2011Request.setCity("");// 当AccountType=12时，该项必填
+		tx2011Request.setIdentificationType(pmBankCard.getIdentificationType()); // 当AccountType=11时，该项必填
+		tx2011Request.setIdentificationNumber(pmBankCard.getIdentificationNumber()); // 当AccountType=11时，该项必填
+		tx2011Request.setNote("");
+		tx2011Request.setContractUserID("");
+		tx2011Request.setPhoneNumber(pmBankCard.getCustomphone());
+		tx2011Request.setEmail("");
+		tx2011Request.setSettlementFlag("0001");// 结算标识， 默认SettlementFlag=0001
+
+		return tx2011Request;
+	}
+
+	@Override
+	public BaseModel accountWithdrawApply(CustomWalletModel customWalletModel)
+	{
+
+		BaseModel result = new BaseModel();
+		// 查询余额
+		CustomAccountModel customAccountModel = customAccountDao.queryCustomAccount(BeanUtils.toMap(customWalletModel));
+
+		BigDecimal totalOld = new BigDecimal(
+				StringUtil.isEmpty(customAccountModel.getTotalMoney()) ? "0" : customAccountModel.getTotalMoney());
+		BigDecimal totalNew = totalOld.subtract(new BigDecimal(customWalletModel.getAmount()));
+		if (totalNew.compareTo(new BigDecimal("0")) < 0)
+		{
+			result.setStatus("Error");
+			result.setMessage("余额不足");
+			return result;
+		}
+
+		PMAPPcustomaccount customAccount = new PMAPPcustomaccount();
+		customAccount.setId(customAccountModel.getId());
+		customAccount.setOperator("");
+		customAccount.setModifytime(new Date());
+		customAccount.setTotalmoney(totalNew.toString());
+		customAccountDao.updateByIdSelective(customAccount);
+		// 待审核
+		PMAPPcustomwithdraw withdraw = new PMAPPcustomwithdraw();
+		withdraw.setAmount(Long.valueOf(customWalletModel.getAmount()));
+		withdraw.setApplytime(new Date());
+		withdraw.setCreatetime(new Date());
+		withdraw.setOperator("");
+		withdraw.setPmappcustom_id(customAccountModel.getPmappcustomId());
+		withdraw.setStatus(WithdrawStatusEnum.VERIFY_WAITING.getValue());
+		withdraw.setBindprotocolid(customWalletModel.getProtocalId());
+		customWithdrawDao.insert(withdraw);
+
+		result.setStatus("Ok");
+		result.setMessage("申请成功");
+		return result;
+	}
+
+}

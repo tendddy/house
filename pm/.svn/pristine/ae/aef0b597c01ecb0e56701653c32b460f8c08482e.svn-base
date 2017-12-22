@@ -1,0 +1,153 @@
+package com.cninsure.payment.entity;
+
+import java.io.Serializable;
+
+import java.util.Date;
+
+public class PMAPPcustom implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 主键
+	 */
+	private Long id;
+
+	/**
+	 * 操作员
+	 */
+	private String operator;
+
+	/**
+	 * 创建时间
+	 */
+	private Date createtime;
+
+	/**
+	 * 修改时间
+	 */
+	private Date modifytime;
+
+	/**
+	 * 备注
+	 */
+	private String noti;
+
+	/**
+	 * 第三方平台id
+	 */
+	private Long app_id;
+
+	/**
+	 * 第三方用户id
+	 */
+	private String app_user_id;
+
+	/**
+	 * 第三方用户姓名
+	 */
+	private String app_user_name;
+
+	/**
+	 * 第三方用户身份证
+	 */
+	private String app_user_idno;
+
+	/**
+	 * 登录密码
+	 */
+	private String login_pwd;
+
+	/**
+	 * 支付密码
+	 */
+	private String pay_pwd;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getOperator() {
+		return operator;
+	}
+
+	public void setOperator(String operator) {
+		this.operator = operator;
+	}
+
+	public Date getCreatetime() {
+		return createtime;
+	}
+
+	public void setCreatetime(Date createtime) {
+		this.createtime = createtime;
+	}
+
+	public Date getModifytime() {
+		return modifytime;
+	}
+
+	public void setModifytime(Date modifytime) {
+		this.modifytime = modifytime;
+	}
+
+	public String getNoti() {
+		return noti;
+	}
+
+	public void setNoti(String noti) {
+		this.noti = noti;
+	}
+
+	public Long getApp_id() {
+		return app_id;
+	}
+
+	public void setApp_id(Long app_id) {
+		this.app_id = app_id;
+	}
+
+	public String getApp_user_id() {
+		return app_user_id;
+	}
+
+	public void setApp_user_id(String app_user_id) {
+		this.app_user_id = app_user_id;
+	}
+
+	public String getApp_user_name() {
+		return app_user_name;
+	}
+
+	public void setApp_user_name(String app_user_name) {
+		this.app_user_name = app_user_name;
+	}
+
+	public String getApp_user_idno() {
+		return app_user_idno;
+	}
+
+	public void setApp_user_idno(String app_user_idno) {
+		this.app_user_idno = app_user_idno;
+	}
+
+	public String getLogin_pwd() {
+		return login_pwd;
+	}
+
+	public void setLogin_pwd(String login_pwd) {
+		this.login_pwd = login_pwd;
+	}
+
+	public String getPay_pwd() {
+		return pay_pwd;
+	}
+
+	public void setPay_pwd(String pay_pwd) {
+		this.pay_pwd = pay_pwd;
+	}
+
+}

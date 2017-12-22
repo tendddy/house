@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cninsure.payment.entity">
+<resultMap id="PMPaychannelbakMap" type="com.cninsure.payment.entity.PMPaychannelbak" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <id column="bak_id" property="bakId" jdbcType="BIGINT" />
+    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+    <result column="payment_id" property="paymentId" jdbcType="BIGINT" />
+    <result column="channel_type" property="channelType" jdbcType="CHAR" />
+    <result column="channel_name" property="channelName" jdbcType="VARCHAR" />
+    <result column="channel_code" property="channelCode" jdbcType="VARCHAR" />
+    <result column="channel_logo" property="channelLogo" jdbcType="VARCHAR" />
+    <result column="arrival_time" property="arrivalTime" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="CHAR" />
+  </resultMap>
+	<!-- PMPaychannelbak -->
+	<insert id="PMPaychannelbak_insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.cninsure.payment.entity.PMPaychannelbak">
+		insert into PMPaychannelbak
+		(bak_id,id,createdate,modifydate,payment_id,channel_type,channel_name,channel_code,channel_logo,arrival_time,status) 
+		values
+		(#{bakId, jdbcType=BIGINT},#{id, jdbcType=BIGINT},#{createdate, jdbcType=TIMESTAMP},#{modifydate, jdbcType=TIMESTAMP},#{paymentId, jdbcType=BIGINT},#{channelType, jdbcType=CHAR},#{channelName, jdbcType=VARCHAR},#{channelCode, jdbcType=VARCHAR},#{channelLogo, jdbcType=VARCHAR},#{arrivalTime, jdbcType=INTEGER},#{status, jdbcType=CHAR}) 
+	</insert>
+	<select id="PMPaychannelbak_select" parameterType="Map" resultMap="PMPaychannelbakMap">
+		select * from PMPaychannelbak
+		<where>
+			<if test="bak_id != null">
+				and bak_id = #{bakId, jdbcType=BIGINT}
+			</if>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="paymentId != null">
+				and payment_id = #{paymentId, jdbcType=BIGINT}
+			</if>
+			<if test="channelType != null">
+				and channel_type = #{channelType, jdbcType=CHAR}
+			</if>
+			<if test="channelName != null">
+				and channel_name = #{channelName, jdbcType=VARCHAR}
+			</if>
+			<if test="channelCode != null">
+				and channel_code = #{channelCode, jdbcType=VARCHAR}
+			</if>
+			<if test="channelLogo != null">
+				and channel_logo = #{channelLogo, jdbcType=VARCHAR}
+			</if>
+			<if test="arrivalTime != null">
+				and arrival_time = #{arrivalTime, jdbcType=INTEGER}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMPaychannelbak_selectById" parameterType="Long" resultMap="PMPaychannelbakMap">
+		select * from PMPaychannelbak where id = #{id}
+	</select>
+	<select id="PMPaychannelbak_deleteById" parameterType="Long">
+		delete from PMPaychannelbak where id = #{id}
+	</select>
+	<select id="PMPaychannelbak_updateById" parameterType="com.cninsure.payment.entity.PMPaychannelbak">
+		update PMPaychannelbak  set bak_id = #{bakId, jdbcType=BIGINT},id = #{id, jdbcType=BIGINT},createdate = #{createdate, jdbcType=TIMESTAMP},modifydate = #{modifydate, jdbcType=TIMESTAMP},payment_id = #{paymentId, jdbcType=BIGINT},channel_type = #{channelType, jdbcType=CHAR},channel_name = #{channelName, jdbcType=VARCHAR},channel_code = #{channelCode, jdbcType=VARCHAR},channel_logo = #{channelLogo, jdbcType=VARCHAR},arrival_time = #{arrivalTime, jdbcType=INTEGER},status = #{status, jdbcType=CHAR} where id = #{id}
+	</select>
+	<select id="PMPaychannelbak_selectCount" parameterType="Map" resultType="Long">
+		select count(1) from PMPaychannelbak
+		<where>
+			<if test="bak_id != null">
+				and bak_id = #{bakId, jdbcType=BIGINT}
+			</if>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="paymentId != null">
+				and payment_id = #{paymentId, jdbcType=BIGINT}
+			</if>
+			<if test="channelType != null">
+				and channel_type = #{channelType, jdbcType=CHAR}
+			</if>
+			<if test="channelName != null">
+				and channel_name = #{channelName, jdbcType=VARCHAR}
+			</if>
+			<if test="channelCode != null">
+				and channel_code = #{channelCode, jdbcType=VARCHAR}
+			</if>
+			<if test="channelLogo != null">
+				and channel_logo = #{channelLogo, jdbcType=VARCHAR}
+			</if>
+			<if test="arrivalTime != null">
+				and arrival_time = #{arrivalTime, jdbcType=INTEGER}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMPaychannelbak_selectOne" parameterType="Map" resultMap="PMPaychannelbakMap">
+		select * from PMPaychannelbak
+		<where>
+			<if test="bak_id != null">
+				and bak_id = #{bakId, jdbcType=BIGINT}
+			</if>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="paymentId != null">
+				and payment_id = #{paymentId, jdbcType=BIGINT}
+			</if>
+			<if test="channelType != null">
+				and channel_type = #{channelType, jdbcType=CHAR}
+			</if>
+			<if test="channelName != null">
+				and channel_name = #{channelName, jdbcType=VARCHAR}
+			</if>
+			<if test="channelCode != null">
+				and channel_code = #{channelCode, jdbcType=VARCHAR}
+			</if>
+			<if test="channelLogo != null">
+				and channel_logo = #{channelLogo, jdbcType=VARCHAR}
+			</if>
+			<if test="arrivalTime != null">
+				and arrival_time = #{arrivalTime, jdbcType=INTEGER}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+		</where>
+		LIMIT 2
+	</select>
+</mapper>

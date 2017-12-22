@@ -1,0 +1,41 @@
+package com.cninsure.payment.enumm;
+
+/**
+ * 交易状态
+ * 
+ * @author tongchang
+ *
+ */
+public enum BillStatusEnum {
+	SUCCESS("01", "支付成功"), FAIL("02", "支付失败"), VERIFYING("03", "审核中");
+
+	BillStatusEnum(String value, String name) {
+		this.value = value;
+		this.name = name;
+	}
+
+	private final String value;
+	private final String name;
+
+	public String getValue()
+	{
+		return value;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public static BillStatusEnum getEnum(String value)
+	{
+
+		for (BillStatusEnum e : values())
+		{
+			if (e.getValue().equals(value))
+				return e;
+		}
+		throw new IllegalArgumentException("No such Enum ! value : " + value);
+	}
+
+}

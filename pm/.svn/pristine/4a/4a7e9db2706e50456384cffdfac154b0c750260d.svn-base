@@ -1,0 +1,26 @@
+package com.cninsure.payment.service.impl;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.core.dao.impl.BaseServiceImpl;
+import com.cninsure.payment.dao.PMAPPcustomDao;
+import com.cninsure.payment.entity.PMAPPcustom;
+import com.cninsure.payment.service.PMAPPcustomService;
+
+@Service
+@Transactional
+public class PMAPPcustomServiceImpl extends BaseServiceImpl<PMAPPcustom,Long> implements
+		PMAPPcustomService {
+	@Resource
+	private PMAPPcustomDao pmapPcustomDao;
+
+	@Override
+	protected BaseDao<PMAPPcustom,Long> getBaseDao() {
+		return pmapPcustomDao;
+	}
+
+}

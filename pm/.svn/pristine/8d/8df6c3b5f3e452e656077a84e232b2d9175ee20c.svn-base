@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cninsure.payment.dao.PMBanksMapper" >
+  <resultMap id="BaseResultMap" type="com.cninsure.payment.entity.PMBanks" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="channel_type" property="channelType" jdbcType="CHAR" />
+    <result column="bank_name" property="bankName" jdbcType="VARCHAR" />
+    <result column="bank_code" property="bankCode" jdbcType="VARCHAR" />
+    <result column="bank_logo" property="bankLogo" jdbcType="VARCHAR" />
+    <result column="bank_order" property="bankOrder" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="suport_payment_banks" property="suportPaymentBanks" jdbcType="VARCHAR" />
+    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ShowBankCardModelResultMap" type="com.cninsure.payment.model.ShowBankCardModel" >
+  	<result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="card_type" property="cardType" jdbcType="VARCHAR" />
+    <result column="bank_name" property="bankName" jdbcType="VARCHAR" />
+    <result column="bank_code" property="bankCode" jdbcType="VARCHAR" />
+    <result column="bank_order" property="bankOrder" jdbcType="INTEGER" />
+    <result column="bank_logo" property="bankLogo" jdbcType="VARCHAR" />
+    <result column="bank_card_no" property="bankCardNo" jdbcType="VARCHAR" />
+    <result column="protocol_id" property="protocolId" jdbcType="VARCHAR" />
+    <result column="custom_phone" property="customphone" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    b.id, b.channel_type, b.bank_name, b.bank_code, b.bank_logo, b.bank_order, b.status, b.suport_payment_banks, 
+    b.createdate, b.modifydate
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from PMBanks b
+    where b.id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from PMBanks
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.cninsure.payment.entity.PMBanks" >
+    <selectKey resultType="java.lang.Long" keyProperty="id" order="BEFORE" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into PMBanks (id, channel_type, bank_name, 
+      bank_code, bank_logo, bank_order, 
+      status, suport_payment_banks, createdate, 
+      modifydate)
+    values (#{id,jdbcType=BIGINT}, #{channelType,jdbcType=CHAR}, #{bankName,jdbcType=VARCHAR}, 
+      #{bankCode,jdbcType=VARCHAR}, #{bankLogo,jdbcType=VARCHAR}, #{bankOrder,jdbcType=INTEGER}, 
+      #{status,jdbcType=CHAR}, #{suportPaymentBanks,jdbcType=VARCHAR}, #{createdate,jdbcType=TIMESTAMP}, 
+      #{modifydate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.cninsure.payment.entity.PMBanks" >
+    <selectKey resultType="java.lang.Long" keyProperty="id" order="BEFORE" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into PMBanks
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      id,
+      <if test="channelType != null" >
+        channel_type,
+      </if>
+      <if test="bankName != null" >
+        bank_name,
+      </if>
+      <if test="bankCode != null" >
+        bank_code,
+      </if>
+      <if test="bankLogo != null" >
+        bank_logo,
+      </if>
+      <if test="bankOrder != null" >
+        bank_order,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="suportPaymentBanks != null" >
+        suport_payment_banks,
+      </if>
+      <if test="createdate != null" >
+        createdate,
+      </if>
+      <if test="modifydate != null" >
+        modifydate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      #{id,jdbcType=BIGINT},
+      <if test="channelType != null" >
+        #{channelType,jdbcType=CHAR},
+      </if>
+      <if test="bankName != null" >
+        #{bankName,jdbcType=VARCHAR},
+      </if>
+      <if test="bankCode != null" >
+        #{bankCode,jdbcType=VARCHAR},
+      </if>
+      <if test="bankLogo != null" >
+        #{bankLogo,jdbcType=VARCHAR},
+      </if>
+      <if test="bankOrder != null" >
+        #{bankOrder,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="suportPaymentBanks != null" >
+        #{suportPaymentBanks,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifydate != null" >
+        #{modifydate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.cninsure.payment.entity.PMBanks" >
+    update PMBanks
+    <set >
+      <if test="channelType != null" >
+        channel_type = #{channelType,jdbcType=CHAR},
+      </if>
+      <if test="bankName != null" >
+        bank_name = #{bankName,jdbcType=VARCHAR},
+      </if>
+      <if test="bankCode != null" >
+        bank_code = #{bankCode,jdbcType=VARCHAR},
+      </if>
+      <if test="bankLogo != null" >
+        bank_logo = #{bankLogo,jdbcType=VARCHAR},
+      </if>
+      <if test="bankOrder != null" >
+        bank_order = #{bankOrder,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="suportPaymentBanks != null" >
+        suport_payment_banks = #{suportPaymentBanks,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null" >
+        createdate = #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifydate != null" >
+        modifydate = #{modifydate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.cninsure.payment.entity.PMBanks" >
+    update PMBanks
+    set channel_type = #{channelType,jdbcType=CHAR},
+      bank_name = #{bankName,jdbcType=VARCHAR},
+      bank_code = #{bankCode,jdbcType=VARCHAR},
+      bank_logo = #{bankLogo,jdbcType=VARCHAR},
+      bank_order = #{bankOrder,jdbcType=INTEGER},
+      status = #{status,jdbcType=CHAR},
+      suport_payment_banks = #{suportPaymentBanks,jdbcType=VARCHAR},
+      createdate = #{createdate,jdbcType=TIMESTAMP},
+      modifydate = #{modifydate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="PMBanks_selectbanksidByChannelName" resultType="String" parameterType="String" >
+    select suport_payment_banks from pmbanks
+    where bank_name = #{_parameter }
+  </select>
+  <update id="PMBanks_updateBankIDByChannelName" parameterType="Map" >
+    update pmbanks
+    set suport_payment_banks = #{ids,jdbcType=VARCHAR},
+      modifydate = sysdate()
+    where bank_name = #{channelName,jdbcType=VARCHAR}
+  </update>
+  <select id="PMBanks_getConfigListCount" resultType="long" parameterType="Map">
+		select count(1) from pmbanks
+		<where>
+			<if test="bankName != null and bankName != ''">
+				and bank_name like concat('%',#{bankName},'%')  
+			</if>
+			 <if test="status != null and status != ''">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+			
+		</where>
+	</select>
+	<select id="PMBanks_selectConfigList" resultType="Map" parameterType="Map">
+		select id,channel_type channelType,bank_name bankName,bank_code bankCode,bank_order bankOrder,`status`,bank_logo bankLogo from pmbanks 
+		<where>
+			<if test="bankName != null and bankName != ''">
+				and bank_name like concat('%',#{bankName},'%')  
+			</if>
+			<if test="status != null and status != ''">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+		</where>
+		<if test="sort != null and order != null">
+			order by ${sort}  ${order}
+		</if>
+		<if test="sort == null">
+			order by bank_order desc
+		</if>
+		limit #{offset},#{limit}
+	</select>
+	<select id="PMBanks_getBanksList" parameterType="String" resultMap="BaseResultMap">
+		select `id`,`channel_type` channelType,`bank_name` bankName,`bank_code` bankCode,`bank_order` bankOrder, `status`,`bank_logo` bankLogo,`createdate`,`modifydate`
+		from pmbanks where id=#{_parameter }
+	</select>
+	<select id="PMBanks_getMaxBankOrder" parameterType="String" resultType="String">
+		select max(bank_order) from pmbanks
+	</select>
+	<insert id="PMBanks_saveBanks" parameterType="com.cninsure.payment.entity.PMBanks" useGeneratedKeys="true" keyProperty="id" >
+		INSERT INTO `pmbanks` (`createdate`, `modifydate`, `bank_code`, `bank_name`, `bank_order`,`status`,`channel_type`,`bank_logo`) VALUES (
+		 sysdate(),sysdate(), 'fh', #{bankName, jdbcType=VARCHAR}, #{bankOrder,jdbcType=INTEGER}, #{status, jdbcType=CHAR}, #{channelType, jdbcType=CHAR},#{bankLogo, jdbcType=VARCHAR})
+	</insert>
+	<insert id="PMBanks_saveImageInfo" parameterType="com.cninsure.payment.entity.PMImage">
+		INSERT INTO `pmimage` (`createdate`, `modifydate`, `object_type`, `object_id`, `path`, `name`, `old_name`, `size`, `type`, `status`) VALUES (
+		sysdate(),sysdate(),#{objectType, jdbcType=INTEGER},#{objectId, jdbcType=BIGINT},#{path, jdbcType=VARCHAR},#{name, jdbcType=VARCHAR},
+		#{oldName, jdbcType=VARCHAR},#{size, jdbcType=INTEGER},#{type, jdbcType=VARCHAR},#{status, jdbcType=CHAR})
+	</insert>
+	<select id="PMBanks_updateImageInfo" parameterType="com.cninsure.payment.entity.PMImage" resultType="int">
+		UPDATE pmimage SET `modifydate`=SYSDATE(), `object_type`=#{objectType, jdbcType=INTEGER}, 
+			 `path`=#{path, jdbcType=VARCHAR}, `name`=#{name, jdbcType=VARCHAR}, `old_name`=#{oldName, jdbcType=VARCHAR},
+			  `size`=#{size, jdbcType=INTEGER}, `type`=#{type, jdbcType=VARCHAR}, `status`=#{status, jdbcType=CHAR} 
+			  WHERE `object_id`=#{objectId, jdbcType=BIGINT} and object_type=#{objectType, jdbcType=INTEGER} 
+	</select>
+	<select id="PMBanks_getUploadPath" parameterType="String" resultType="String">
+		select CODECODE from codemanage
+		<where>
+			<if test="_parameter != null and _parameter != ''">
+				and CODETYPE = #{_parameter, jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMBanks_updateBanksName" parameterType="com.cninsure.payment.entity.PMBanks" resultType="int">
+			UPDATE pmbanks SET  `bank_code`=#{bankCode, jdbcType=VARCHAR},`modifydate`=SYSDATE() where id=#{id, jdbcType=BIGINT}
+	</select>
+	<select id="PMBanks_updateBanks" parameterType="com.cninsure.payment.entity.PMBanks" resultType="int">
+		UPDATE pmbanks SET  modifydate=sysdate(),bank_name=#{bankName,jdbcType=VARCHAR},
+		bank_order=#{bankOrder,jdbcType=INTEGER},
+		status=#{status,jdbcType=CHAR},
+		channel_type=#{channelType,jdbcType=VARCHAR},
+		bank_logo=#{bankLogo, jdbcType=VARCHAR}
+		<!-- <if test="bankLogo != null and bankLogo != ''">
+				`bank_logo`=#{bankLogo, jdbcType=VARCHAR}
+			</if> -->
+		where id=#{id, jdbcType=BIGINT}
+	</select>
+  
+	<select id="PMBanks_selectUsefulBanksByCount"  parameterType="int" resultType="Map">
+		select  
+		<include refid="Base_Column_List" />
+		from pmbanks b
+		left join pmpaychannel pc on b.bank_name=pc.channel_name and pc.payment_id = (select t.id from pmpaymentplatform t where platform_name like concat('%','中金','%'))
+		where b.`status`='0' and b.bank_logo is NOT null and b.bank_logo !='' and b.suport_payment_banks is not null and pc.`status`='0'
+		order by b.bank_order desc,id
+		limit #{showCount}
+	</select>
+	<select id="PMBanks_selectAllUsefulBanks"  resultType="Map">
+		select  
+		<include refid="Base_Column_List" />
+		from pmbanks b 
+		left join pmpaychannel pc on b.bank_name=pc.channel_name and pc.payment_id = (select t.id from pmpaymentplatform t where platform_name like concat('%','中金','%'))
+		where b.`status`='0' and b.bank_logo is NOT null and b.bank_logo !='' and b.suport_payment_banks is not null and pc.`status`='0'
+		order by b.bank_order desc,id
+		limit 15,1000
+	</select>
+	<select id="PMBanks_selectPaymentPlatformBankCodesBySysBankCode"  parameterType="String" resultType="String">
+		select  suport_payment_banks
+		from pmbanks 
+		where status='0' and bank_code=#{bankCode}
+	</select>
+	<select id="PMBanks_selectBanksByAppUser"  parameterType="String" resultMap="ShowBankCardModelResultMap">
+			select c.id,case when c.card_type=20 then '信用卡' else '储蓄卡' end card_type,right(c.customcardno,4) as bank_card_no,
+			c.bankcode as bank_code,b.bank_name,b.bank_logo,c.protocolid as protocol_id,right(c.customphone,4) as custom_phone
+			from pmbankcard c left join pmbanks b on c.bankcode=b.bank_code
+			where   c.id in	(
+				select  bankcard_id
+				from pmappplatformuserbankcard 
+				where platform_user_id=#{appUserId}
+			)
+	</select>
+	<select id="PMBanks_selectBankByProtocalId"  parameterType="String" resultMap="ShowBankCardModelResultMap">
+			select c.id,case when c.card_type=20 then '信用卡' else '储蓄卡' end card_type,right(c.customcardno,4) as bank_card_no,
+			c.bankcode as bank_code,b.bank_name,b.bank_logo,c.protocolid as protocol_id,right(c.customphone,4) as custom_phone
+			from pmbankcard c left join pmbanks b on c.bankcode=b.bank_code 
+			where   protocolid=#{protocolId}
+	</select>
+
+</mapper>

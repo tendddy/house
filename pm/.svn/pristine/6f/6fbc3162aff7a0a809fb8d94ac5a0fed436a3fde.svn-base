@@ -1,0 +1,45 @@
+package com.cninsure.payment.enumm;
+
+public enum PayTypeEnum {
+
+	tenpay_wap("1", "财付通WAP端支付"),
+	tenpay_pc("2", "财付通PC端支付"),
+	wechat_app("3", "微信APP支付"),
+	wechat_native("4", "微信扫码支付"),
+	wechat_jsapi("5", "微信公众号支付"),
+	wechat_micropay("6", "微信刷卡支付");
+
+	PayTypeEnum(String value, String name) {
+		this.value = value;
+		this.name = name;
+	}
+
+	private String name;
+	private String value;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	public static PayTypeEnum getEnum(String value) {
+
+		for (PayTypeEnum e : values()) {
+			if (e.getValue().equals(value))
+				return e;
+		}
+		throw new IllegalArgumentException("No such Enum ! value : " + value);
+	}
+
+}

@@ -1,0 +1,26 @@
+package com.cninsure.payment.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.payment.entity.PMPaymentplatform;
+
+public interface PMPaymentplatformDao extends BaseDao<PMPaymentplatform,Long> {
+
+	long getConfigListCount(Map<String, Object> map);
+
+	List<Map<Object, Object>> selectConfigList(Map<String, Object> map);
+
+	int saveProtocol(PMPaymentplatform pmpaymentplatform);
+
+	int updateProtocolName(PMPaymentplatform pmpaymentplatform);
+
+	int updateProtocol(PMPaymentplatform pmpaymentplatform);
+
+	PMPaymentplatform getProtocolList(String id);
+
+	String getBankCodeByName(String platformName, String bankcode);
+
+
+}

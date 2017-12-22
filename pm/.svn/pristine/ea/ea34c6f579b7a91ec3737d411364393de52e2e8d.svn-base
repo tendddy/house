@@ -1,0 +1,78 @@
+package com.cninsure.payment.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class PMSettleAttach implements Serializable {
+    private Long id;
+
+    private Date createdate;
+
+    private Date modifydate;
+
+    private Long caseId;
+
+    private String attachName;
+
+    private String attachPath;
+
+    private String attachUser;
+
+    private static final long serialVersionUID = 1L;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Date getCreatedate() {
+        return createdate;
+    }
+
+    public void setCreatedate(Date createdate) {
+        this.createdate = createdate;
+    }
+
+    public Date getModifydate() {
+        return modifydate;
+    }
+
+    public void setModifydate(Date modifydate) {
+        this.modifydate = modifydate;
+    }
+
+    public Long getCaseId() {
+        return caseId;
+    }
+
+    public void setCaseId(Long caseId) {
+        this.caseId = caseId;
+    }
+
+    public String getAttachName() {
+        return attachName;
+    }
+
+    public void setAttachName(String attachName) {
+        this.attachName = attachName == null ? null : attachName.trim();
+    }
+
+    public String getAttachPath() {
+        return attachPath;
+    }
+
+    public void setAttachPath(String attachPath) {
+        this.attachPath = attachPath == null ? null : attachPath.trim();
+    }
+
+    public String getAttachUser() {
+        return attachUser;
+    }
+
+    public void setAttachUser(String attachUser) {
+        this.attachUser = attachUser == null ? null : attachUser.trim();
+    }
+}

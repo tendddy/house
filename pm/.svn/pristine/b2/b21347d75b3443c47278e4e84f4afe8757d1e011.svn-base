@@ -1,0 +1,35 @@
+package com.cninsure.payment.util.biz;
+
+import java.io.UnsupportedEncodingException;
+
+import org.bouncycastle.util.encoders.Base64;
+
+
+
+/**
+ *回调接口地址加密解密
+ */
+public class UtilBase64 {
+	
+	public static String encode(String url) {
+		try {
+			return new String(Base64.encode(url.getBytes("UTF-8")));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	public static String decode(String url) {
+		return new String( Base64.decode(url));
+	}
+	
+	
+	public static void main(String[] args) {
+		String url = "aHR0cDovLzYxLjE1NS4yMDQuMzI6ODAwMi9Vc2VyL0JpbmRDYXJkUmVzdWx0";
+		String aa = decode(url);
+		System.out.println("http://61.155.204.32:8002/User/BindCardResult".equals(aa));
+		
+		String bb = encode("http://61.155.204.32:8002/User/BindCardResult");
+		System.out.println("aHR0cDovLzYxLjE1NS4yMDQuMzI6ODAwMi9Vc2VyL0JpbmRDYXJkUmVzdWx0".equals(bb));
+	}
+}

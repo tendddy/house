@@ -1,0 +1,52 @@
+package com.cninsure.payment.model;
+
+import java.io.Serializable;
+
+
+public class TxBaseResponseModel implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	private String responseMessage;
+	private String responseSignature;
+	private String responsePlainText;
+	private String code;
+	private String message;
+	public String getResponseMessage() {
+		return responseMessage;
+	}
+	public void setResponseMessage(String responseMessage) {
+		this.responseMessage = responseMessage;
+	}
+	public String getResponseSignature() {
+		return responseSignature;
+	}
+	public void setResponseSignature(String responseSignature) {
+		this.responseSignature = responseSignature;
+	}
+	public String getResponsePlainText() {
+		return responsePlainText;
+	}
+	public void setResponsePlainText(String responsePlainText) {
+		this.responsePlainText = responsePlainText;
+	}
+	public String getCode() {
+		return code;
+	}
+	public void setCode(String code) {
+		this.code = code;
+	}
+	public String getMessage() {
+		return message;
+	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	@Override
+	public String toString() {
+		return "TxBaseResponseModel [responseMessage=" + responseMessage
+				+ ", responseSignature=" + responseSignature
+				+ ", responsePlainText=" + responsePlainText + ", code="
+				+ code + ", message=" + message + "]";
+	}
+		
+}

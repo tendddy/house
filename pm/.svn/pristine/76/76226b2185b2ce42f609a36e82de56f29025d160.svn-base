@@ -1,0 +1,109 @@
+package com.cninsure.payment.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class PMAppplatformuserbankcard implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 数据主键
+	 */
+	private Long id;
+
+	/**
+	 * 创建时间
+	 */
+	private Date createdate;
+
+	/**
+	 * 最后修改时间
+	 */
+	private Date modifydate;
+
+	/**
+	 * 
+	 */
+	private Long appPlatformId;
+
+	/**
+	 * 
+	 */
+	private Long bankcardId;
+
+	/**
+	 * 平台用户ID
+	 */
+	private String platformUserId;
+
+	/**
+	 * 身份证号
+	 */
+	private String idcard;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Date getCreatedate() {
+		return createdate;
+	}
+
+	public void setCreatedate(Date createdate) {
+		this.createdate = createdate;
+	}
+
+	public Date getModifydate() {
+		return modifydate;
+	}
+
+	public void setModifydate(Date modifydate) {
+		this.modifydate = modifydate;
+	}
+
+	public Long getAppPlatformId() {
+		return appPlatformId;
+	}
+
+	public void setAppPlatformId(Long appPlatformId) {
+		this.appPlatformId = appPlatformId;
+	}
+
+	public Long getBankcardId() {
+		return bankcardId;
+	}
+
+	public void setBankcardId(Long bankcardId) {
+		this.bankcardId = bankcardId;
+	}
+
+	public String getPlatformUserId() {
+		return platformUserId;
+	}
+
+	public void setPlatformUserId(String platformUserId) {
+		this.platformUserId = platformUserId;
+	}
+
+	public String getIdcard() {
+		return idcard;
+	}
+
+	public void setIdcard(String idcard) {
+		this.idcard = idcard;
+	}
+
+	@Override
+	public String toString() {
+		return "PMAppplatformuserbankcard [id=" + id + ", createdate="
+				+ createdate + ", modifydate=" + modifydate
+				+ ", appPlatformId=" + appPlatformId + ", bankcardId="
+				+ bankcardId + ", platformUserId=" + platformUserId
+				+ ", idcard=" + idcard + "]";
+	}
+
+}

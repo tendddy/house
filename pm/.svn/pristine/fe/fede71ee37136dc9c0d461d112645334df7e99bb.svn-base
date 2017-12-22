@@ -1,0 +1,36 @@
+package com.cninsure.payment.service;
+
+
+import com.cninsure.payment.model.BaseModel;
+import com.cninsure.payment.model.SingleWithhold2011Model;
+import com.cninsure.payment.model.SingleWithhold2018Model;
+import com.cninsure.payment.model.SingleWithhold2020Model;
+import com.cninsure.payment.model.TradeReconResult1810Model;
+
+/**
+ * 代付接口
+ */
+public interface WithholdingService {
+	/**
+	 * 单笔代收（2011）
+	 * 
+	 * @return
+	 */
+	public BaseModel singleWithholdingRequestTx2011(SingleWithhold2011Model sw2011Model);
+	/**
+	 *  单笔代扣结果通知（2018）
+	 * @return
+	 */
+	public BaseModel singleWithholdingResultTx2018(	SingleWithhold2018Model sw2018Model);
+	/**
+	 *  2020-单笔代扣交易查询
+	 * @return
+	 */
+	public BaseModel singleWithholdingTradeResultTx2020(SingleWithhold2020Model sw2020Model);
+	/**
+	 * Tx1810-交易对账单（同步交易）
+	 * @return
+	 */
+	public BaseModel tradeReconResultTx1810(TradeReconResult1810Model sw1810Model);
+
+}

@@ -1,0 +1,109 @@
+package com.cninsure.payment.dao.impl;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import com.cninsure.core.dao.impl.BaseDaoImpl;
+import com.cninsure.payment.dao.PMBankcardDao;
+import com.cninsure.payment.entity.PMBankcard;
+import com.cninsure.payment.model.PMPaychannelModel;
+
+@Repository
+public class PMBankcardDaoImpl extends BaseDaoImpl<PMBankcard,Long> implements
+		PMBankcardDao {
+
+	@Override
+	public List<PMPaychannelModel> getChannelsByPaymentIdAndCustomerId(long paymentId,long appId, String customerId) {
+		Map<String,Object> param =new HashMap<String, Object>();
+		param.put("paymentId", paymentId);
+		param.put("customerId", customerId);
+		param.put("appId", appId);
+		return this.sqlSessionTemplate.selectList(this.getSqlName("getChannelsByPaymentIdAndCustomerId"), param);
+	}
+
+	@Override
+	public PMBankcard selectBankCardByLogicKey(String customcardno,String identificationNumber, String customname) {
+		Map<String,Object> param = new HashMap<String, Object>();
+		param.put("customcardno", customcardno);
+		param.put("identificationNumber", identificationNumber);
+		param.put("customname", customname);
+		return this.sqlSessionTemplate.selectOne(this.getSqlName("selectBankCardByLogicKey"), param);
+	}
+
+	@Override
+	public int updateCardStatusByProtocolid(String protocolid,String cprotocalid) {
+		Map<String,Object> param = new HashMap<String, Object>();
+		param.put("protocolid", protocolid);
+		param.put("cprotocalid", cprotocalid);
+		param.put("modifyTime", new Date());
+		return this.sqlSessionTemplate.update(this.getSqlName("updateCardStatusByProtocolid"), param);
+	}
+
+	@Override
+	public List<String> getProtocolidsByCardNo(String cardNo) {
+		return this.sqlSessionTemplate.selectList(this.getSqlName("getProtocolidsByCardNo"), cardNo);
+	}
+
+	@Override
+	public int selectCountByProtocolid(String protocolid) {
+		return this.sqlSessionTemplate.selectOne(this.getSqlName("selectCountByProtocolid"), protocolid);
+	}
+
+	@Override
+	public PMBankcard selectDataByProtocolid(String protocolid) {
+		return this.sqlSessionTemplate.selectOne(this.getSqlName("selectDataByProtocolid"), protocolid);
+	}
+
+	@Override
+	public int updateStatusByProtocolId(String protocolid, String status, String payid) {
+		Map<String,Object> param = new HashMap<String,Object>();
+		param.put("protocolid", protocolid);
+		param.put("status", status);
+		param.put("modifyTime", new Date());
+		param.put("payid", payid);
+		return this.sqlSessionTemplate.update(this.getSqlName("updateStatusAndPayidByProtocolId"), param);
+	}
+
+	@Override
+	public int updateStatusById(String id, String status, String payid) {
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("id", id);
+		params.put("status", status);
+		params.put("payid", payid);
+		return this.sqlSessionTemplate.update(this.getSqlName("updateStatusAndPayidById"), params);
+	}
+	
+	@Override
+	public int updateStatusByProtocolId(String protocolid, String status) {
+		Map<String,Object> param = new HashMap<String,Object>();
+		param.put("protocolid", protocolid);
+		param.put("status", status);
+		param.put("modifyTime", new Date());
+		return this.sqlSessionTemplate.update(this.getSqlName("updateStatusByProtocolId"), param);
+	}
+
+	@Override
+	public List<Map<Object, Object>> getBindCardList(Map<String, Object> map) {
+		return this.sqlSessionTemplate.selectList(this.getSqlName("getBindCardList"), map);
+	}
+	
+	@Override
+	public long getBindCardListCount(Map<String, Object> map) {
+		return this.sqlSessionTemplate.selectOne(this.getSqlName("getBindCardListCount"), map);
+	}
+
+	@Override
+	public List<Map<Object, Object>> getBindLogs(Map<String, Object> map) {
+		return this.sqlSessionTemplate.selectList(this.getSqlName("getBindLogs"), map);
+	}
+	
+	@Override
+	public long getBindLogsCount(Map<String, Object> map) {
+		return this.sqlSessionTemplate.selectOne(this.getSqlName("getBindLogsCount"), map);
+	}
+
+}

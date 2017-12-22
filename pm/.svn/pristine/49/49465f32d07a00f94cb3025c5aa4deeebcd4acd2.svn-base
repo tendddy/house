@@ -1,0 +1,443 @@
+package com.cninsure.payment.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class PMPayment implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 数据主键
+	 */
+	private Long id;
+
+	/**
+	 * 创建时间
+	 */
+	private Date createdate;
+
+	/**
+	 * 最后修改时间
+	 */
+	private Date modifydate;
+
+	/**
+	 * 应用平台编号
+	 */
+	private Long appId;
+
+	/**
+	 * 支付平台ID
+	 */
+	private Long platformId;
+
+	/**
+	 * 支付卡ID
+	 */
+	private Long bankcardId;
+
+	/**
+	 * 客户绑卡协议号
+	 */
+	private String protocolid;
+
+	/**
+	 * 支付流水号
+	 */
+	private String payProtocolid;
+
+	/**
+	 * 应用平台订单号（更应用平台对账查询使用）
+	 */
+	private String appOrderId;
+
+	/**
+	 * 系统订单号（系统使用唯一订单号）
+	 */
+	private String orderid;
+
+	/**
+	 * 订单名称
+	 */
+	private String ordername;
+
+	/**
+	 * 商户订单金额,以分为单位
+	 */
+	private Integer orderfee;
+
+	/**
+	 * 订单实际支付金额,以分为单位
+	 */
+	private Integer payfee;
+
+	/**
+	 * 支付类型 1：合并支付 2：分开支付
+	 */
+	private String payType;
+
+	/**
+	 * 商户订单提交时间,数字串，共14位，格式为年月日时分秒，例如：20101208103015
+	 */
+	private String orderdatetime;
+
+	/**
+	 * 支付验证码,字符串，DES加密后的值
+	 */
+	private String verifycode;
+
+	/**
+	 * 绑卡验证码
+	 */
+	private String bindCardVerifycode;
+
+	/**
+	 * 商户编号
+	 */
+	private String corpid;
+
+	/**
+	 * 商户收费项目编号
+	 */
+	private String itemid;
+
+	/**
+	 * 付费编号
+	 */
+	private String corpuserid;
+
+	/**
+	 * 付费名称
+	 */
+	private String corpusername;
+
+	/**
+	 * 支付状态 0-待支付，1-支付中，2-支付成功，3-支付失败，4-支付取消
+	 */
+	private String status;
+
+	/**
+	 * 支付结果编码
+	 */
+	private String payresultcode;
+
+	/**
+	 * 支付结果描述
+	 */
+	private String payresultmsg;
+
+	/**
+	 * 支付结果回调地址
+	 */
+	private String receiveurl;
+
+	/**
+	 * 用户信息回调地址
+	 */
+	private String userinfourl;
+
+	/**
+	 * 应用平台用户标记--是支付平台pmappcustom表的id
+	 */
+	private String appUserId;
+
+	/**
+	 * 
+	 */
+	private String prop1;
+
+	/**
+	 * 
+	 */
+	private String prop2;
+
+	/**
+	 * 
+	 */
+	private String prop3;
+
+	/**
+	 * 
+	 */
+	private String prop4;
+
+	/**
+	 * 
+	 */
+	private String prop5;
+
+	public String getAppOrderId() {
+		return appOrderId;
+	}
+
+	public void setAppOrderId(String appOrderId) {
+		this.appOrderId = appOrderId;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Date getCreatedate() {
+		return createdate;
+	}
+
+	public void setCreatedate(Date createdate) {
+		this.createdate = createdate;
+	}
+
+	public Date getModifydate() {
+		return modifydate;
+	}
+
+	public String getBindCardVerifycode() {
+		return bindCardVerifycode;
+	}
+
+	public void setBindCardVerifycode(String bindCardVerifycode) {
+		this.bindCardVerifycode = bindCardVerifycode;
+	}
+
+	public void setModifydate(Date modifydate) {
+		this.modifydate = modifydate;
+	}
+
+	public Long getAppId() {
+		return appId;
+	}
+
+	public void setAppId(Long appId) {
+		this.appId = appId;
+	}
+
+	public Long getPlatformId() {
+		return platformId;
+	}
+
+	public void setPlatformId(Long platformId) {
+		this.platformId = platformId;
+	}
+
+	public Long getBankcardId() {
+		return bankcardId;
+	}
+
+	public void setBankcardId(Long bankcardId) {
+		this.bankcardId = bankcardId;
+	}
+
+	public String getProtocolid() {
+		return protocolid;
+	}
+
+	public void setProtocolid(String protocolid) {
+		this.protocolid = protocolid;
+	}
+
+	public String getOrderid() {
+		return orderid;
+	}
+
+	public void setOrderid(String orderid) {
+		this.orderid = orderid;
+	}
+
+	public String getOrdername() {
+		return ordername;
+	}
+
+	public void setOrdername(String ordername) {
+		this.ordername = ordername;
+	}
+
+	public Integer getOrderfee() {
+		return orderfee;
+	}
+
+	public void setOrderfee(Integer orderfee) {
+		this.orderfee = orderfee;
+	}
+
+	public Integer getPayfee() {
+		return payfee;
+	}
+
+	public void setPayfee(Integer payfee) {
+		this.payfee = payfee;
+	}
+
+	public String getOrderdatetime() {
+		return orderdatetime;
+	}
+
+	public void setOrderdatetime(String orderdatetime) {
+		this.orderdatetime = orderdatetime;
+	}
+
+	public String getVerifycode() {
+		return verifycode;
+	}
+
+	public String getPayType() {
+		return payType;
+	}
+
+	public void setPayType(String payType) {
+		this.payType = payType;
+	}
+
+	public void setVerifycode(String verifycode) {
+		this.verifycode = verifycode;
+	}
+
+	public String getCorpid() {
+		return corpid;
+	}
+
+	public void setCorpid(String corpid) {
+		this.corpid = corpid;
+	}
+
+	public String getItemid() {
+		return itemid;
+	}
+
+	public void setItemid(String itemid) {
+		this.itemid = itemid;
+	}
+
+	public String getCorpuserid() {
+		return corpuserid;
+	}
+
+	public void setCorpuserid(String corpuserid) {
+		this.corpuserid = corpuserid;
+	}
+
+	public String getCorpusername() {
+		return corpusername;
+	}
+
+	public void setCorpusername(String corpusername) {
+		this.corpusername = corpusername;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getPayresultcode() {
+		return payresultcode;
+	}
+
+	public void setPayresultcode(String payresultcode) {
+		this.payresultcode = payresultcode;
+	}
+
+	public String getPayresultmsg() {
+		return payresultmsg;
+	}
+
+	public void setPayresultmsg(String payresultmsg) {
+		this.payresultmsg = payresultmsg;
+	}
+
+	public String getReceiveurl() {
+		return receiveurl;
+	}
+
+	public void setReceiveurl(String receiveurl) {
+		this.receiveurl = receiveurl;
+	}
+
+	public String getUserinfourl() {
+		return userinfourl;
+	}
+
+	public void setUserinfourl(String userinfourl) {
+		this.userinfourl = userinfourl;
+	}
+
+	/**
+	 * 是支付平台pmappcustom表的id
+	 */
+	public String getAppUserId() {
+		return appUserId;
+	}
+
+	/**
+	 * 是支付平台pmappcustom表的id
+	 */
+	public void setAppUserId(String appUserId) {
+		this.appUserId = appUserId;
+	}
+
+	public String getPayProtocolid() {
+		return payProtocolid;
+	}
+
+	public void setPayProtocolid(String payProtocolid) {
+		this.payProtocolid = payProtocolid;
+	}
+
+	public String getProp1() {
+		return prop1;
+	}
+
+	public void setProp1(String prop1) {
+		this.prop1 = prop1;
+	}
+
+	public String getProp2() {
+		return prop2;
+	}
+
+	public void setProp2(String prop2) {
+		this.prop2 = prop2;
+	}
+
+	public String getProp3() {
+		return prop3;
+	}
+
+	public void setProp3(String prop3) {
+		this.prop3 = prop3;
+	}
+
+	public String getProp4() {
+		return prop4;
+	}
+
+	public void setProp4(String prop4) {
+		this.prop4 = prop4;
+	}
+
+	public String getProp5() {
+		return prop5;
+	}
+
+	public void setProp5(String prop5) {
+		this.prop5 = prop5;
+	}
+
+	@Override
+	public String toString() {
+		return "PMPayment [id=" + id + ", createdate=" + createdate + ", modifydate=" + modifydate + ", appId=" + appId
+				+ ", platformId=" + platformId + ", bankcardId=" + bankcardId + ", protocolid=" + protocolid + ", payProtocolid="
+				+ payProtocolid + ", appOrderId=" + appOrderId + ", orderid=" + orderid + ", ordername=" + ordername + ", orderfee="
+				+ orderfee + ", payfee=" + payfee + ", payType=" + payType + ", orderdatetime=" + orderdatetime + ", verifycode="
+				+ verifycode + ", bindCardVerifycode=" + bindCardVerifycode + ", corpid=" + corpid + ", itemid=" + itemid
+				+ ", corpuserid=" + corpuserid + ", corpusername=" + corpusername + ", status=" + status + ", payresultcode="
+				+ payresultcode + ", payresultmsg=" + payresultmsg + ", receiveurl=" + receiveurl + ", userinfourl=" + userinfourl
+				+ ", appUserId=" + appUserId + ", prop1=" + prop1 + ", prop2=" + prop2 + ", prop3=" + prop3 + ", prop4=" + prop4
+				+ "prop5=" + prop5 + "]";
+	}
+}

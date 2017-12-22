@@ -1,0 +1,26 @@
+package com.cninsure.payment.service.impl;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.core.dao.impl.BaseServiceImpl;
+import com.cninsure.payment.dao.PMAppratebakDao;
+import com.cninsure.payment.entity.PMAppratebak;
+import com.cninsure.payment.service.PMAppratebakService;
+
+@Service
+@Transactional
+public class PMAppratebakServiceImpl extends BaseServiceImpl<PMAppratebak,Long> implements
+		PMAppratebakService {
+	@Resource
+	private PMAppratebakDao pmAppratebakDao;
+
+	@Override
+	protected BaseDao<PMAppratebak,Long> getBaseDao() {
+		return pmAppratebakDao;
+	}
+
+}

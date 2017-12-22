@@ -1,0 +1,213 @@
+package com.cninsure.payment.service.impl;
+
+
+import java.io.File;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.cninsure.core.utils.StringUtil;
+import com.cninsure.payment.dao.PMBanksDao;
+import com.cninsure.payment.entity.PMBanks;
+import com.cninsure.payment.entity.PMImage;
+import com.cninsure.payment.service.PMBanksService;
+
+@Service
+@Transactional
+public class PMBanksServiceImpl  implements PMBanksService {
+	@Resource
+	private PMBanksDao pmBanksDao;
+	
+	@Autowired
+	private HttpServletRequest request;
+	
+	private static long filesize = 0;// 文件大小
+	String url = "/pm/static/banks_logo/";// --网址式图片访问地址
+	
+	/*
+	 * file是文件流
+	 */
+	public String LoadImageToServer(MultipartFile file) {
+		if (file != null) {
+			// 获取保存的路径，
+			String realPath = request.getSession().getServletContext()
+					.getRealPath("/static/banks_logo/");
+			if (file.isEmpty()) {
+				// 未选择文件
+				return "OK";
+			} else {
+				// 文件原名称
+				String originFileName = file.getOriginalFilename();
+				if(!checkGifJpgBmp(originFileName)){
+					return "NOextension";
+				}
+				filesize=file.getSize();
+				try {
+					// 这里使用Apache的FileUtils方法来进行保存
+					FileUtils.copyInputStreamToFile(file.getInputStream(),
+							new File(realPath, originFileName));
+					return "OK";
+				} catch (IOException e) {
+					System.out.println("文件上传失败");
+					return "ERROR";
+				}
+			}
+		} else {
+			return null;
+		}
+	}
+
+
+	@Override
+	public Map<String, Object> initBanksList(Map<String, Object> map) {
+		long total = pmBanksDao.getConfigListCount(map);
+		List<Map<Object, Object>> infoList = pmBanksDao.selectConfigList(map);
+		System.out.println(infoList.toString());
+		for (int i = 0; i < infoList.size(); i++) {
+			Map<Object, Object> map2 = infoList.get(i);
+			Object channelType = map2.get("channelType");
+			if(channelType!=null&&!"".equals(channelType)){
+				if(channelType.equals("01")){
+					map2.put("channelType", "银行");
+				}else if(channelType.equals("02")){
+					map2.put("channelType", "其他");
+				}
+			}
+			Object status = map2.get("status");
+			if(status!=null&&!"".equals(status)){
+				if(status.equals("0")){
+					map2.put("status", "启用");
+				}else if(status.equals("1")){
+					map2.put("status", "禁用");
+				}
+			}
+		}
+		System.out.println("ConfigList结果：-----------" + infoList);
+		map.put("total", total);
+		map.put("rows", infoList);
+		return map;
+	}
+
+	@Override
+	public Map<String, Object> saveOrUpdateBanksInfo(PMBanks pmbanks,MultipartFile file) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		String bankLogo=pmbanks.getBankLogo();
+		try {
+		PMImage pmimage = new PMImage();
+		if(StringUtil.isEmpty(pmbanks.getId())){//新增
+			if ("OK".equals(this.LoadImageToServer(file))) {
+			pmbanks.setBankCode("fh");
+	        
+			if(bankLogo==null||bankLogo==""){//判断银行Logo
+				pmbanks.setBankLogo(bankLogo);
+			}else{
+				pmbanks.setBankLogo(url+ bankLogo);
+			}
+			pmBanksDao.saveBanks(pmbanks);
+			
+			pmimage.setObjectId(pmbanks.getId());
+			pmimage.setObjectType(3);// 所属对象 1-应用平台 2-支付平台 3-渠道
+			pmimage.setPath(url + bankLogo);// 存储路径
+			pmimage.setName(bankLogo);// 图片名称
+			pmimage.setOldName(bankLogo);// 图片原名
+			pmimage.setSize((int)filesize);// 文件大小
+			pmimage.setType(bankLogo.substring(bankLogo.lastIndexOf(".") + 1));// 图片类型
+			pmimage.setStatus("1");// 附件状态 0-暂存 1-正常 2-删除
+			pmBanksDao.saveImageInfo(pmimage);
+			}
+			DecimalFormat df1 = new DecimalFormat("00");
+			pmbanks.setBankCode("fh"+ df1.format(pmbanks.getId()) );
+			pmBanksDao.updateBanksName(pmbanks);
+		}else{//修改
+			if ("OK".equals(this.LoadImageToServer(file))) {
+				if(pmbanks.getBankLogo().indexOf("banks_logo")>0){//判断银行Logo
+					pmbanks.setBankLogo(bankLogo);// 渠道图片
+					pmimage.setPath(bankLogo);// 存储路径
+				}else{
+					pmbanks.setBankLogo(url+ bankLogo);// 渠道图片
+					pmimage.setPath(url + bankLogo);// 存储路径
+				}
+				pmBanksDao.updateBanks(pmbanks);
+			
+				pmimage.setObjectId(pmbanks.getId());
+				pmimage.setObjectType(3);// 所属对象 1-应用平台 2-支付平台 3-渠道
+				pmimage.setName(bankLogo);// 图片名称
+				pmimage.setOldName(bankLogo);// 图片原名
+				pmimage.setSize((int)filesize);// 文件大小
+				pmimage.setType(bankLogo.substring(bankLogo.lastIndexOf(".") + 1));// 图片类型
+				pmimage.setStatus("1");// 附件状态 0-暂存 1-正常 2-删除
+				pmBanksDao.updateImageInfo(pmimage);	
+			}
+		}
+		} catch (Exception e) {
+			e.printStackTrace();
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			map.put("status", "error");
+			return map;
+		}
+	   
+		pmbanks = pmBanksDao.getBanksList(String.valueOf(pmbanks.getId()));
+		map.put("banksid", pmbanks.getId());
+		map.put("channelType", pmbanks.getChannelType());
+		map.put("bankName", pmbanks.getBankName());
+		map.put("bankOrder", pmbanks.getBankOrder());
+		map.put("bankCode", pmbanks.getBankCode());
+		map.put("status", pmbanks.getStatus());
+		map.put("bankLogo", pmbanks.getBankLogo());
+		return map;
+	}
+	
+	@Override
+	public PMBanks getBanksList(String id) {
+		return pmBanksDao.getBanksList(id);
+	}
+		
+	@Override
+	public Map<String, Object> selectBanksInfo(PMBanks pmbanks) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		pmbanks = pmBanksDao.getBanksList(String.valueOf(pmbanks.getId()));
+		map.put("banksid", pmbanks.getId());
+		map.put("channelType", pmbanks.getChannelType());
+		map.put("bankName", pmbanks.getBankName());
+		map.put("bankOrder", pmbanks.getBankOrder());
+		map.put("bankCode", pmbanks.getBankCode());
+		map.put("status", pmbanks.getStatus());
+		map.put("bankLogo", pmbanks.getBankLogo());
+
+		return map;
+	}
+	
+	/**
+	  * 检查图片类型
+	  * @param filename文件名
+	  * @return
+	  */
+	 public boolean checkGifJpgBmp(String filename) {
+		String kuo=filename.substring(filename.lastIndexOf(".")+1).toLowerCase();
+		if(!"gif".equals(kuo)&&!"jpg".equals(kuo)&&!"jpeg".equals(kuo)&&!"png".equals(kuo)&&!"bmp".equals(kuo))
+		{
+		  return false;
+		}
+		return true;
+	 }
+
+	@Override
+	public String getMaxBankOrder() {
+		return pmBanksDao.getMaxBankOrder();
+	}
+
+}

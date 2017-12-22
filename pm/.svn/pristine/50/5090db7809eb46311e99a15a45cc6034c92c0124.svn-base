@@ -1,0 +1,42 @@
+package com.cninsure.payment.dao.impl;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import com.cninsure.core.dao.impl.BaseDaoImpl;
+import com.cninsure.payment.dao.PMSettleCaseDao;
+import com.cninsure.payment.entity.PMSettleCase;
+
+@Repository
+public class PMSettleCaseDaoImpl extends BaseDaoImpl<PMSettleCase,Long> implements PMSettleCaseDao {
+
+	@Override
+	public String getSettlementCard(String appid, String settleMonth) {
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("appid", appid);
+		map.put("settleMonth", settleMonth);
+		return this.sqlSessionTemplate.selectOne("PMSettleCase_getSettlementCard", map);
+	}
+
+	@Override
+	public int saveSettleCase(PMSettleCase pmSettleCase) {
+		sqlSessionTemplate.insert("PMSettleCase_saveSettleCase",pmSettleCase);
+		return 0;
+	}
+
+	@Override
+	public PMSettleCase getSettleCase(String appid, String settleMonth) {
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("appid", appid);
+		map.put("settleMonth", settleMonth);
+		return this.sqlSessionTemplate.selectOne("PMSettleCase_getSettleCase", map);
+	}
+
+	@Override
+	public int saveSettlementCase(PMSettleCase pmSettleCase) {
+		return this.sqlSessionTemplate.update("PMSettleCase_saveSettlementCase", pmSettleCase);
+	}
+
+}

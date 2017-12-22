@@ -1,0 +1,182 @@
+package com.cninsure.payment.service;
+
+import java.util.Date;
+
+import javax.annotation.Resource;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cninsure.payment.Enumm.BankCodeEnum;
+import com.cninsure.payment.dao.PMAppchannelDao;
+import com.cninsure.payment.dao.PMAppchannellmitDao;
+import com.cninsure.payment.dao.PMAppplatformuserbankcardDao;
+import com.cninsure.payment.dao.PMBankcardDao;
+import com.cninsure.payment.dao.PMPaychannelDao;
+import com.cninsure.payment.dao.PMPaychannellmitDao;
+import com.cninsure.payment.dao.PMPaymentplatformDao;
+import com.cninsure.payment.entity.PMAppchannel;
+import com.cninsure.payment.entity.PMAppchannellmit;
+import com.cninsure.payment.entity.PMAppplatformuserbankcard;
+import com.cninsure.payment.entity.PMBankcard;
+import com.cninsure.payment.entity.PMPaychannel;
+import com.cninsure.payment.entity.PMPaymentplatform;
+import com.cninsure.payment.model.PaymentPlatformModel;
+import com.cninsure.payment.model.QueryPaymentPlatFormModel;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration(value = "src/main/webapp")
+@ContextConfiguration(locations = { "classpath:config/spring-config.xml",
+		"classpath:config/spring-security-config.xml",
+		"classpath:config/spring-mvc-config.xml",
+		"classpath:config/spring-config-db.xml", })
+@Transactional(rollbackForClassName = "PMPaymentplatformServiceTest")
+public class PMPaymentplatformServiceTest {
+
+	@Resource
+	private PMPaymentplatformService service;
+	@Resource
+	private PMPaymentplatformDao paymengPlatformDao;
+	@Resource
+	private PMPaychannelDao paychannelDao;
+	@Resource
+	private PMBankcardDao bankcardDao;
+	@Resource
+	private PMAppchannelDao appchannelDao;
+	@Resource
+	private PMPaychannellmitDao paychannellmitDao;
+	@Resource
+	private PMAppchannellmitDao appchannellmitDao;
+	@Resource
+	private PMAppplatformuserbankcardDao appplatformuserbankcardDao;
+
+	/**
+	 * 初始化业务测试数据
+	 * 
+	 * 一个支付平台
+	 * 一个支付平台下五个银行
+	 * 两个应用平台对应支付平台银行
+	 * 两个应用平台对应费率设置
+	 * 一个应用平台绑卡信息
+	 */
+	public long initTestGetPayment() {
+
+		// 初始化支付平台信息
+		PMPaymentplatform entity = new PMPaymentplatform();
+		entity.setCreatedate(new Date());
+		entity.setModifydate(new Date());
+		entity.setPlatformLogo("logPath");
+		entity.setPlatformName("测试支付平台1");
+		entity.setPlatformNo("000001");
+		entity.setSettlementInterval(90);
+		entity.setSettlementType("1");
+		entity.setStatus("1");
+		paymengPlatformDao.insert(entity);
+
+		// 初始化对应支付平台对应的银行信息5条
+		for (int j = 0; j < 5; j++) {
+			PMPaychannel payChannelEntity = new PMPaychannel();
+			payChannelEntity.setPaymentId(entity.getId());
+			payChannelEntity.setChannelCode(j + "");
+			payChannelEntity.setChannelName(BankCodeEnum.getValueByKey("cs" + j));
+			payChannelEntity.setChannelType("银行");
+			payChannelEntity.setCreatedate(new Date());
+			payChannelEntity.setModifydate(new Date());
+			payChannelEntity.setStatus("1");
+			paychannelDao.insert(payChannelEntity);
+			
+//			PMPaychannellmit channelLimitEntity = new PMPaychannellmit();
+//			channelLimitEntity.setCreatedate(new Date());
+//			channelLimitEntity.setCardType("0");
+//			channelLimitEntity.setMaxQuotaPerDay(50000);
+//			channelLimitEntity.setMaxQuotaPerTime(10000);
+//			channelLimitEntity.setModifydate(new Date());
+//			channelLimitEntity.setPayChannelId(payChannelEntity.getId());
+//			paychannellmitDao.insert(channelLimitEntity);
+			
+			//初始化应用平台渠道信息2条
+			if(j%2==1){
+				PMAppchannel appChannelEntity = new PMAppchannel();
+				appChannelEntity.setAppId(11L);
+				appChannelEntity.setChannelId(payChannelEntity.getId());
+				appChannelEntity.setCreatedate(new Date());
+				appChannelEntity.setModifydate(new Date());
+				appchannelDao.insert(appChannelEntity);
+				
+				
+				//初始化应用平台渠道刷卡限制2条
+				PMAppchannellmit  appchannellmitEntity= new PMAppchannellmit();
+				appchannellmitEntity.setAppChannelId(appChannelEntity.getId());
+				appchannellmitEntity.setCardType("0");
+				appchannellmitEntity.setCreatedate(new Date());
+				appchannellmitEntity.setMaxQuotaPerDay(50000000);
+				appchannellmitEntity.setMaxQuotaPerTime(20000000);
+				appchannellmitEntity.setModifydate(new Date());
+				appchannellmitDao.insert(appchannellmitEntity);
+				
+				//初始化绑卡信息1条
+				if (j % 3 == 1) {
+					PMBankcard bankCardEntity = new PMBankcard();
+					bankCardEntity.setBankcode("cs" + j);
+					bankCardEntity.setBankname(BankCodeEnum.getValueByKey("cs" + j));
+					bankCardEntity.setCardType("10");
+					bankCardEntity.setChannelId(payChannelEntity.getId());
+					bankCardEntity.setCreatedate(new Date());
+					bankCardEntity.setCustomcardno("123456");
+					bankCardEntity.setCustomname("cc01");
+					bankCardEntity.setCustomphone("13426767877");
+					bankCardEntity.setIdentificationType("01");
+					bankCardEntity.setIdentificationNumber("130283989898989898");
+					bankCardEntity.setModifydate(new Date());
+					bankCardEntity.setPaymentPlatformId(entity.getId());
+					bankCardEntity.setProtocolid("11111111111111111");
+					bankCardEntity.setStatus("1");
+					bankcardDao.insert(bankCardEntity);
+					
+					PMAppplatformuserbankcard  userBankCard = new PMAppplatformuserbankcard();
+					userBankCard.setAppPlatformId(11L);
+					userBankCard.setBankcardId(bankCardEntity.getId());
+					userBankCard.setCreatedate(new Date());
+					userBankCard.setIdcard("130283989898989898");
+					userBankCard.setModifydate(new Date());
+					userBankCard.setPlatformUserId("cc01");
+					appplatformuserbankcardDao.insert(userBankCard);
+				}
+			}
+		}
+		return entity.getId();
+	}
+
+	@Test
+	public void TestGetPayment() {
+		
+//		for(int i=516;i<522;i++){
+//			PMAppchannellmit limitModel = new PMAppchannellmit();
+//			limitModel.setAppChannelId((long)i);
+//			limitModel.setCardType("0");
+//			limitModel.setCreatedate(new Date());
+//			limitModel.setModifydate(new Date());
+//			limitModel.setStatus("1");
+//			appchannellmitDao.insert(limitModel);
+//		}
+		
+		QueryPaymentPlatFormModel queryModel = new QueryPaymentPlatFormModel();
+		queryModel.setAppId(49L);
+		queryModel.setAppUserId("1111111111");
+		queryModel.setPaymentPlatformId(189L);
+		
+		PaymentPlatformModel ppModel = service.getPayment(queryModel);
+		System.out.println(ppModel.toString());
+		
+		//当前支付平台渠道数量
+		int actualAllBankCount = ppModel.getBindBanks().size();
+		
+		Assert.assertEquals("【测试支付平台189】【应用平台49】配置的银行数量", 5,actualAllBankCount );
+		
+	}
+}

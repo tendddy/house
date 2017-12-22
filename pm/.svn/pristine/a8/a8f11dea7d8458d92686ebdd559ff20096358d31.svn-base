@@ -1,0 +1,265 @@
+package com.cninsure.payment.service.impl;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.core.dao.impl.BaseServiceImpl;
+import com.cninsure.core.utils.StringUtil;
+import com.cninsure.payment.dao.PMAppchannelDao;
+import com.cninsure.payment.dao.PMApppaymentDao;
+import com.cninsure.payment.dao.PMAppplatformDao;
+import com.cninsure.payment.dao.PMBankcardDao;
+import com.cninsure.payment.dao.PMPaychannelDao;
+import com.cninsure.payment.entity.PMAppchannel;
+import com.cninsure.payment.entity.PMAppchannellmit;
+import com.cninsure.payment.entity.PMAppplatform;
+import com.cninsure.payment.model.EachplatformModel;
+import com.cninsure.payment.service.PMAppplatformService;
+
+@Service
+@Transactional
+public class PMAppplatformServiceImpl extends BaseServiceImpl<PMAppplatform,Long> implements
+		PMAppplatformService {
+	@Resource
+	private PMAppplatformDao pmAppplatformDao;
+	@Resource
+	private PMApppaymentDao apppaymentDao;
+	@Resource
+	private PMPaychannelDao paychannelDao;
+	@Resource
+	private PMBankcardDao bankcardDao;
+	@Resource
+	private PMAppchannelDao appchannelDao;
+	
+	EachplatformModel eachplatformBean=new EachplatformModel();
+	
+	@Override
+	public Map<String, Object> initPlatformList(Map<String, Object> map) {
+		long total = pmAppplatformDao.getConfigListCount(map);
+		List<Map<Object, Object>> infoList = pmAppplatformDao.selectConfigList(map);
+		System.out.println(infoList.toString());
+		for (int i = 0; i < infoList.size(); i++) {
+			Map<Object, Object> map2 = infoList.get(i);
+			Object status = map2.get("status");
+			if(status!=null&&!"".equals(status)){
+				if(status.equals("0")){
+					map2.put("status", "启用");
+				}else if(status.equals("1")){
+					map2.put("status", "禁用");
+				}
+			}
+		}
+		System.out.println("ConfigList结果：-----------" + infoList);
+		map.put("total", total);
+		map.put("rows", infoList);
+		return map;
+	}
+
+	@Override
+	public Map<String, Object> saveOrUpdateplatformInfo(PMAppplatform pmappplatform) {
+		PMAppchannel PMAppchannel= new PMAppchannel();
+		PMAppchannellmit PMAppchannellmit = new PMAppchannellmit();
+		String s="";
+		pmappplatform.setMaximumAmount(new DecimalFormat("####").format(new BigDecimal(pmappplatform.getMaximumAmount().replace(",","")).movePointRight(2)));
+		pmappplatform.setMinimumAmount(new DecimalFormat("####").format(new BigDecimal(pmappplatform.getMinimumAmount().replace(",","")).movePointRight(2)));
+		if(StringUtil.isEmpty(pmappplatform.getId())){
+			pmappplatform.setPlatformNo("YYPT");
+			pmAppplatformDao.saveplatform(pmappplatform);
+			DecimalFormat df1 = new DecimalFormat("00");
+			pmappplatform.setPlatformNo("YYPT"+ df1.format(pmappplatform.getId()) );
+			pmAppplatformDao.updateplatformeName(pmappplatform);
+			PMAppchannel.setAppId(pmappplatform.getId());//拿到应用平台id
+			
+			List<Map<String, Object>> getBankList = paychannelDao.getBankList();//支付银行信息
+			for(int i = 0;i<getBankList.size();i++){
+				Map<String, Object> map2 = getBankList.get(i);
+				Object id = map2.get("id");//拿到支付银行id		
+				PMAppchannel.setChannelId((long)id);
+				PMAppchannel.setPaymentId((long)map2.get("payment_id"));
+				appchannelDao.saveAppChannel(PMAppchannel);//保存到PMAppchannel
+				System.out.println(PMAppchannel.getId());//得到id
+				
+				List<Map<String, Object>> getBankLmitList = appchannelDao.getBankLmitList(String.valueOf(id));
+				if(!StringUtil.isEmpty(getBankLmitList)){
+					for(int j = 0;j<getBankLmitList.size();j++){
+						Map<String, Object> banks = getBankLmitList.get(j);
+						Object cardType = banks.get("card_type");
+						Object maxQuotaPerDay = banks.get("max_quota_per_day");
+						Object maxQuotaPerTime = banks.get("max_quota_per_time");
+						Object settlementInterval = banks.get("settlement_interval");
+						Object status = banks.get("status");
+					
+						PMAppchannellmit.setAppChannelId(PMAppchannel.getId());
+						PMAppchannellmit.setCardType(String.valueOf(cardType));
+						PMAppchannellmit.setMaxQuotaPerDay(Integer.parseInt(String.valueOf(maxQuotaPerDay)));
+						PMAppchannellmit.setMaxQuotaPerTime(Integer.parseInt(String.valueOf(maxQuotaPerTime)));
+						PMAppchannellmit.setSettlementInterval(String.valueOf(settlementInterval));
+						PMAppchannellmit.setStatus(String.valueOf(status));
+						appchannelDao.saveAppChannellmit(PMAppchannellmit);
+				     }  
+					eachplatformBean.setAppId(String.valueOf(pmappplatform.getId()));
+					s = selectBank(eachplatformBean);	
+			    }	
+			}
+		}else{
+			pmAppplatformDao.updateplatform(pmappplatform);
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("bankdiv", s);
+		map.put("id", pmappplatform.getId());
+		map.put("platformNo",pmappplatform.getPlatformNo());
+		map.put("platformName", pmappplatform.getPlatformName());
+		map.put("domain", pmappplatform.getDomain());
+		map.put("status", pmappplatform.getStatus());
+		map.put("settlementType", pmappplatform.getSettlementType());
+		map.put("settlementInterval", pmappplatform.getSettlementInterval());
+		map.put("settlementBank", pmappplatform.getSettlementBank());
+		map.put("settlementCard", pmappplatform.getSettlementCard());
+		map.put("minimumAmount",new DecimalFormat("#,##0.00").format(new BigDecimal(pmappplatform.getMinimumAmount()).movePointLeft(2)));
+		map.put("maximumAmount",new DecimalFormat("#,##0.00").format(new BigDecimal(pmappplatform.getMaximumAmount()).movePointLeft(2)));
+		map.put("settlementParty", pmappplatform.getSettlementParty());
+		return map;
+	}
+	
+	public String selectBank(EachplatformModel eachplatformBean) {
+		List<Map<String,Object>> banklist = appchannelDao.selectBankDiv(eachplatformBean);
+		String bankdiv="";
+		if(!StringUtil.isEmpty(banklist)){
+			for(int i=0;i<banklist.size();i++){
+				Map<String, Object> banks = banklist.get(i);
+				Object bankid = banks.get("id");
+				Object platform_name = banks.get("platform_name");
+				Object channel_name = banks.get("channel_name");
+				Object channel_code = banks.get("channel_code");
+				String card_type0 = String.valueOf(banks.get("card_type0"))=="null"?"":String.valueOf(banks.get("card_type0"));
+				String card_type1 = String.valueOf(banks.get("card_type1"))=="null"?"":String.valueOf(banks.get("card_type1"));
+				String type0="0".equals(card_type0)?"checked":"";
+				String type1="1".equals(card_type1)?"checked":"";
+				String max_quota_per_day0 = String.valueOf(banks.get("max_quota_per_day0"))=="null"?"":String.valueOf(banks.get("max_quota_per_day0"));
+				String max_quota_per_day1 = String.valueOf(banks.get("max_quota_per_day1"))=="null"?"":String.valueOf(banks.get("max_quota_per_day1"));
+				String max_quota_per_time0 = String.valueOf(banks.get("max_quota_per_time0"))=="null"?"":String.valueOf(banks.get("max_quota_per_time0"));
+				String max_quota_per_time1 = String.valueOf(banks.get("max_quota_per_time1"))=="null"?"":String.valueOf(banks.get("max_quota_per_time1"));
+				max_quota_per_day0 = StringUtil.isEmpty(max_quota_per_day0)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_day0).movePointLeft(2));
+				max_quota_per_day1 = StringUtil.isEmpty(max_quota_per_day1)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_day1).movePointLeft(2));
+				max_quota_per_time0 = StringUtil.isEmpty(max_quota_per_time0)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_time0).movePointLeft(2));
+				max_quota_per_time1 = StringUtil.isEmpty(max_quota_per_time1)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_time1).movePointLeft(2));
+				Object status0 = banks.get("status0");
+				String status00="0".equals(status0)?"selected":"";
+				String status01="1".equals(status0)?"selected":"";
+				Object status1 = banks.get("status1");
+				String status10="0".equals(status1)?"selected":"";
+				String status11="1".equals(status1)?"selected":"";
+				Object settlementInterval0 = banks.get("settlementInterval0");
+				String settlementInterval00="01".equals(settlementInterval0)?"selected":"";
+				String settlementInterval01="02".equals(settlementInterval0)?"selected":"";
+				Object settlementInterval1 = banks.get("settlementInterval1");
+				String settlementInterval10="01".equals(settlementInterval1)?"selected":"";
+				String settlementInterval11="02".equals(settlementInterval1)?"selected":"";
+				
+				Object status2 = banks.get("status2");
+				String status20="0".equals(status2)?"selected":"";
+				String status21="1".equals(status2)?"selected":"";
+				Object status3 = banks.get("status3");
+				String status30="0".equals(status3)?"selected":"";
+				String status31="1".equals(status3)?"selected":"";
+				String lmitid0 = String.valueOf(banks.get("lmitid0"))=="null"?"":String.valueOf(banks.get("lmitid0"));
+				String lmitid1 = String.valueOf(banks.get("lmitid1"))=="null"?"":String.valueOf(banks.get("lmitid1"));
+				
+				bankdiv+="<tr style=\"border-left: 1px solid #dddddd;\" class=\"yinhang\"><td style=\"text-align:center;vertical-align:middle;\">" +
+			"<label  class=\"col-md-2 control-label\" style=\"height:30px;line-height:30px;padding-left: 9px;\">"+(i+1)+"</label> </td>" +
+			"<td style=\"text-align:center;vertical-align:middle;\"><input type=\"text\" class=\"form-control\" id=\"platform_name\" readonly value=\""+platform_name+"\" ></td>" +	
+			"<td style=\"text-align:center;vertical-align:middle;\"><input type=\"text\" class=\"form-control\" id=\"channel_name\" readonly value=\""+channel_name+"\" ></td>" +
+			"<td style=\"text-align:center;vertical-align:middle;\"><input type=\"text\" class=\"form-control\" id=\"channel_code\" readonly value=\""+channel_code+"\" ></td>" +
+			"<td style=\"text-align:center;vertical-align:middle;\">" +
+			"<div class=\"checkbox\" style=\"padding-bottom:10px;\"><input type=\"checkbox\" style=\"position:static;\" disabled "+type0+" id=\"card_type00\" value=\"0\" >支持储蓄卡<input " +
+			"type=\"hidden\" id=\"lmitid0\" value=\""+lmitid0+"\"></div>" +
+			"<div class=\"checkbox\" style=\"padding-bottom:10px;\"><input type=\"checkbox\" style=\"position:static;\" disabled "+type1+" id=\"card_type11\" value=\"1\">支持信用卡</div><input " +
+			"type=\"hidden\" id=\"lmitid1\" value=\""+lmitid1+"\"></td>" +
+			"<td style=\"text-align:center;vertical-align:middle;\"><input type=\"text\" class=\"form-control\" id=\"max_quota_per_time0\" onkeyup=\"constraintMoneyLength(12,2);\" onblur=\"constraintMoneyLength(12,2);\" value=\""+max_quota_per_time0+"\" readonly >" +
+			"&nbsp;<input type=\"text\" class=\"form-control\" id=\"max_quota_per_time1\" onkeyup=\"constraintMoneyLength(12,2);\" onblur=\"constraintMoneyLength(12,2);\" value=\""+max_quota_per_time1+"\" readonly ></td><td style=\"text-align:center;vertical-align:middle;\">" +
+			"<input type=\"text\" class=\"form-control\" id=\"max_quota_per_day0\" onkeyup=\"constraintMoneyLength(12,2);\" onblur=\"constraintMoneyLength(12,2);\" value=\""+max_quota_per_day0+"\" readonly >&nbsp;<input type=\"text\" "
+			+ "class=\"form-control\" id=\"max_quota_per_day1\" onkeyup=\"constraintMoneyLength(12,2);\" onblur=\"constraintMoneyLength(12,2);\" value=\""+max_quota_per_day1+"\" readonly ></td>" +
+			"<td style=\"text-align:center;vertical-align:middle;\"><select class=\"col-md-1 form-control col-md-2\" disabled id=\"settlementInterval0\">" +
+			"<option value=\"\"></option><option "+settlementInterval00+" value=\"01\">即时</option><option "+settlementInterval01+" value=\"02\">T+1</option></select>&nbsp;" +
+			"<select class=\"col-md-1 form-control col-md-2\" disabled id=\"settlementInterval1\"><option value=\"\"></option><option "+settlementInterval10+" value=\"01\">即时</option>" +
+			"<option "+settlementInterval11+" value=\"02\">T+1</option></select></td><td style=\"text-align:center;vertical-align:middle;\">" +
+			"<select class=\"form-control m-left-1 col-md-2\" disabled id=\"status0\" ><option value=\"\"></option><option "+status00+" value=\"0\">启用</option>" +
+			"<option "+status01+" value=\"1\">禁用</option></select>&nbsp;<select class=\"form-control m-left-1 col-md-2\" disabled id=\"status1\" >" +
+			"<option value=\"\"></option><option "+status10+" value=\"0\">启用</option><option "+status11+" value=\"1\">禁用</option></select></td>"+ 
+			"<td style=\"text-align:center;vertical-align:middle;\">" +
+			"<select class=\"form-control m-left-1 col-md-2\" disabled id=\"status2\" ><option value=\"\"></option><option "+status20+" value=\"0\">启用</option>" +
+			"<option "+status21+" value=\"1\">禁用</option></select>&nbsp;<select class=\"form-control m-left-1 col-md-2\" disabled id=\"status3\" >" +
+			"<option value=\"\"></option><option "+status30+" value=\"0\">启用</option><option "+status31+" value=\"1\">禁用</option></select></td>"+ 
+			"<td style=\"text-align:center;vertical-align:middle;\">" +
+			"<button  type=\"button\"  id=\"savebank\" disabled class=\"btn btn-primary\">保存</button> " +
+			"<button  type=\"button\"  id=\"cancelbank\" disabled class=\"btn btn-primary\">取消</button> " +
+			"<button  type=\"button\"  id=\"modifybank\" class=\"btn btn-primary\">修改</button></td><input " +
+			"type=\"hidden\"id=\"id\"value=\""+bankid+"\"></tr>"; 
+				System.out.println("selectbank");
+			}
+		}
+		return bankdiv;
+	}
+
+
+	@Override
+	protected BaseDao<PMAppplatform,Long> getBaseDao() {
+		return pmAppplatformDao;
+	}
+
+	@Override
+	public PMAppplatform getPlatformList(String id) {
+		return pmAppplatformDao.getplatformList(id);
+	}
+
+	@Override
+	public Map<String, Object> selectPlatformInfo(PMAppplatform pmappplatform) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		pmappplatform = pmAppplatformDao.getplatformList(String.valueOf(pmappplatform.getId()));
+		map.put("platformid", pmappplatform.getId());
+		map.put("platformNo", pmappplatform.getPlatformNo());
+		map.put("platformName", pmappplatform.getPlatformName());
+		map.put("domain", pmappplatform.getDomain());
+		map.put("status", pmappplatform.getStatus());
+		map.put("settlementType", pmappplatform.getSettlementType());
+		map.put("settlementInterval", pmappplatform.getSettlementInterval());
+		map.put("settlementBank", pmappplatform.getSettlementBank());
+		map.put("settlementCard", pmappplatform.getSettlementCard());
+		map.put("minimumAmount",new DecimalFormat("#,##0.00").format(new BigDecimal(pmappplatform.getMinimumAmount()).movePointLeft(2)));
+		map.put("maximumAmount",new DecimalFormat("#,##0.00").format(new BigDecimal(pmappplatform.getMaximumAmount()).movePointLeft(2)));
+		map.put("settlementParty", pmappplatform.getSettlementParty());
+		return map;
+	}
+
+	@Override
+	public Map<String, Object> selectSettlementList(Map<String, Object> map) {
+		long total = pmAppplatformDao.getConfigListCount(map);
+		List<Map<Object, Object>> infoList = pmAppplatformDao.selectConfigList(map);
+		System.out.println(infoList.toString());
+		for (int i = 0; i < infoList.size(); i++) {
+			Map<Object, Object> map2 = infoList.get(i);
+			Object status = map2.get("status");
+			if(status!=null&&!"".equals(status)){
+				if(status.equals("0")){
+					map2.put("status", "启用");
+				}else if(status.equals("1")){
+					map2.put("status", "禁用");
+				}
+			}
+		}
+		System.out.println("ConfigList结果：-----------" + infoList);
+		map.put("total", total);
+		map.put("rows", infoList);
+		return map;
+	}
+
+}

@@ -1,0 +1,26 @@
+package com.cninsure.payment.service.impl;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.core.dao.impl.BaseServiceImpl;
+import com.cninsure.payment.dao.PMAPPcustomwithdrawDao;
+import com.cninsure.payment.entity.PMAPPcustomwithdraw;
+import com.cninsure.payment.service.PMAPPcustomwithdrawService;
+
+@Service
+@Transactional
+public class PMAPPcustomwithdrawServiceImpl extends BaseServiceImpl<PMAPPcustomwithdraw,Long> implements
+		PMAPPcustomwithdrawService {
+	@Resource
+	private PMAPPcustomwithdrawDao pmapPcustomwithdrawDao;
+
+	@Override
+	protected BaseDao<PMAPPcustomwithdraw,Long> getBaseDao() {
+		return pmapPcustomwithdrawDao;
+	}
+
+}

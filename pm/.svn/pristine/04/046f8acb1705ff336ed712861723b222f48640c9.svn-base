@@ -1,0 +1,26 @@
+package com.cninsure.payment.service.impl;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.core.dao.impl.BaseServiceImpl;
+import com.cninsure.payment.dao.PMPaychannellmitDao;
+import com.cninsure.payment.entity.PMPaychannellmit;
+import com.cninsure.payment.service.PMPaychannellmitService;
+
+@Service
+@Transactional
+public class PMPaychannellmitServiceImpl extends BaseServiceImpl<PMPaychannellmit,Long> implements
+		PMPaychannellmitService {
+	@Resource
+	private PMPaychannellmitDao pmPaychannellmitDao;
+
+	@Override
+	protected BaseDao<PMPaychannellmit,Long> getBaseDao() {
+		return pmPaychannellmitDao;
+	}
+
+}

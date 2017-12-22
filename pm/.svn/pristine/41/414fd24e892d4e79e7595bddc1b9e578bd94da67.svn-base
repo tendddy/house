@@ -1,0 +1,129 @@
+package com.cninsure.payment.model;
+
+public class CustomAccountModel {
+
+	private String id;
+	/**
+	 * 第三方平台id
+	 */
+	private String appId;
+	/**
+	 * 第三方用户id
+	 */
+	private String appUserId;
+	/**
+	 * 第三方用户姓名
+	 */
+	private String appUserName;
+	/**
+	 * 第三方用户身份证
+	 */
+	private String appUserIdno;
+	/**
+	 * 账户总金额
+	 */
+	private String totalMoney;
+	/**
+	 * 冻结金额
+	 */
+	private String freezeMoney;
+	/**
+	 * 昨日收益
+	 */
+	private String yesterdayOwnMoney;
+	/**
+	 * 累计收益
+	 */
+	private String totalOwnMoney;
+
+	public String getId()
+	{
+		return id;
+	}
+
+	public void setId(String id)
+	{
+		this.id = id;
+	}
+
+	public String getAppId()
+	{
+		return appId;
+	}
+
+	public void setAppId(String appId)
+	{
+		this.appId = appId;
+	}
+
+	public String getAppUserId()
+	{
+		return appUserId;
+	}
+
+	public void setAppUserId(String appUserId)
+	{
+		this.appUserId = appUserId;
+	}
+
+	public String getAppUserName()
+	{
+		return appUserName;
+	}
+
+	public void setAppUserName(String appUserName)
+	{
+		this.appUserName = appUserName;
+	}
+
+	public String getAppUserIdno()
+	{
+		return appUserIdno;
+	}
+
+	public void setAppUserIdno(String appUserIdno)
+	{
+		this.appUserIdno = appUserIdno;
+	}
+
+	public String getTotalMoney()
+	{
+		return totalMoney;
+	}
+
+	public void setTotalMoney(String totalMoney)
+	{
+		this.totalMoney = totalMoney;
+	}
+
+	public String getFreezeMoney()
+	{
+		return freezeMoney;
+	}
+
+	public void setFreezeMoney(String freezeMoney)
+	{
+		this.freezeMoney = freezeMoney;
+	}
+
+	public String getYesterdayOwnMoney()
+	{
+		return yesterdayOwnMoney;
+	}
+
+	public void setYesterdayOwnMoney(String yesterdayOwnMoney)
+	{
+		this.yesterdayOwnMoney = yesterdayOwnMoney;
+	}
+
+	public String getTotoalOwnMoney()
+	{
+		return totalOwnMoney;
+	}
+
+	public void setTotoalOwnMoney(String totoalOwnMoney)
+	{
+		this.totalOwnMoney = totoalOwnMoney;
+	}
+
+}

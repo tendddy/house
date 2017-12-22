@@ -1,0 +1,44 @@
+package com.cninsure.payment.dao.impl;
+
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import com.cninsure.core.dao.impl.BaseDaoImpl;
+import com.cninsure.payment.dao.PMSettleAttachDao;
+import com.cninsure.payment.entity.PMSettleAttach;
+
+@Repository
+public class PMSettleAttachDaoImpl extends BaseDaoImpl<PMSettleAttach,Long> implements PMSettleAttachDao {
+
+	@Override
+	public int saveSettleAttach(PMSettleAttach pmSettleAttach) {
+		sqlSessionTemplate.insert("PMSettleAttach_saveSettleAttach",pmSettleAttach);
+		return 0;
+	}
+
+	@Override
+	public List<Map<Object, Object>> assemblySettleAttachDIV(Long id) {
+		return sqlSessionTemplate.selectList("PMSettleAttach_assemblySettleAttachDIV",id);
+	}
+
+	@Override
+	public long getTheLastNumber(Long id) {
+		return sqlSessionTemplate.selectOne("PMSettleAttach_getTheLastNumber",id);
+	}
+
+	@Override
+	public int deleteAttach(Long id) {
+		return sqlSessionTemplate.delete("PMSettleAttach_deleteAttach",id);
+	}
+
+	@Override
+	public PMSettleAttach selectSetteAttach(Long id) {
+		return sqlSessionTemplate.selectOne("PMSettleAttach_selectSetteAttach",id);
+	}
+
+
+
+}

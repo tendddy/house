@@ -1,0 +1,83 @@
+package com.cninsure.payment.service.impl;
+
+
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.core.dao.impl.BaseServiceImpl;
+import com.cninsure.payment.dao.PMSettleAttachDao;
+import com.cninsure.payment.entity.PMSettleAttach;
+import com.cninsure.payment.service.PMSettleAttachService;
+
+@Service
+@Transactional
+public class PMSettleAttachServiceImpl extends BaseServiceImpl<PMSettleAttach,Long> implements PMSettleAttachService {
+	@Resource
+	private PMSettleAttachDao SettleAttachDao;
+	
+	@Override
+	protected BaseDao<PMSettleAttach,Long> getBaseDao() {
+		return SettleAttachDao;
+	}
+	//	拼装div上传附件的内容
+	@Override
+	public String assemblySettleAttachDIV(Long id) {
+		String div="";
+		List<Map<Object, Object>> infoList = SettleAttachDao.assemblySettleAttachDIV(id);
+		System.out.println(infoList.toString());
+		for (int i = 0; i < infoList.size(); i++) {
+			Map<Object, Object> map2 = infoList.get(i);
+			Object aid = map2.get("id");
+			Object attach_name = map2.get("attach_name");
+			Object attach_user = map2.get("attach_user");
+			div=div+"<tr style='border-left: 1px solid #dddddd;' class='enclosure'>"
+						+ "<input type='hidden' class='id' value='"+aid+"'>"
+						+ "<td style='text-align: center; vertical-align: middle;'>"+(i+1)+"</td>"
+						+ "<td style='text-align: center; vertical-align: middle;'>"+attach_name+"</td>"
+						+ "<td style='text-align: center; vertical-align: middle;'>"+attach_user+"</td>"
+						+ "<td style='text-align: center; vertical-align: middle;'>"
+							+ "<a class='edit m-left-5' href='javascript:void(0);' title='删除'>"
+							+ "<i class='glyphicon glyphicon-remove'></i></a>"
+						+ "</td>"
+					+ "</tr>";
+		}
+		return div;
+	}
+	//删除上传附件功能
+	@Override
+	public Map<String, Object> deleteAttach(PMSettleAttach pmSettleAttach, HttpServletRequest request) {
+		String rootPath = request.getSession().getServletContext().getRealPath("/") + "static/pmSettleAttach/";
+		Map<String, Object> map = new HashMap<String, Object>();
+		pmSettleAttach = SettleAttachDao.selectSetteAttach(pmSettleAttach.getId());
+		deleteFile(rootPath+pmSettleAttach.getAttachName());
+		SettleAttachDao.deleteAttach(pmSettleAttach.getId());
+		//删除附件
+		map.put("status", "success");
+		map.put("message", "删除成功！");
+		return map;
+	}
+	/**   
+	   * 删除单个文件   
+	   * @param   fileName    被删除文件的文件名   
+	   * @return 单个文件删除成功返回true,否则返回false   
+	   */   
+	public static boolean deleteFile(String fileName){
+		File file = new File(fileName);
+		if (file.isFile() && file.exists()) {
+			file.delete();//"删除单个文件"+name+"成功！"
+			return true;
+		}//"删除单个文件"+name+"失败！"
+		return false;
+	}
+
+}

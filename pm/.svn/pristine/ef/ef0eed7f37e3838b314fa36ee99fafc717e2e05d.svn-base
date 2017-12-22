@@ -1,0 +1,8 @@
+package com.cninsure.payment.service;
+
+import com.cninsure.core.dao.BaseService;
+import com.cninsure.payment.entity.PMAPPcustomaccount;
+
+public interface PMAPPcustomaccountService extends BaseService<PMAPPcustomaccount,Long> {
+
+}

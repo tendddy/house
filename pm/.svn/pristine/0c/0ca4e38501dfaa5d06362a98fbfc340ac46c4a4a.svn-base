@@ -1,0 +1,46 @@
+
+institutionID=001463
+_mysql.driver = com.mysql.jdbc.Driver
+_mysql.url = jdbc:mysql://10.2.3.82:3306/pmpl_dev?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&tinyInt1isBit=false
+_mysql.username = pay
+_mysql.password = pay123456
+
+_druid.maxActive = 10
+_druid.minIdle = 3
+_druid.initialSize = 5
+_druid.maxWait = 60000
+_druid.timeBetweenEvictionRunsMillis = 600000
+_druid.minEvictableIdleTimeMillis = 30000
+_druid.validationQuery = SELECT 'x'
+_druid.testWhileIdle = true
+_druid.testOnBorrow = false
+_druid.testOnReturn = false
+_druid.poolPreparedStatements = true
+_druid.maxOpenPreparedStatements = 50
+_druid.removeAbandonedTimeout =180
+
+
+#SMS短信
+_softwareSerialNo=0000
+_key=0000
+_sendurl=0000
+
+#中金接口机构编码
+_tx.institutionID=001463
+
+#商联通付平台测试地址
+_biz.url=http://demo.shang-lian.com/
+#接口版本号
+_biz.Version=v1.0
+#接口版本号
+_biz.charSet=1
+#合作平台编号
+_biz.systemId=1608110001
+#业务代码
+_biz.businesstype=10000000
+
+#send pay result
+_syncPayStatus_url=http://lzgplus.cisg.cn/rbk/lzgapi/orders/syncPayStatus
+_payResultCallBack_url=http://m.org.baoxian.com/console/shop/wap_order!payResultCallBack.action
+#微信支付接受支付结果通知接口
+_wxPayResult.notify_url=http://lzgplus.cisg.cn/pm/payment/wxPayResultNotify.do

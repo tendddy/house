@@ -1,0 +1,116 @@
+package com.cninsure.payment.model;
+
+/**
+ *调用商联获取验证码参数
+ */
+public class VerifycodeModel{
+
+
+	/**
+	 * 接口版本号
+	 * 
+	 * 固定值：v1.0注意为小写字母
+	 */
+	private String version;
+	
+	/**
+	 * 字符集
+	 * 固定值：1 
+	 * 1表示UTF-8 
+	 */
+	private String charset;
+	
+	/**
+	 * 合作平台编号
+	 */
+	private String systemid;
+	
+	/**
+	 * 客户绑卡协议号
+	 */
+	private String protocolid;
+	
+	/**
+	 * 商户订单号
+	 */
+	private String orderid;
+	
+	/**
+	 * 保留字段
+	 */
+	private String reserved;
+	
+	/**
+	 * 签名字符串
+	 */
+	private String signmsg;
+
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public String getCharset() {
+		return charset;
+	}
+
+	public void setCharset(String charset) {
+		this.charset = charset;
+	}
+
+	public String getSystemid() {
+		return systemid;
+	}
+
+	public void setSystemid(String systemid) {
+		this.systemid = systemid;
+	}
+
+	public String getProtocolid() {
+		return protocolid;
+	}
+
+	public void setProtocolid(String protocolid) {
+		this.protocolid = protocolid;
+	}
+
+	public String getOrderid() {
+		return orderid;
+	}
+
+	public void setOrderid(String orderid) {
+		this.orderid = orderid;
+	}
+
+	public String getReserved() {
+		return reserved;
+	}
+
+	public void setReserved(String reserved) {
+		this.reserved = reserved;
+	}
+
+	public String getSignmsg() {
+		return signmsg;
+	}
+
+	public void setSignmsg(String signmsg) {
+		this.signmsg = signmsg;
+	}
+
+	@Override
+	public String toString() {
+		return (version != null ? "version=" + version + "&" : "version=&")
+				+ (charset != null ? "charset=" + charset + "&" : "charset=&")
+				+ (systemid != null ? "systemid=" + systemid + "&" : "systemid=&")
+				+ (protocolid != null ? "protocolid=" + protocolid + "&" : "protocolid=&")
+				+ (orderid != null ? "orderid=" + orderid + "&" : "orderid=&")
+				+ (reserved != null ? "reserved=" + reserved + "&" : "reserved=&")
+				+ (signmsg != null ? "signmsg=" + signmsg : "signmsg=");
+	}
+	
+}

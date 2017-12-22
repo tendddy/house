@@ -1,0 +1,243 @@
+package com.cninsure.payment.model;
+
+/**
+ * 商联绑卡接口参数
+ */
+
+@Deprecated
+public class CustomBindModel  {
+
+	/**
+	 * 接口版本号
+	 * 固定值：v1.0 
+	 * 注意为小写字母
+	 */
+	private String version;
+	
+	/**
+	 * 字符集
+	 * 固定值：1 
+	 * 1表示UTF-8 
+	 */
+	private String charset;
+	
+	/**
+	 * 合作平台编号
+	 * 
+	 * 由商联通付平台分配
+	 */
+	private String systemid;
+	
+	/**
+	 * 业务代码
+	 * 由商联通付平台分配
+	 */
+	private String businesstype;
+	
+	/**
+	 * 消息流水号
+	 * 
+	 * 字符串，(如年月日时分秒)确保唯一性
+	 */
+	private String msgseqno;
+	
+	/**
+	 * 银行卡号
+	 * DES加密后的值
+	 */
+	private String accountnumber;
+	
+	/**
+	 * 账户名称
+	 * DES加密后的值
+	 */
+	private String accountname;
+	
+	/**
+	 * 开户证件类型
+	 */
+	private String identificationtype;
+	
+	/**
+	 * 证件号码
+	 * DES加密后的值
+	 */
+	private String identificationnumber;
+	
+	/**
+	 * 银行预留手机号
+	 * DES加密后的值
+	 */
+	private String phonenumber;
+	
+	/**
+	 * 卡类型
+	 * 10=个人借记 
+	 * 20=个人贷记
+	 */
+	private String cardtype;
+	
+	/**
+	 * 信用卡有效期
+	 */
+	private String validdate;
+	private String cvn2;
+	private String orderid;
+	private String orderpayfee;
+	private String custominfo;
+	private String fronturl;
+	private String receiveurl;
+	private String reserved;
+	private String signmsg;
+	public String getVersion() {
+		return version;
+	}
+	public void setVersion(String version) {
+		this.version = version;
+	}
+	public String getCharset() {
+		return charset;
+	}
+	public void setCharset(String charset) {
+		this.charset = charset;
+	}
+	public String getSystemid() {
+		return systemid;
+	}
+	public void setSystemid(String systemid) {
+		this.systemid = systemid;
+	}
+	public String getBusinesstype() {
+		return businesstype;
+	}
+	public void setBusinesstype(String businesstype) {
+		this.businesstype = businesstype;
+	}
+	public String getMsgseqno() {
+		return msgseqno;
+	}
+	public void setMsgseqno(String msgseqno) {
+		this.msgseqno = msgseqno;
+	}
+	public String getAccountnumber() {
+		return accountnumber;
+	}
+	public void setAccountnumber(String accountnumber) {
+		this.accountnumber = accountnumber;
+	}
+	public String getAccountname() {
+		return accountname;
+	}
+	public void setAccountname(String accountname) {
+		this.accountname = accountname;
+	}
+	public String getIdentificationtype() {
+		return identificationtype;
+	}
+	public void setIdentificationtype(String identificationtype) {
+		this.identificationtype = identificationtype;
+	}
+	public String getIdentificationnumber() {
+		return identificationnumber;
+	}
+	public void setIdentificationnumber(String identificationnumber) {
+		this.identificationnumber = identificationnumber;
+	}
+	public String getPhonenumber() {
+		return phonenumber;
+	}
+	public void setPhonenumber(String phonenumber) {
+		this.phonenumber = phonenumber;
+	}
+	public String getCardtype() {
+		return cardtype;
+	}
+	public void setCardtype(String cardtype) {
+		this.cardtype = cardtype;
+	}
+	public String getValiddate() {
+		return validdate;
+	}
+	public void setValiddate(String validdate) {
+		this.validdate = validdate;
+	}
+	public String getCvn2() {
+		return cvn2;
+	}
+	public void setCvn2(String cvn2) {
+		this.cvn2 = cvn2;
+	}
+	public String getOrderid() {
+		return orderid;
+	}
+	public void setOrderid(String orderid) {
+		this.orderid = orderid;
+	}
+	public String getOrderpayfee() {
+		return orderpayfee;
+	}
+	public void setOrderpayfee(String orderpayfee) {
+		this.orderpayfee = orderpayfee;
+	}
+	public String getCustominfo() {
+		return custominfo;
+	}
+	public void setCustominfo(String custominfo) {
+		this.custominfo = custominfo;
+	}
+	public String getFronturl() {
+		return fronturl;
+	}
+	public void setFronturl(String fronturl) {
+		this.fronturl = fronturl;
+	}
+	public String getReceiveurl() {
+		return receiveurl;
+	}
+	public void setReceiveurl(String receiveurl) {
+		this.receiveurl = receiveurl;
+	}
+	public String getReserved() {
+		return reserved;
+	}
+	public void setReserved(String reserved) {
+		this.reserved = reserved;
+	}
+	public String getSignmsg() {
+		return signmsg;
+	}
+	public void setSignmsg(String signmsg) {
+		this.signmsg = signmsg;
+	}
+	@Override
+	public String toString() {
+		return (version != null ? "version=" + version + "&" : "version=&")
+				+ (charset != null ? "charset=" + charset + "&" : "charset=&")
+				+ (systemid != null ? "systemid=" + systemid + "&" : "systemid=&")
+				+ (businesstype != null ? "businesstype=" + businesstype + "&"
+						: "businesstype=&")
+				+ (msgseqno != null ? "msgseqno=" + msgseqno + "&" : "msgseqno=&")
+				+ (accountnumber != null ? "accountnumber=" + accountnumber
+						+ "&" : "accountnumber=&")
+				+ (accountname != null ? "accountname=" + accountname + "&"
+						: "accountname=&")
+				+ (identificationtype != null ? "identificationtype="
+						+ identificationtype + "&" : "identificationtype=&")
+				+ (identificationnumber != null ? "identificationnumber="
+						+ identificationnumber + "&" : "identificationnumber=&")
+				+ (phonenumber != null ? "phonenumber=" + phonenumber + "&"
+						: "phonenumber=&")
+				+ (cardtype != null ? "cardtype=" + cardtype + "&" : "cardtype=&")
+				+ (validdate != null ? "validdate=" + validdate + "&" : "validdate=&")
+				+ (cvn2 != null ? "cvn2=" + cvn2 + "&" : "cvn2=&")
+				+ (orderid != null ? "orderid=" + orderid + "&" : "orderid=&")
+				+ (orderpayfee != null ? "orderpayfee=" + orderpayfee + "&"
+						: "orderpayfee=&")
+				+ (custominfo != null ? "custominfo=" + custominfo + "&" : "custominfo=&")
+				+ (fronturl != null ? "fronturl=" + fronturl + "&" : "fronturl=&")
+				+ (receiveurl != null ? "receiveurl=" + receiveurl + "&" : "receiveurl=&")
+				+ (reserved != null ? "reserved=" + reserved + "&" : "reserved=&")
+				+ (signmsg != null ? "signmsg=" + signmsg : "signmsg=");
+	}
+
+}

@@ -1,0 +1,15 @@
+package com.cninsure.payment.service;
+
+import java.util.Map;
+
+import com.cninsure.core.dao.BaseService;
+import com.cninsure.payment.entity.PMAPPcustomaccount;
+import com.cninsure.payment.model.CustomAccountModel;
+
+public interface PMAPPcustomaccountService extends BaseService<PMAPPcustomaccount,Long> {
+
+	CustomAccountModel getAccountProfile(Map<String, Object> map);
+	
+	CustomAccountModel getCustomAccountById(Long id);
+
+}

@@ -1,0 +1,13 @@
+package com.cninsure.payment.dao.impl;
+
+import org.springframework.stereotype.Repository;
+
+import com.cninsure.core.dao.impl.BaseDaoImpl;
+import com.cninsure.payment.dao.PMPaychannellmitDao;
+import com.cninsure.payment.entity.PMPaychannellmit;
+
+@Repository
+public class PMPaychannellmitDaoImpl extends BaseDaoImpl<PMPaychannellmit,Long> implements
+		PMPaychannellmitDao {
+
+}

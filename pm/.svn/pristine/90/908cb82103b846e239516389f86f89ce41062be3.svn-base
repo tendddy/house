@@ -1,0 +1,191 @@
+package com.cninsure.payment.model;
+
+import java.io.Serializable;
+
+/**
+ * 商联绑卡回调接口参数
+ */
+
+public class BizCallBackBindCardModel implements Serializable {
+
+	private static final long serialVersionUID = 1320025925587404477L;
+	
+	private String resultcode;//处理结果编码
+	private String resultmsg;//处理结果描述
+	private String version;//	接口版本号
+	private String charset;//	字符集
+	private String systemid;//	合作平台编号
+	private String msgseqno;//	消息流水号
+	private String accountnumber;//	账户号码
+	private String accountname;//	账户名称
+	private String identificationtype;//	开户证件类型
+	private String identificationnumber;//	证件号码
+	private String phonenumber;//	银行预留手机号
+	private String cardtype;//	卡类型
+	private String validdate;//	信用卡有效期
+	private String cvn2;//	信用卡背面的末3位数字
+	private String orderid;//	商户订单号
+	private String orderpayfee;//	商户订单金额
+	private String custominfo;//	客户其他信息
+	private String protocolid;//	客户绑卡协议号
+	private String bankname;//	银行编码|银行名称
+	private String reserved;//	保留字段
+	private String signmsg;//	签名字符串
+	
+	public String getVersion() {
+		return version;
+	}
+	public void setVersion(String version) {
+		this.version = version;
+	}
+	public String getCharset() {
+		return charset;
+	}
+	public void setCharset(String charset) {
+		this.charset = charset;
+	}
+	public String getSystemid() {
+		return systemid;
+	}
+	public void setSystemid(String systemid) {
+		this.systemid = systemid;
+	}
+	public String getMsgseqno() {
+		return msgseqno;
+	}
+	public void setMsgseqno(String msgseqno) {
+		this.msgseqno = msgseqno;
+	}
+	public String getAccountnumber() {
+		return accountnumber;
+	}
+	public void setAccountnumber(String accountnumber) {
+		this.accountnumber = accountnumber;
+	}
+	public String getAccountname() {
+		return accountname;
+	}
+	public void setAccountname(String accountname) {
+		this.accountname = accountname;
+	}
+	public String getIdentificationtype() {
+		return identificationtype;
+	}
+	public void setIdentificationtype(String identificationtype) {
+		this.identificationtype = identificationtype;
+	}
+	public String getIdentificationnumber() {
+		return identificationnumber;
+	}
+	public void setIdentificationnumber(String identificationnumber) {
+		this.identificationnumber = identificationnumber;
+	}
+	public String getPhonenumber() {
+		return phonenumber;
+	}
+	public void setPhonenumber(String phonenumber) {
+		this.phonenumber = phonenumber;
+	}
+	public String getCardtype() {
+		return cardtype;
+	}
+	public void setCardtype(String cardtype) {
+		this.cardtype = cardtype;
+	}
+	public String getValiddate() {
+		return validdate;
+	}
+	public void setValiddate(String validdate) {
+		this.validdate = validdate;
+	}
+	public String getCvn2() {
+		return cvn2;
+	}
+	public void setCvn2(String cvn2) {
+		this.cvn2 = cvn2;
+	}
+	public String getOrderid() {
+		return orderid;
+	}
+	public void setOrderid(String orderid) {
+		this.orderid = orderid;
+	}
+	public String getOrderpayfee() {
+		return orderpayfee;
+	}
+	public void setOrderpayfee(String orderpayfee) {
+		this.orderpayfee = orderpayfee;
+	}
+	public String getCustominfo() {
+		return custominfo;
+	}
+	public void setCustominfo(String custominfo) {
+		this.custominfo = custominfo;
+	}
+	public String getReserved() {
+		return reserved;
+	}
+	public void setReserved(String reserved) {
+		this.reserved = reserved;
+	}
+	public String getSignmsg() {
+		return signmsg;
+	}
+	public void setSignmsg(String signmsg) {
+		this.signmsg = signmsg;
+	}
+	public String getResultcode() {
+		return resultcode;
+	}
+	public void setResultcode(String resultcode) {
+		this.resultcode = resultcode;
+	}
+	public String getResultmsg() {
+		return resultmsg;
+	}
+	public void setResultmsg(String resultmsg) {
+		this.resultmsg = resultmsg;
+	}
+	public String getProtocolid() {
+		return protocolid;
+	}
+	public void setProtocolid(String protocolid) {
+		this.protocolid = protocolid;
+	}
+	public String getBankname() {
+		return bankname;
+	}
+	public void setBankname(String bankname) {
+		this.bankname = bankname;
+	}
+	@Override
+	public String toString() {
+		return (resultcode != null ? "resultcode=" + resultcode + "&" : "")
+				+ (resultmsg != null ? "resultmsg=" + resultmsg + "&" : "")
+				+ (version != null ? "version=" + version + "&" : "")
+				+ (charset != null ? "charset=" + charset + "&" : "")
+				+ (systemid != null ? "systemid=" + systemid + "&" : "")
+				+ (msgseqno != null ? "msgseqno=" + msgseqno + "&" : "")
+				+ (accountnumber != null ? "accountnumber=" + accountnumber
+						+ "&" : "")
+				+ (accountname != null ? "accountname=" + accountname + "&"
+						: "")
+				+ (identificationtype != null ? "identificationtype="
+						+ identificationtype + "&" : "")
+				+ (identificationnumber != null ? "identificationnumber="
+						+ identificationnumber + "&" : "")
+				+ (phonenumber != null ? "phonenumber=" + phonenumber + "&"
+						: "")
+				+ (cardtype != null ? "cardtype=" + cardtype + "&" : "")
+				+ (validdate != null ? "validdate=" + validdate + "&" : "validdate=&")
+				+ (cvn2 != null ? "cvn2=" + cvn2 + "&" : "cvn2=&")
+				+ (orderid != null ? "orderid=" + orderid + "&" : "orderid=&")
+				+ (orderpayfee != null ? "orderpayfee=" + orderpayfee + "&"
+						: "orderpayfee=&")
+				+ (custominfo != null ? "custominfo=" + custominfo + "&" : "custominfo=&")
+				+ (protocolid != null ? "protocolid=" + protocolid + "&" : "protocolid=&")
+				+ (bankname != null ? "bankname=" + bankname + "&" : "bankname=&")
+				+ (reserved != null ? "reserved=" + reserved + "&" : "reserved=");
+	}
+	
+}

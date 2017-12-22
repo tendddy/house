@@ -1,0 +1,244 @@
+package com.cninsure.payment.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class PMPaymentplatform implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 数据主键
+	 */
+	private Long id;
+
+	/**
+	 * 创建时间
+	 */
+	private Date createdate;
+
+	/**
+	 * 最后修改时间
+	 */
+	private Date modifydate;
+
+	/**
+	 * 平台编号
+	 */
+	private String platformNo;
+
+	/**
+	 * 平台名称
+	 */
+	private String platformName;
+
+	/**
+	 * 支付平台图片
+	 */
+	private String platformLogo;
+
+	/**
+	 * 平台状态0-启用 1-禁用 2-删除
+	 */
+	private String status;
+	
+	/**
+	 * 支付平台类型  1：第三方支付平台  2：支付渠道  中金、央行
+	 */
+	private String ppType;
+
+	/**
+	 * 结算周期 0-实时 1-每月
+	 */
+	private Integer settlementInterval;
+
+	/**
+	 * 结算类型  1-按笔实时结算 2-按笔后续结算 3-固定金额结算
+	 */
+	private String settlementType;
+
+	/**
+	 * 手续费结算银行
+	 */
+	private String settlementBank;
+
+	/**
+	 * 手续费结算卡号
+	 */
+	private String settlementCard;
+
+	/**
+	 * 结算方（手续费承担方） 01-商户 02-银行 03-客户
+	 */
+	private String settlementParty;
+
+	/**
+	 * 手续费最低金额（以分为单位）
+	 */
+	private String minimumAmount;
+
+	/**
+	 * 手续费最高金额（以分为单位）
+	 */
+	private String maximumAmount;
+	
+	/**
+	 * 支付平台费率
+	 */
+	private float rate;
+	
+	/**
+	 * 当前订单手续费
+	 */
+	private float rateFee;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Date getCreatedate() {
+		return createdate;
+	}
+
+	public void setCreatedate(Date createdate) {
+		this.createdate = createdate;
+	}
+
+	public Date getModifydate() {
+		return modifydate;
+	}
+
+	public void setModifydate(Date modifydate) {
+		this.modifydate = modifydate;
+	}
+
+	public String getPlatformNo() {
+		return platformNo;
+	}
+
+	public void setPlatformNo(String platformNo) {
+		this.platformNo = platformNo;
+	}
+
+	public String getPlatformName() {
+		return platformName;
+	}
+
+	public void setPlatformName(String platformName) {
+		this.platformName = platformName;
+	}
+
+	public String getPlatformLogo() {
+		return platformLogo;
+	}
+
+	public void setPlatformLogo(String platformLogo) {
+		this.platformLogo = platformLogo;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public Integer getSettlementInterval() {
+		return settlementInterval;
+	}
+
+	public void setSettlementInterval(Integer settlementInterval) {
+		this.settlementInterval = settlementInterval;
+	}
+
+	public String getSettlementType() {
+		return settlementType;
+	}
+
+	public void setSettlementType(String settlementType) {
+		this.settlementType = settlementType;
+	}
+
+	public String getSettlementBank() {
+		return settlementBank;
+	}
+
+	public void setSettlementBank(String settlementBank) {
+		this.settlementBank = settlementBank;
+	}
+
+	public String getSettlementCard() {
+		return settlementCard;
+	}
+
+	public void setSettlementCard(String settlementCard) {
+		this.settlementCard = settlementCard;
+	}
+
+	public String getSettlementParty() {
+		return settlementParty;
+	}
+
+	public void setSettlementParty(String settlementParty) {
+		this.settlementParty = settlementParty;
+	}
+
+	public String getMinimumAmount() {
+		return minimumAmount;
+	}
+
+	public void setMinimumAmount(String minimumAmount) {
+		this.minimumAmount = minimumAmount;
+	}
+
+	public String getMaximumAmount() {
+		return maximumAmount;
+	}
+
+	public void setMaximumAmount(String maximumAmount) {
+		this.maximumAmount = maximumAmount;
+	}
+
+	
+	public String getPpType() {
+		return ppType;
+	}
+
+	public void setPpType(String ppType) {
+		this.ppType = ppType;
+	}
+
+	public float getRate() {
+		return rate;
+	}
+
+	public void setRate(float rate) {
+		this.rate = rate;
+	}
+
+	public float getRateFee() {
+		return rateFee;
+	}
+
+	public void setRateFee(float rateFee) {
+		this.rateFee = rateFee;
+	}
+
+	@Override
+	public String toString() {
+		return "PMPaymentplatform [id=" + id + ", createdate=" + createdate
+				+ ", modifydate=" + modifydate + ", platformNo=" + platformNo
+				+ ", platformName=" + platformName + ", platformLogo="
+				+ platformLogo + ", status=" + status + ", ppType=" + ppType
+				+ ", settlementInterval=" + settlementInterval
+				+ ", settlementType=" + settlementType + ", settlementBank="
+				+ settlementBank + ", settlementCard=" + settlementCard
+				+ ", settlementParty=" + settlementParty + ", minimumAmount="
+				+ minimumAmount + ", maximumAmount=" + maximumAmount
+				+ ", rate=" + rate + ", rateFee=" + rateFee + "]";
+	}
+}

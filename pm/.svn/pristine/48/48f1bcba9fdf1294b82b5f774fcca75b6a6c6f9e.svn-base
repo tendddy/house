@@ -1,0 +1,22 @@
+package com.cninsure.payment.service;
+
+import java.util.Map;
+
+import com.cninsure.core.dao.BaseService;
+import com.cninsure.payment.entity.PMAppplatform;
+
+public interface PMAppplatformService extends BaseService<PMAppplatform,Long> {
+	
+	
+	public Map<String,Object> initPlatformList(Map<String, Object> map);
+	
+	public Map<String, Object> saveOrUpdateplatformInfo(PMAppplatform pmappplatform);
+	
+	public PMAppplatform getPlatformList(String id);
+	
+	public Map<String, Object> selectPlatformInfo(PMAppplatform pmappplatform);
+
+	public Map<String, Object> selectSettlementList(Map<String, Object> map);
+
+
+}

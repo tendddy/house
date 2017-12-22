@@ -1,0 +1,110 @@
+package com.cninsure.payment.util;
+
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+
+import java.util.Date;
+
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SimpleTrigger;
+import org.quartz.TriggerBuilder;
+
+import com.cninsure.payment.timer.job.Tx1350QueryPayResultJob;
+import com.cninsure.payment.timer.job.Tx1362QueryPayResultJob;
+import com.cninsure.payment.timer.job.Tx2020QueryPayResultJob;
+import com.cninsure.payment.timer.job.Tx2502QueryPayResultJob;
+
+
+public class quartzUtil {
+	
+	/**
+	 * @param sched
+	 * @param jobName
+	 * @param groupName
+	 * @param txType
+	 */
+	public static void timeOut4TxQuartz(Scheduler sched,String jobName,String groupName,String txType){
+		
+		long nowDate = new Date().getTime();
+		nowDate = nowDate+7000; 
+		Date startTime = new Date(nowDate);
+		
+		JobDetail job = null;
+		if("2011".equals(txType)){///
+			job = JobBuilder.newJob(Tx2020QueryPayResultJob.class).withIdentity(jobName,groupName).build();
+		}else if("1361".equals(txType)){/////
+			job = JobBuilder.newJob(Tx1362QueryPayResultJob.class).withIdentity(jobName,groupName).build();
+		}else if("2501".equals(txType)){
+			job = JobBuilder.newJob(Tx2502QueryPayResultJob.class).withIdentity(jobName,groupName).build();
+		}else if("2532".equals(txType)){/////
+			job = JobBuilder.newJob(Tx2502QueryPayResultJob.class).withIdentity(jobName,groupName).build();
+		}else if("1341".equals(txType)){////
+			job = JobBuilder.newJob(Tx1350QueryPayResultJob.class).withIdentity(jobName,groupName).build();
+		}
+		SimpleTrigger trigger = (SimpleTrigger) TriggerBuilder.newTrigger().withIdentity(jobName).withSchedule(simpleSchedule().
+				withIntervalInSeconds(3).//4秒一次
+				withRepeatCount(4)).startAt(startTime).build();
+		
+		//加入调度
+		try {
+			sched.scheduleJob(job, trigger);
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 得到处理中结果后进行轮询
+	 * 
+	 * @param jobName 定时任务job名称
+	 * @param groupName 定时任务组名称
+	 * @param txType 接口类型
+	 */
+	public static void poll4TxQuartz(Scheduler sched,String jobName,String groupName,String txType){
+		JobDetail job = null;
+		if("2011".equals(txType)){
+			job = JobBuilder.newJob(Tx2020QueryPayResultJob.class).withIdentity(jobName,groupName).build();
+		}else if("1361".equals(txType)){
+			job = JobBuilder.newJob(Tx1362QueryPayResultJob.class).withIdentity(jobName,groupName).build();
+		}else if("2501".equals(txType)){
+			job = JobBuilder.newJob(Tx2502QueryPayResultJob.class).withIdentity(jobName,groupName).build();
+		}else if("2532".equals(txType)){
+			job = JobBuilder.newJob(Tx2502QueryPayResultJob.class).withIdentity(jobName,groupName).build();
+		}else if("1341".equals(txType)){
+			job = JobBuilder.newJob(Tx1350QueryPayResultJob.class).withIdentity(jobName,groupName).build();
+		}
+		
+		SimpleTrigger trigger = (SimpleTrigger) TriggerBuilder.newTrigger().
+				withIdentity(jobName).startNow().//马上执行
+				withSchedule(simpleSchedule().
+						withIntervalInSeconds(5).//5秒一次
+						withRepeatCount(18)).//执行18次
+						build();
+		//加入调度
+		try {
+			sched.scheduleJob(job, trigger);
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 删除定时任务
+	 * 
+	 * @param sched
+	 * @param jobName
+	 * @param taskName
+	 */
+	public static void deleteHistoryJob(Scheduler sched,String jobName,String groupName){
+		
+		JobKey jobKey = new JobKey(jobName,groupName);
+		try {
+			sched.deleteJob(jobKey);
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
+	}
+}

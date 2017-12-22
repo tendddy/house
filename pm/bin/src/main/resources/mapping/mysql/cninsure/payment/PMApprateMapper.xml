@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cninsure.payment.entity">
+	<resultMap id="PMApprateMap" type="com.cninsure.payment.entity.PMApprate" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+	    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+	    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+	    <result column="app_id" property="appId" jdbcType="BIGINT" />
+	    <result column="channel_type" property="channelType" jdbcType="CHAR" />
+	    <result column="rate_type" property="rateType" jdbcType="CHAR" />
+	    <result column="rate" property="rate" jdbcType="DECIMAL" />
+	    <result column="countRate" property="countRate" jdbcType="INTEGER" />
+	    <result column="minimum_amount" property="minimumAmount" jdbcType="INTEGER" />
+	    <result column="maximum_amount" property="maximumAmount" jdbcType="INTEGER" />
+	    <result column="settlement_interval" property="settlementInterval" jdbcType="CHAR" />
+	    <result column="modify_user" property="modifyUser" jdbcType="VARCHAR" />
+</resultMap>
+	<!-- PMApprate -->
+	<insert id="PMApprate_insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.cninsure.payment.entity.PMApprate">
+		insert into PMApprate
+		(id,createdate,modifydate,app_id,channel_type,rate_type,rate,minimum_amount,maximum_amount,settlement_interval,modify_user) 
+		values
+		(#{id, jdbcType=BIGINT},#{createdate, jdbcType=TIMESTAMP},#{modifydate, jdbcType=TIMESTAMP},#{appId, jdbcType=BIGINT},#{channelType, jdbcType=CHAR},#{rateType, jdbcType=CHAR},#{rate, jdbcType=DECIMAL},#{minimumAmount, jdbcType=INTEGER},#{maximumAmount, jdbcType=INTEGER},#{settlementInterval, jdbcType=CHAR},#{modifyUser, jdbcType=VARCHAR}) 
+	</insert>
+	<select id="PMApprate_select" parameterType="Map" resultMap="PMApprateMap">
+		select * from PMApprate
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="appId != null">
+				and app_id = #{appId, jdbcType=BIGINT}
+			</if>
+			<if test="channelType != null">
+				and channel_type = #{channelType, jdbcType=CHAR}
+			</if>
+			<if test="rateType != null">
+				and rate_type = #{rateType, jdbcType=CHAR}
+			</if>
+			<if test="rate != null">
+				and rate = #{rate, jdbcType=DECIMAL}
+			</if>
+			<if test="minimumAmount != null">
+				and minimum_amount = #{minimumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="maximumAmount != null">
+				and maximum_amount = #{maximumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="settlementInterval != null">
+				and settlement_interval = #{settlementInterval, jdbcType=CHAR}
+			</if>
+			<if test="modifyUser != null">
+				and modify_user = #{modifyUser, jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMApprate_selectById" parameterType="Long" resultMap="PMApprateMap">
+		select * from PMApprate where id = #{id}
+	</select>
+	<select id="PMApprate_selectRateByOrderFee" parameterType="Map" resultMap="PMApprateMap">
+		select * ,
+		case  
+		when rate_type = '0' then #{orderFee}*rate
+		when rate_type = '1' then  rate end as countRate
+		from PMApprate
+		where app_id = #{appId} and 
+		<![CDATA[  #{orderFee} > minimum_amount and  #{orderFee}<= maximum_amount]]>  
+		order by countRate
+		limit 1
+	</select>
+	<select id="PMApprate_deleteById" parameterType="Long">
+		delete from PMApprate where id = #{id}
+	</select>
+	<select id="PMApprate_updateById" parameterType="com.cninsure.payment.entity.PMApprate">
+		update PMApprate  set id = #{id, jdbcType=BIGINT},createdate = #{createdate, jdbcType=TIMESTAMP},modifydate = #{modifydate, jdbcType=TIMESTAMP},app_id = #{appId, jdbcType=BIGINT},channel_type = #{channelType, jdbcType=CHAR},rate_type = #{rateType, jdbcType=CHAR},rate = #{rate, jdbcType=DECIMAL},minimum_amount = #{minimumAmount, jdbcType=INTEGER},maximum_amount = #{maximumAmount, jdbcType=INTEGER},settlement_interval = #{settlementInterval, jdbcType=CHAR},modify_user = #{modifyUser, jdbcType=VARCHAR} where id = #{id}
+	</select>
+	<select id="PMApprate_selectCount" parameterType="Map" resultType="Long">
+		select count(1) from PMApprate
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="appId != null">
+				and app_id = #{appId, jdbcType=BIGINT}
+			</if>
+			<if test="channelType != null">
+				and channel_type = #{channelType, jdbcType=CHAR}
+			</if>
+			<if test="rateType != null">
+				and rate_type = #{rateType, jdbcType=CHAR}
+			</if>
+			<if test="rate != null">
+				and rate = #{rate, jdbcType=DECIMAL}
+			</if>
+			<if test="minimumAmount != null">
+				and minimum_amount = #{minimumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="maximumAmount != null">
+				and maximum_amount = #{maximumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="settlementInterval != null">
+				and settlement_interval = #{settlementInterval, jdbcType=CHAR}
+			</if>
+			<if test="modifyUser != null">
+				and modify_user = #{modifyUser, jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMApprate_selectOne" parameterType="Map" resultMap="PMApprateMap">
+		select * from PMApprate
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="app_id != null">
+				and app_id = #{appId, jdbcType=BIGINT}
+			</if>
+			<if test="channel_type != null">
+				and channel_type = #{channelType, jdbcType=CHAR}
+			</if>
+			<if test="rate_type != null">
+				and rate_type = #{rateType, jdbcType=CHAR}
+			</if>
+			<if test="rate != null">
+				and rate = #{rate, jdbcType=DECIMAL}
+			</if>
+			<if test="minimum_amount != null">
+				and minimum_amount = #{minimumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="maximum_amount != null">
+				and maximum_amount = #{maximumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="settlement_interval != null">
+				and settlement_interval = #{settlementInterval, jdbcType=CHAR}
+			</if>
+			<if test="modify_user != null">
+				and modify_user = #{modifyUser, jdbcType=VARCHAR}
+			</if>
+		</where>
+		LIMIT 2
+	</select>
+	
+	<insert id="PMApprate_saveRate" parameterType="com.cninsure.payment.entity.PMApprate" useGeneratedKeys="true" keyProperty="id" >
+	INSERT INTO `pmapprate` 
+	(`createdate`, `modifydate`, `app_id`, `channel_type`, `rate_type`, `rate`, `minimum_amount`, `maximum_amount`,`modify_user`) VALUES 
+	(sysdate(),sysdate(),#{appId, jdbcType=BIGINT}, #{channelType, jdbcType=CHAR}, #{rateType, jdbcType=CHAR}, #{rate, jdbcType=DECIMAL},
+	 #{minimumAmount, jdbcType=INTEGER}, #{maximumAmount, jdbcType=INTEGER},#{modifyUser, jdbcType=INTEGER})
+	</insert>
+	<select id="PMApprate_updateRate" parameterType="com.cninsure.payment.entity.PMApprate" resultType="int">
+		UPDATE pmapprate SET  modifydate=sysdate(),app_id=#{appId, jdbcType=BIGINT}, channel_type=#{channelType, jdbcType=CHAR}, 
+		rate_type=#{rateType, jdbcType=CHAR}, rate=#{rate, jdbcType=DECIMAL}, minimum_amount=#{minimumAmount, jdbcType=INTEGER}, 
+		maximum_amount=#{maximumAmount, jdbcType=INTEGER},modify_user=#{modifyUser, jdbcType=INTEGER}
+		   where id=#{id, jdbcType=BIGINT}
+	</select>
+	<select id="PMApprate_deleteRate" parameterType="com.cninsure.payment.entity.PMApprate" resultType="int">
+		delete from  pmapprate where id =#{id, jdbcType=BIGINT}
+	</select>
+	<insert id="PMApprate_back_rate" parameterType="com.cninsure.payment.entity.PMApprate">
+        INSERT INTO `pmappratebak` 
+	(`id`,`createdate`, `modifydate`, `app_id`, `channel_type`, `rate_type`, `rate`, `minimum_amount`, `maximum_amount`,`modify_user`) 
+	select id,sysdate(),`modifydate`,app_id,channel_type,rate_type,rate,minimum_amount,maximum_amount,modify_user from pmapprate where id =#{id, jdbcType=BIGINT}
+	</insert>
+	<select id="PMApprate_selectRate" parameterType="com.cninsure.payment.entity.PMApprate" resultMap="PMApprateMap">
+		select id,rate,rate_type rateType,minimum_amount minimumAmount,maximum_amount maximumAmount from PMApprate where id = #{id, jdbcType=BIGINT}
+	</select>
+	<select id="PMApprate_selectRateList" parameterType="String" resultType="Map">
+		select id,app_id appId,channel_type channelType,rate_type rateType,rate,minimum_amount minimumAmount,maximum_amount maximumAmount
+		 from PMApprate where app_id = #{_parameter, jdbcType=BIGINT} order by minimum_amount
+	</select>
+	<select id="PMApprate_selectRateTrackList" parameterType="Map" resultType="Map">
+		select p.id,p.modifydate createdate,p.app_id appId,p.channel_type channelType,p.rate_type rateType,p.rate,
+		p.minimum_amount minimumAmount,p.maximum_amount maximumAmount,i.name modify_user
+ 		from pmappratebak p
+ 		left join inscuser i on i.usercode=p.modify_user
+		<where>
+			 <if test="id != null and id != ''"> 
+			 	and p.app_id = #{id}
+			 </if>
+		</where>
+		<if test="sort != null and order != null">
+			order by ${sort}  ${order}
+		</if>
+		<if test="sort == null">
+			order by createdate desc
+		</if>
+		limit #{offset},#{limit}
+	</select>
+	<select id="PMApprate_getRateTrackCount" parameterType="Map" resultType="long">
+		select count(1) from pmappratebak p
+		<where>
+			 <if test="id != null and id != ''"> 
+			 	and p.app_id = #{id}
+			 </if>
+		</where>
+	</select>
+</mapper>

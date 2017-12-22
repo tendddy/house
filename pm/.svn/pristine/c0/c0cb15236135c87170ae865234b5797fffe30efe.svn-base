@@ -1,0 +1,161 @@
+package com.cninsure.payment.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class PMImage implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 数据主键
+	 */
+	private Long id;
+
+	/**
+	 * 创建时间
+	 */
+	private Date createdate;
+
+	/**
+	 * 最后修改时间
+	 */
+	private Date modifydate;
+
+	/**
+	 * 所属对象 1-应用平台 2-支付平台 3-渠道
+	 */
+	private Integer objectType;
+
+	/**
+	 * 对象数据ID
+	 */
+	private Long objectId;
+
+	/**
+	 * 存储路径
+	 */
+	private String path;
+
+	/**
+	 * 图片名称
+	 */
+	private String name;
+
+	/**
+	 * 图片原名
+	 */
+	private String oldName;
+
+	/**
+	 * 文件大小
+	 */
+	private Integer size;
+
+	/**
+	 * 图片类型
+	 */
+	private String type;
+
+	/**
+	 * 附件状态 0-暂存  1-正常 2-删除
+	 */
+	private String status;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Date getCreatedate() {
+		return createdate;
+	}
+
+	public void setCreatedate(Date createdate) {
+		this.createdate = createdate;
+	}
+
+	public Date getModifydate() {
+		return modifydate;
+	}
+
+	public void setModifydate(Date modifydate) {
+		this.modifydate = modifydate;
+	}
+
+	public Integer getObjectType() {
+		return objectType;
+	}
+
+	public void setObjectType(Integer objectType) {
+		this.objectType = objectType;
+	}
+
+	public Long getObjectId() {
+		return objectId;
+	}
+
+	public void setObjectId(Long objectId) {
+		this.objectId = objectId;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getOldName() {
+		return oldName;
+	}
+
+	public void setOldName(String oldName) {
+		this.oldName = oldName;
+	}
+
+	public Integer getSize() {
+		return size;
+	}
+
+	public void setSize(Integer size) {
+		this.size = size;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	@Override
+	public String toString() {
+		return "PMImage [id=" + id + ", createdate=" + createdate
+				+ ", modifydate=" + modifydate + ", objectType=" + objectType
+				+ ", objectId=" + objectId + ", path=" + path + ", name="
+				+ name + ", oldName=" + oldName + ", size=" + size + ", type="
+				+ type + ", status=" + status + "]";
+	}
+
+}

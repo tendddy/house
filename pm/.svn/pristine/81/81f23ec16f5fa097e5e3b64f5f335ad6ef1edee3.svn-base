@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cninsure.payment.entity">
+	<!-- PMAPPcustom -->
+	<resultMap id="PMAPPcustomMap" type="com.cninsure.payment.entity.PMAPPcustom">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="operator" property="operator" jdbcType="VARCHAR" />
+		<result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+		<result column="modifytime" property="modifytime" jdbcType="TIMESTAMP" />
+		<result column="noti" property="noti" jdbcType="VARCHAR" />
+		<result column="app_id" property="app_id" jdbcType="BIGINT" />
+		<result column="app_user_id" property="app_user_id" jdbcType="VARCHAR" />
+		<result column="app_user_name" property="app_user_name" jdbcType="VARCHAR" />
+		<result column="app_user_idno" property="app_user_idno" jdbcType="VARCHAR" />
+		<result column="login_pwd" property="login_pwd" jdbcType="VARCHAR" />
+		<result column="pay_pwd" property="pay_pwd" jdbcType="VARCHAR" />
+	</resultMap>
+	<insert id="PMAPPcustom_insert" parameterType="com.cninsure.payment.entity.PMAPPcustom" useGeneratedKeys="true" keyProperty="id">
+		insert into PMAPPcustom
+		(operator,createtime,modifytime,noti,app_id,app_user_id,app_user_name,app_user_idno,login_pwd,pay_pwd) 
+		values
+		(#{operator},#{createtime},#{modifytime},#{noti},#{app_id},#{app_user_id},#{app_user_name},#{app_user_idno},#{login_pwd},#{pay_pwd}) 
+	</insert>
+	<select id="PMAPPcustom_select" parameterType="Map" resultType="com.cninsure.payment.entity.PMAPPcustom">
+		select * from PMAPPcustom
+		<where>
+			<if test="id != null">
+				and id = #{id}
+			</if>
+			<if test="operator != null">
+				and operator = #{operator}
+			</if>
+			<if test="createtime != null">
+				and createtime = #{createtime}
+			</if>
+			<if test="modifytime != null">
+				and modifytime = #{modifytime}
+			</if>
+			<if test="noti != null">
+				and noti = #{noti}
+			</if>
+			<if test="app_id != null">
+				and app_id = #{app_id}
+			</if>
+			<if test="app_user_id != null">
+				and app_user_id = #{app_user_id}
+			</if>
+			<if test="app_user_name != null">
+				and app_user_name = #{app_user_name}
+			</if>
+			<if test="app_user_idno != null">
+				and app_user_idno = #{app_user_idno}
+			</if>
+			<if test="login_pwd != null">
+				and login_pwd = #{login_pwd}
+			</if>
+			<if test="pay_pwd != null">
+				and pay_pwd = #{pay_pwd}
+			</if>
+		</where>
+	</select>
+	<select id="PMAPPcustom_selectById" parameterType="Long" resultType="com.cninsure.payment.entity.PMAPPcustom">
+		select * from PMAPPcustom where id = #{id}
+	</select>
+	<select id="PMAPPcustom_deleteById" parameterType="Long">
+		delete from PMAPPcustom where id = #{id}
+	</select>
+	<select id="PMAPPcustom_updateById" parameterType="com.cninsure.payment.entity.PMAPPcustom">
+		update PMAPPcustom  set operator = #{operator},createtime = #{createtime},modifytime = #{modifytime},noti = #{noti},app_id = #{app_id},app_user_id = #{app_user_id},app_user_name = #{app_user_name},app_user_idno = #{app_user_idno},login_pwd = #{login_pwd},pay_pwd = #{pay_pwd} where id = #{id}
+	</select>
+	<select id="PMAPPcustom_selectCount" parameterType="Map" resultType="Long">
+		select count(1) from PMAPPcustom
+		<where>
+			<if test="id != null">
+				and id = #{id}
+			</if>
+			<if test="operator != null">
+				and operator = #{operator}
+			</if>
+			<if test="createtime != null">
+				and createtime = #{createtime}
+			</if>
+			<if test="modifytime != null">
+				and modifytime = #{modifytime}
+			</if>
+			<if test="noti != null">
+				and noti = #{noti}
+			</if>
+			<if test="app_id != null">
+				and app_id = #{app_id}
+			</if>
+			<if test="app_user_id != null">
+				and app_user_id = #{app_user_id}
+			</if>
+			<if test="app_user_name != null">
+				and app_user_name = #{app_user_name}
+			</if>
+			<if test="app_user_idno != null">
+				and app_user_idno = #{app_user_idno}
+			</if>
+			<if test="login_pwd != null">
+				and login_pwd = #{login_pwd}
+			</if>
+			<if test="pay_pwd != null">
+				and pay_pwd = #{pay_pwd}
+			</if>
+		</where>
+	</select>
+	<select id="PMAPPcustom_selectOne" parameterType="Map" resultType="com.cninsure.payment.entity.PMAPPcustom">
+		select * from PMAPPcustom
+		<where>
+			<if test="id != null">
+				and id = #{id}
+			</if>
+			<if test="operator != null">
+				and operator = #{operator}
+			</if>
+			<if test="createtime != null">
+				and createtime = #{createtime}
+			</if>
+			<if test="modifytime != null">
+				and modifytime = #{modifytime}
+			</if>
+			<if test="noti != null">
+				and noti = #{noti}
+			</if>
+			<if test="app_id != null">
+				and app_id = #{app_id}
+			</if>
+			<if test="app_user_id != null">
+				and app_user_id = #{app_user_id}
+			</if>
+			<if test="app_user_name != null">
+				and app_user_name = #{app_user_name}
+			</if>
+			<if test="app_user_idno != null">
+				and app_user_idno = #{app_user_idno}
+			</if>
+			<if test="login_pwd != null">
+				and login_pwd = #{login_pwd}
+			</if>
+			<if test="pay_pwd != null">
+				and pay_pwd = #{pay_pwd}
+			</if>
+		</where>
+		LIMIT 2
+	</select>
+
+	<select id="PMAPPcustom_selectCustomPayPwd" resultType="Long" parameterType="Map">
+		SELECT COUNT(1) FROM pmappcustom c
+		<where>
+			c.app_id = #{appId}
+			AND c.app_user_id = #{appUserId}
+			AND c.app_user_idno = #{appUserIdno}
+			AND c.pay_pwd =
+			#{payPwd}
+		</where>
+	</select>
+
+</mapper>

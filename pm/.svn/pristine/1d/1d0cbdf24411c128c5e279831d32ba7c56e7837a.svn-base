@@ -1,0 +1,80 @@
+package com.cninsure.payment.controller.platform;
+
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cninsure.payment.model.BaseModel;
+import com.cninsure.payment.model.SingleWithhold2011Model;
+import com.cninsure.payment.model.SingleWithhold2018Model;
+import com.cninsure.payment.model.SingleWithhold2020Model;
+import com.cninsure.payment.model.TradeReconResult1810Model;
+import com.cninsure.payment.service.WithholdingService;
+
+/**
+ * 代付接口
+ */
+@Controller
+@RequestMapping("/withholding/")
+public class WithholdingController {
+
+	@Resource
+	private WithholdingService withholdingService;
+
+	
+	/**
+	 * 2011-单笔代扣请求
+	 * 
+	 * @param pcModel
+	 * @return (返回代扣结果)
+	 */
+	@RequestMapping(value = "singlewithholdingrequest", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseModel singleWithholdingRequest(@RequestBody SingleWithhold2011Model sw2011Model) {
+		BaseModel result = withholdingService.singleWithholdingRequestTx2011(sw2011Model);
+		System.out.println(result);
+		return result;
+	}
+	/**
+	 * 2018-单笔代扣结果通知
+	 * 
+	 * @param pcModel
+	 * @return (返回代扣结果)
+	 */
+	@RequestMapping(value = "singlewithholdingresult", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseModel singleWithholdingResult(@RequestBody SingleWithhold2018Model sw2018Model) {
+		BaseModel result = withholdingService.singleWithholdingResultTx2018(sw2018Model);
+		System.out.println(result);
+		return result;
+	}
+	/**
+	 * Tx2020-单笔代扣交易查询（同步交易）
+	 * @param pcModel
+	 * @return (返回查询结果)
+	 */
+	@RequestMapping(value = "singlewithholdingtraderesult", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseModel singleWithholdingTradeResult(@RequestBody SingleWithhold2020Model sw2020Model) {
+		BaseModel result = withholdingService.singleWithholdingTradeResultTx2020(sw2020Model);
+		System.out.println(result);
+		return result;
+	}
+	/**
+	 * Tx1810-交易对账单（同步交易）
+	 * @param pcModel
+	 * @return (返回查询结果)
+	 */
+	@RequestMapping(value = "tradereconresult", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseModel tradeReconResult(@RequestBody TradeReconResult1810Model sw1810Model) {
+		BaseModel result = withholdingService.tradeReconResultTx1810(sw1810Model);
+		System.out.println(result);
+		return result;
+	}
+}

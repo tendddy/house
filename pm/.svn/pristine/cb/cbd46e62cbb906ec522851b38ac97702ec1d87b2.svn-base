@@ -1,0 +1,80 @@
+package com.cninsure.payment.timer.job;
+
+
+import javax.annotation.Resource;
+
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.Scheduler;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import payment.api.tx.paymentbinding.Tx2502Request;
+import payment.api.tx.paymentbinding.Tx2502Response;
+
+import com.cninsure.payment.dao.PMBankcardDao;
+import com.cninsure.payment.dao.PMLogRecordsDao;
+import com.cninsure.payment.dao.PMPaymentDao;
+import com.cninsure.payment.util.TxCore;
+import com.cninsure.payment.util.quartzUtil;
+
+/**
+ * 单笔代收查询
+ * 规则：5秒一次轮询90秒 
+ * 成功：回写数据库
+ * 失败：人工干预 通知管理员处理
+ * 
+ * 
+ */
+@Service
+public class Tx2502QueryPayResultJob  implements Job    {
+	@Resource
+	private PMBankcardDao pmBankcardDao;
+	@Resource
+	private PMPaymentDao pmPaymentDao;
+	@Resource
+	private PMLogRecordsDao pmLogRecordsDao;
+	@Resource
+	public  Scheduler sched;
+	
+	@Value("${tx.institutionID}")
+	private String txInstitutionID;
+	
+	@Override
+	public void execute(JobExecutionContext context)throws JobExecutionException {
+		
+		// jobName
+		String ProInstanceId_Prvcode = context.getJobDetail().getKey().getName();
+		String logId = ProInstanceId_Prvcode.split("_")[1];
+		String protocolId = ProInstanceId_Prvcode.split("_")[2];
+		
+		Tx2502Request txRequest = new Tx2502Request();
+		txRequest.setInstitutionID(txInstitutionID);
+		txRequest.setTxSNBinding(protocolId);
+		
+		String[] respMsg = TxCore.handlerParam(txRequest, "2502", "绑定关系查询");
+		Tx2502Response zhongjinResponse = null;
+		try {
+			zhongjinResponse = new Tx2502Response(respMsg[0], respMsg[1]);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if ("2000".equals(zhongjinResponse.getCode())) {
+			if (zhongjinResponse.getStatus() == 20) {
+				// TODO 超时查询，处理中需要人工干预 暂不处理
+			} else if (zhongjinResponse.getStatus() == 30) {
+				//接口操作日志状态更新
+				pmLogRecordsDao.updateLogStatusById(Long.parseLong(logId));
+				pmBankcardDao.updateStatusByProtocolId(protocolId, "1");
+				// 取消开始90秒定时任务
+				quartzUtil.deleteHistoryJob(sched, ProInstanceId_Prvcode, "timeout2532");
+				quartzUtil.deleteHistoryJob(sched, ProInstanceId_Prvcode, "poll2532");
+			} else if (zhongjinResponse.getStatus() == 40) {
+				// TODO 日志
+			}
+		} else {
+			// TODO 日志记录
+		}
+	}
+}

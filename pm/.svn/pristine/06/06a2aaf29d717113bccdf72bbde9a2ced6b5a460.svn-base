@@ -1,0 +1,25 @@
+package com.cninsure.payment.model;
+
+import com.cninsure.payment.entity.PMAppplatform;
+
+/**
+ * 第三方平台交互model
+ * 
+ * @author chengxt1202
+ *
+ */
+public class PMAppPlatformModel extends BaseModel {
+
+	private static final long serialVersionUID = 1L;
+
+	private PMAppplatform appplatform;
+
+	public PMAppplatform getAppplatform() {
+		return appplatform;
+	}
+
+	public void setAppplatform(PMAppplatform appplatform) {
+		this.appplatform = appplatform;
+	}
+
+}

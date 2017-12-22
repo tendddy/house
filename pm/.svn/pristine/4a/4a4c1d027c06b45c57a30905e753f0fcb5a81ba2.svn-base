@@ -1,0 +1,99 @@
+package com.cninsure.payment.util;
+
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import com.common.httpClient.HttpProtocolHandler;
+import com.common.httpClient.HttpRequest;
+
+/**
+ * 短信验证码发送
+ */
+public class SMSUtil {
+
+	private static final String CommonHead="fhbaoxian";
+	
+	/**
+	 * 发送验证码
+	 */
+	private static String  sendSMS(String phone,String code) {
+		ResourceBundle bundle = PropertyResourceBundle.getBundle("config/config");
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("cdkey", bundle.getString("softwareSerialNo"));
+		map.put("password", bundle.getString("key"));
+		map.put("phone", phone);
+		map.put("message", "传说中的验证码：" + code);
+		map.put("addserial", "");
+		HttpProtocolHandler hph = HttpProtocolHandler.getInstance();
+		String response;
+		try {
+			response = hph.execute(bundle.getString("sendurl").toString(), map, HttpRequest.METHOD_POST);
+			System.out.println(response);
+			return code;
+		} catch (Exception e) {
+			System.out.println("测试服模拟调用短信发送验证码");
+			return "123456";
+		}
+		
+	}
+	
+	public static  String SMSconfig(HttpServletRequest  request,String orderId,String cellphone){
+		String validCode="";
+		for(int i=0;i<4;i++){
+			validCode+=(char)(48+(int)10*Math.random());
+		}
+		HttpSession session = request.getSession();
+		Long expiredTime = System.currentTimeMillis() + 100000;
+		// 放入有效期
+		session.setAttribute(CommonHead+orderId, expiredTime);
+		return sendSMS(cellphone, validCode);
+	}
+	
+	public static boolean verificationTime(long sessionEndTime){
+		Long expiredTime = System.currentTimeMillis();
+		if(sessionEndTime>expiredTime){
+			return true;
+		}else{
+			return false;
+		}
+		
+	}
+	
+	/**
+	 * 生成系统订单号
+	 * 
+	 * @param tableType main(pmpayment)/sub(products)
+	 * @param id
+	 * @return
+	 */
+	public static String productPmOrderId(String tableType,long id){
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
+		String sysDate = df.format(new Date());
+		DecimalFormat lastDf = new DecimalFormat("00000000"); 
+		String endInt = lastDf.format(id);
+		if(tableType.equals("main")){
+			return "m"+sysDate+endInt;
+		}else{
+			return "s"+sysDate+endInt;
+		}
+		
+	}
+	
+	public static void main(String[] args) {
+//		sendSMS("9999999","123456");
+		for(long i=9L;i<100000L;i++){
+			String orderId =  productPmOrderId("main",i);
+			System.out.println(orderId);
+		}
+		
+	}
+
+}

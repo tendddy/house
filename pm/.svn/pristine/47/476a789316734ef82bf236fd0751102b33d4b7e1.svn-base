@@ -1,0 +1,84 @@
+package com.cninsure.payment.model;
+
+import java.io.Serializable;
+
+/**
+ * 保存支付信息
+ */
+public class QueryPayCodeModel implements Serializable {
+
+	private static final long serialVersionUID = -875177564813427409L;
+
+	/**
+	 * 订单Id
+	 */
+	private long paymentId;
+
+	/**
+	 * 绑卡流水号
+	 */
+	private String protocolid;
+
+	/**
+	 * 支付平台Id
+	 */
+	private long paymentPlatFormId;
+
+	/**
+	 * 应用平台Id
+	 */
+	private long appId;
+
+	/**
+	 * 银行卡Id
+	 */
+	private long channelId;
+
+	public long getPaymentId() {
+		return paymentId;
+	}
+
+	public void setPaymentId(long paymentId) {
+		this.paymentId = paymentId;
+	}
+
+	public String getProtocolid() {
+		return protocolid;
+	}
+
+	public void setProtocolid(String protocolid) {
+		this.protocolid = protocolid;
+	}
+
+	public long getPaymentPlatFormId() {
+		return paymentPlatFormId;
+	}
+
+	public void setPaymentPlatFormId(long paymentPlatFormId) {
+		this.paymentPlatFormId = paymentPlatFormId;
+	}
+
+	public long getAppId() {
+		return appId;
+	}
+
+	public void setAppId(long appId) {
+		this.appId = appId;
+	}
+
+	public long getChannelId() {
+		return channelId;
+	}
+
+	public void setChannelId(long channelId) {
+		this.channelId = channelId;
+	}
+
+	@Override
+	public String toString() {
+		return "QueryPayCodeModel [paymentId=" + paymentId + ", protocolid="
+				+ protocolid + ", paymentPlatFormId=" + paymentPlatFormId
+				+ ", appId=" + appId + ", channelId=" + channelId + "]";
+	}
+
+}

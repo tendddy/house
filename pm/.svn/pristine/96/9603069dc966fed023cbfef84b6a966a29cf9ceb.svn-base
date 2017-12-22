@@ -1,0 +1,44 @@
+package com.cninsure.payment.service;
+
+import com.cninsure.core.dao.BaseService;
+import com.cninsure.payment.entity.PMRatefee;
+
+public interface PMRatefeeService extends BaseService<PMRatefee,Long> {
+	
+	/**
+	 * 应用平台应收手续费
+	 * 
+	 * @param paymentId
+	 * @param appId
+	 * @param orderFee
+	 */
+	public void receivableAppRateFee(long paymentId,long appId,int orderFee,String payType);
+	
+	/**
+	 *  应用平台实收手续费
+	 * 
+	 * @param paymentId
+	 * @param appId
+	 * @param payFee
+	 */
+	public void netReceiptsAppRateFee(long paymentId,long appId,int payFee,String payType);
+	
+	/**
+	 * 支付平台应收手续费
+	 * 
+	 * @param paymentId
+	 * @param payPlatFormId
+	 * @param orderFee
+	 */
+	public void receivablePaymentRateFee(long paymentId,long payPlatFormId,int orderFee,String payTyep);
+	
+	/**
+	 * 支付平台实收手续费
+	 * 
+	 * @param paymentId
+	 * @param payPlatFormId
+	 * @param payFee
+	 */
+	public void netReceiptsPaymentRateFee(long paymentId,long payPlatFormId,int payFee,String payType);
+
+}

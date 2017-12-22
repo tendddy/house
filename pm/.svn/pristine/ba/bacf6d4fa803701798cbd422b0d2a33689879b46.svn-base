@@ -1,0 +1,440 @@
+package com.cninsure.payment.model;
+
+/**
+ *单笔代扣 Tx2011 <br>
+ *
+ * R 报文中该元素必须出现（Required）<br>
+ * O 报文中该元素可选出现（Optional）<br>
+ * C 报文中该元素在一定条件下可选出现（Conditional）<br>
+ */
+public class SingleWithhold2011Model {
+
+	/**
+	 * R
+	 * 
+	 * 机构号码
+	 */
+	private String institutionID;
+	
+	/**
+	 * R
+	 * 
+	 *  交易流水号
+	 */
+	private String txSN;
+	
+	/**
+	 * R
+	 * 
+	 *金额 
+	 */
+	private String amount;
+	
+	/**
+	 * 
+	 * R
+	 * 
+	 * 银行ID
+	 */
+	private String bankID;
+	
+	/**
+	 * R
+	 * 
+	 * 账户类型： 11=个人账户 12=企业账户
+	 */
+	private String accountType;
+	
+	/**
+	 * C
+	 * 
+	 * 当代扣信用卡时，该项必填
+	 * 
+	 *信用卡有效期 
+	 */
+	private String validDate;
+	
+	/**
+	 * C
+	 * 
+	 * 当代扣信用卡时，该项必填
+	 * 
+	 * CVN2（信用卡背面末3位）
+	 */
+	private String cvn2;
+	
+	
+	
+	/**
+	 * R
+	 * 
+	 *  账户名称
+	 */
+	private String accountName;
+	
+	/**
+	 * R
+	 * 
+	 * 账户号码
+	 */
+	private String accountNumber;
+	
+	/**
+	 * O
+	 * 
+	 *  分支行名称
+	 */
+	private String branchName;
+	
+	/**
+	 * C
+	 * 
+	 * 当AccountType=12时，该项必填
+	 * 
+	 * 分支行省份
+	 */
+	private String province;
+	
+	/**
+	 * C
+	 * 
+	 * 当AccountType=12时，该项必填
+	 * 
+	 *分支行城市 
+	 */
+	private String city;
+	
+	/**
+	 * C
+	 * 
+	 * 当AccountType=11时，该项必填
+	 * 
+	 * 开户证件类型
+	 */
+	private String identificationType;
+	
+	/**
+	 * C
+	 * 
+	 * 当AccountType=11时，该项必填
+	 * 
+	 * 证件号码
+	 */
+	private String identificationNumber;
+	
+	/**
+	 * O
+	 * 
+	 * 备注
+	 */
+	private String note;
+	
+	/**
+	 * O
+	 * 
+	 * 手机号
+	 */
+	private String phoneNumber;
+	
+	/**
+	 * O
+	 * 
+	 * 电子邮箱 
+	 */
+	private String email;
+	
+	/**
+	 * O
+	 * 
+	 *  协议用户编号
+	 */
+	private String contractUserID;
+	
+	/**
+	 * R
+	 * 
+	 * 默认SettlementFlag=0001
+	 * 
+	 *  结算标识
+	 */
+	private String settlementFlag;
+
+	/**
+	 * R
+	 * 
+	 * @return
+	 */
+	public String getInstitutionID() {
+		return institutionID;
+	}
+
+	public void setInstitutionID(String institutionID) {
+		this.institutionID = institutionID;
+	}
+
+	/**
+	 * R
+	 * 
+	 * @return
+	 */
+	public String getTxSN() {
+		return txSN;
+	}
+
+	public void setTxSN(String txSN) {
+		this.txSN = txSN;
+	}
+
+	/**
+	 * R
+	 * 
+	 * @return
+	 */
+	public String getAmount() {
+		return amount;
+	}
+
+	public void setAmount(String amount) {
+		this.amount = amount;
+	}
+
+	/**
+	 * R
+	 * 
+	 * @return
+	 */
+	public String getBankID() {
+		return bankID;
+	}
+
+	public void setBankID(String bankID) {
+		this.bankID = bankID;
+	}
+
+	/**
+	 * C
+	 * 
+	 * 当代扣信用卡时，该项必填 
+	 * @return
+	 */
+	public String getCvn2() {
+		return cvn2;
+	}
+
+	public void setCvn2(String cvn2) {
+		this.cvn2 = cvn2;
+	}
+
+	/**
+	 * C
+	 * 
+	 * 当代扣信用卡时，该项必填
+	 *  
+	 * @return
+	 */
+	public String getValidDate() {
+		return validDate;
+	}
+
+	public void setValidDate(String validDate) {
+		this.validDate = validDate;
+	}
+
+	/**
+	 * R
+	 * 
+	 * @return
+	 */
+	public String getAccountName() {
+		return accountName;
+	}
+
+	public void setAccountName(String accountName) {
+		this.accountName = accountName;
+	}
+
+	/**
+	 * R
+	 * 
+	 * @return
+	 */
+	public String getAccountNumber() {
+		return accountNumber;
+	}
+
+	public void setAccountNumber(String accountNumber) {
+		this.accountNumber = accountNumber;
+	}
+
+	/**
+	 * O
+	 * 
+	 * @return
+	 */
+	public String getBranchName() {
+		return branchName;
+	}
+
+	public void setBranchName(String branchName) {
+		this.branchName = branchName;
+	}
+
+	/**
+	 * C
+	 * 
+	 * 当AccountType=12时，该项必填
+	 *  
+	 * @return
+	 */
+	public String getProvince() {
+		return province;
+	}
+
+	public void setProvince(String province) {
+		this.province = province;
+	}
+
+	/**
+	 * C
+	 * 
+	 * 当AccountType=12时，该项必填
+	 *  
+	 * @return
+	 */
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	/**
+	 * R
+	 * 
+	 * 账户类型： 11=个人账户 12=企业账户 
+	 * 
+	 * @return
+	 */
+	public String getAccountType() {
+		return accountType;
+	}
+
+	public void setAccountType(String accountType) {
+		this.accountType = accountType;
+	}
+
+	/**
+	 * O
+	 * 
+	 * @return
+	 */
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
+	}
+
+	/**
+	 * O
+	 * 
+	 * @return
+	 */
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	/**
+	 * O
+	 * 
+	 * @return
+	 */
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	/**
+	 * C
+	 * 
+	 * 当AccountType=11时，该项必填
+	 *  
+	 * @return
+	 */
+	public String getIdentificationType() {
+		return identificationType;
+	}
+
+	public void setIdentificationType(String identificationType) {
+		this.identificationType = identificationType;
+	}
+
+	/**
+	 * C
+	 * 
+	 * 当AccountType=11时，该项必填
+	 *  
+	 * @return
+	 */
+	public String getIdentificationNumber() {
+		return identificationNumber;
+	}
+
+	public void setIdentificationNumber(String identificationNumber) {
+		this.identificationNumber = identificationNumber;
+	}
+
+	/**
+	 * O
+	 * 
+	 * @return
+	 */
+	public String getContractUserID() {
+		return contractUserID;
+	}
+
+	public void setContractUserID(String contractUserID) {
+		this.contractUserID = contractUserID;
+	}
+
+	/**
+	  * R
+	 * 
+	 * 默认SettlementFlag=0001
+	 *  
+	 * @return
+	 */
+	public String getSettlementFlag() {
+		return settlementFlag;
+	}
+
+	public void setSettlementFlag(String settlementFlag) {
+		this.settlementFlag = settlementFlag;
+	}
+
+	@Override
+	public String toString() {
+		return "SingleWithholdModel [institutionID=" + institutionID
+				+ ", txSN=" + txSN + ", amount=" + amount + ", bankID="
+				+ bankID + ", cvn2=" + cvn2 + ", validDate=" + validDate
+				+ ", accountName=" + accountName + ", accountNumber="
+				+ accountNumber + ", branchName=" + branchName + ", province="
+				+ province + ", city=" + city + ", accountType=" + accountType
+				+ ", note=" + note + ", phoneNumber=" + phoneNumber
+				+ ", email=" + email + ", identificationType="
+				+ identificationType + ", identificationNumber="
+				+ identificationNumber + ", contractUserID=" + contractUserID
+				+ ", settlementFlag=" + settlementFlag + "]";
+	}
+	
+	
+}

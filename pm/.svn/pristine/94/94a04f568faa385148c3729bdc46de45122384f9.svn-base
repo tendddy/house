@@ -1,0 +1,13 @@
+package com.cninsure.payment.dao.impl;
+
+import org.springframework.stereotype.Repository;
+
+import com.cninsure.core.dao.impl.BaseDaoImpl;
+import com.cninsure.payment.dao.PMPaymentratebakDao;
+import com.cninsure.payment.entity.PMPaymentratebak;
+
+@Repository
+public class PMPaymentratebakDaoImpl extends BaseDaoImpl<PMPaymentratebak,Long> implements
+		PMPaymentratebakDao {
+
+}

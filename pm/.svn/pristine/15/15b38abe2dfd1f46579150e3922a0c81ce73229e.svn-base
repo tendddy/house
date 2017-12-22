@@ -1,0 +1,77 @@
+package com.cninsure.payment.service;
+
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
+
+import payment.api.system.PaymentEnvironment;
+
+import com.cninsure.payment.model.CustomBind4ActionModel;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration(value = "src/main/webapp")
+@ContextConfiguration(locations = { "classpath:config/spring-config.xml",
+		"classpath:config/spring-security-config.xml",
+		"classpath:config/spring-mvc-config.xml",
+		"classpath:config/spring-config-db.xml", })
+@Transactional(rollbackForClassName="PMBankcardServiceTest")
+public class PMBankcardServiceTest{
+
+	@Autowired
+	private PMBankcardService service;
+	
+	private void initZhongJin() throws Exception{
+		 ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+			Resource[] resources =  resolver.getResources("classpath:config/payment");
+			String path = resources[0].getURI().getPath().substring(1);
+	        // 初始化支付环境
+	        PaymentEnvironment.initialize(path);
+	}
+	
+	@Test
+	public void testBindBankCard() throws Exception{
+		initZhongJin();
+		CustomBind4ActionModel cBindModel = new CustomBind4ActionModel();
+		cBindModel.setCardType("10");
+		cBindModel.setCustomcardno("1607065666398446");
+		cBindModel.setCustomname("张三");
+		cBindModel.setCustomphone("13333333333");
+		cBindModel.setIdentificationNumber("1607069767472027");
+		cBindModel.setIdentificationType("0");
+		cBindModel.setPaymentPlatformId(12L);
+		cBindModel.setBankcode("700");
+		
+//		BaseModel result = service.bindBankCard(cBindModel);
+//		String expected = "version=v1.0&charset=1&systemid=88888888&businesstype=01&msgseqno=20160701142117000001000001&accountnumber=x93f33W6DjQzUhBMZ4jr/guEK5c+6fTu&accountname=7mBzdtiW7f+aeVys0e8DWA==&identificationtype=01&identificationnumber=+yBrSEsFB+QVRsdKnVp1HmNS0A/8WzUV&phonenumber=iXx2wz4GfvkFklWNpO907Q==&cardtype=10&validdate=&cvn2=&orderid=&orderpayfee=&custominfo=&fronturl=&receiveurl=&reserved=&signmsg=Malv1uxY+qWbEA8Jveho0BUSmWW31RKQivr3O/NugHMuZOUMKygDAkZOj7ORRt3z1Bd9VkOci7Lrygc+6qhZ+40QM3GnjbYvO/6wI8AyOmlLw4H51cQMgrklUlOR0lY603IbPMZMz1pdcgtXx2TDTJWdfxUsCT1sZ6UddEN+4l0=";
+//		Assert.assertEquals("",expected, result.getResult().toString());
+	}
+	
+	
+	@Test
+	public void testBindBankCardTx2531(){
+		CustomBind4ActionModel cBindModel = new CustomBind4ActionModel();
+		cBindModel.setAppId(51L);
+		cBindModel.setBankcode("700");
+		cBindModel.setCardType("10");
+		cBindModel.setCustomcardno("6222020410019761403");
+		cBindModel.setCustomname("张三");
+		cBindModel.setCustomphone("19819898998");
+		cBindModel.setIdentificationNumber("130922199303244414");
+		cBindModel.setIdentificationType("0");
+		cBindModel.setPaymentPlatformId(381L);
+		cBindModel.setPlatformUserId("11111");
+		cBindModel.setValiddate("");
+		
+				
+//		service.bindBankCardTx2531(cBindModel);
+	}
+	
+}

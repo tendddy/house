@@ -1,0 +1,145 @@
+package com.cninsure.payment.service.impl;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.core.dao.impl.BaseServiceImpl;
+import com.cninsure.core.utils.StringUtil;
+import com.cninsure.payment.dao.PMAppplatformDao;
+import com.cninsure.payment.dao.PMSettleCaseDao;
+import com.cninsure.payment.dao.PMSettlementDao;
+import com.cninsure.payment.entity.PMAppplatform;
+import com.cninsure.payment.entity.PMSettlement;
+import com.cninsure.payment.model.CashierModel;
+import com.cninsure.payment.service.PMSettlementService;
+
+@Service
+@Transactional
+public class PMSettlementServiceImpl extends BaseServiceImpl<PMSettlement,Long> implements PMSettlementService {
+	@Resource
+	private PMSettlementDao pmSettlementDao;
+	@Resource
+	private PMAppplatformDao pmAppplatformDao;
+	@Resource
+	private PMSettleCaseDao pmSettleCaseDao;
+	@Override
+	protected BaseDao<PMSettlement,Long> getBaseDao() {
+		return pmSettlementDao;
+	}
+	// 各应用平台手续费结算管理 页面 列表查看
+	@Override
+	public Map<String, Object> selectSettleAppPlatformList(Map<String, Object> map) {
+		long total = pmSettlementDao.getSettlementListCount(map);
+		List<Map<Object, Object>> infoList = pmSettlementDao.selectSettlementList(map);
+		System.out.println(infoList.toString());
+		for (int i = 0; i < infoList.size(); i++) {
+			Map<Object, Object> map2 = infoList.get(i);
+			Object settlement_date = map2.get("settlement_date");
+			if (settlement_date != null && !"".equals(settlement_date)) {
+				settlement_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(settlement_date);
+			}
+			map2.put("settlement_date", settlement_date);
+		}
+		System.out.println("SettlementList结果：-----------" + infoList);
+		map.put("total", total);
+		map.put("rows", infoList);
+		return map;
+	}
+	// 跳转到结算轨迹查看页面-得到平台的id和名称
+	@Override
+	public PMAppplatform getplatformList(String id) {
+		return pmAppplatformDao.getplatformList(id);
+	}
+	//结算轨迹查看页面列表查询
+	@Override
+	public Map<String, Object> selectSettlementList(Map<String, Object> map) {
+		long total = pmSettlementDao.getSettlementDetailListCount(map);
+		List<Map<Object, Object>> infoList = pmSettlementDao.selectSettlementDetailList(map);
+		System.out.println(infoList.toString());
+		for (int i = 0; i < infoList.size(); i++) {
+			Map<Object, Object> map2 = infoList.get(i);
+			Object settle_date = map2.get("settle_date");
+			if (settle_date != null && !"".equals(settle_date)) {
+				settle_date = new SimpleDateFormat("yyyy-MM-dd").format(settle_date);
+			}
+			map2.put("settle_date", settle_date);
+			Object settlement_date = map2.get("settlement_date");
+			if (settlement_date != null && !"".equals(settlement_date)) {
+				settlement_date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(settlement_date);
+			}
+			map2.put("settlement_date", settlement_date);
+			Object status = map2.get("status");
+			if (status != null && !"".equals(status)) {
+				if (status.equals("0")) {
+					map2.put("status", "应结");
+				}else if (status.equals("1")) {
+					map2.put("status", "已结");
+				}
+			}
+			Object settlement_interval = map2.get("settlement_interval");
+			settlement_interval = String.valueOf(settlement_interval);
+			if (settlement_interval != null && !"".equals(settlement_interval)) {
+				if (settlement_interval.equals("0")) {
+					map2.put("settlement_interval", "实时");
+				}else if (settlement_interval.equals("1")) {
+					map2.put("settlement_interval", "每月");
+				}
+			}
+			String orderfee =  map2.get("orderfee").toString();
+			map2.put("orderfee",new DecimalFormat("#,##0.00").format(Double.parseDouble(orderfee)/100));
+			String settle_fee =  map2.get("settle_fee").toString();
+			map2.put("settle_fee",new DecimalFormat("#,##0.00").format(Double.parseDouble(settle_fee)/100));
+			Object rate = map2.get("rate");
+			String rates = String.valueOf(rate);
+			if(Double.parseDouble(rates)>=1){
+				rates= String.valueOf(new DecimalFormat("###.##").format(new BigDecimal(rates).movePointLeft(2)));
+			}else{
+				rates= String.valueOf(new DecimalFormat("###.##").format(new BigDecimal(rates)));
+			}
+			map2.put("rate", rates);
+		}
+		System.out.println("SettlementDetailList结果：-----------" + infoList);
+		map.put("total", total);
+		map.put("rows", infoList);
+		return map;
+	}
+	//应结金额
+	@Override
+	public String getStatementStatus(String appid, String settleMonth) {
+		return pmSettlementDao.getStatementStatus(appid,settleMonth);
+	}
+	//得到应用平台的银行卡号
+	@Override
+	public String getSettlementCard(String appid, String settleMonth) {
+		String settlementCard = pmSettleCaseDao.getSettlementCard(appid,settleMonth);
+		if(StringUtil.isEmpty(settlementCard)){
+			PMAppplatform app = pmAppplatformDao.getplatformList(appid); 
+			settlementCard = app.getSettlementCard();
+		}
+		return settlementCard;
+		
+	}
+	//结算处理,判断是否存在结算订单，
+	@Override
+	public Map<String, Object> checkSettlement(CashierModel cashierModel) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		long total = pmSettlementDao.getSettlementListCount(cashierModel);
+		if(total>0){
+			map.put("status", "success");
+		}else{
+			map.put("status", "fail");
+		}
+		return map;
+	}
+
+}

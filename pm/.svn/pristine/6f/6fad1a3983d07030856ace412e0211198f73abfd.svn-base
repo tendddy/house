@@ -1,0 +1,88 @@
+package com.cninsure.payment.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.payment.entity.PMBankcard;
+import com.cninsure.payment.model.PMPaychannelModel;
+
+public interface PMBankcardDao extends BaseDao<PMBankcard,Long> {
+	
+	/**
+	 * 通过支付平台和用户信息得到当前支付平台绑定银行卡信息
+	 * 
+	 * TODO 每个银行确定绑定一个卡
+	 * 
+	 * @param PaymentId
+	 * @param customerId
+	 * @return
+	 */
+	public List<PMPaychannelModel>  getChannelsByPaymentIdAndCustomerId(long paymentId,long appId,String customerId);
+	
+	/**
+	 * 根据逻辑主键查询绑卡信息
+	 * 
+	 * @param customcardno 银行卡号
+	 * @param identificationNumber 用户身份证
+	 * @param customphone 手机号
+	 * @return
+	 */
+	public PMBankcard selectBankCardByLogicKey(String customcardno,String identificationNumber,String customphone);
+
+	
+	/**
+	 * 通过绑卡流水号添加解绑流水号
+	 * 
+	 * @param protocolid 绑卡协议流水号
+	 * @param cprotocalid 解绑协议流水号
+	 * @return
+	 */
+	public int updateCardStatusByProtocolid(String protocolid,String cprotocalid);
+	
+	
+	/**
+	 * 得到当前银行卡所有绑卡协议号
+	 * 
+	 * @param cardNo
+	 * @return
+	 */
+	public List<String> getProtocolidsByCardNo(String cardNo );
+	
+	/**
+	 * 通过绑卡流水号查询当前银行卡是否已经解绑
+	 * 
+	 * @param protocolid
+	 * @return
+	 */
+	public int selectCountByProtocolid(String protocolid);
+	
+	/**
+	 * 根据绑定流水号得到银行卡信息
+	 * 
+	 * @param protocolid
+	 * @return
+	 */
+	public PMBankcard selectDataByProtocolid(String protocolid);
+	
+	/**
+	 * 更新银行卡状态
+	 * 
+	 * @param protocolid
+	 * @param status
+	 * @param payid 
+	 * @return
+	 */
+	public int updateStatusByProtocolId(String protocolid,String status, String payid);
+
+	public int updateStatusByProtocolId(String protocolid, String string);
+
+	List<Map<Object, Object>> getBindCardList(Map<String, Object> map);
+
+	long getBindCardListCount(Map<String, Object> map);
+
+	List<Map<Object, Object>> getBindLogs(Map<String, Object> map);
+
+	long getBindLogsCount(Map<String, Object> map);
+	
+}

@@ -1,0 +1,59 @@
+package com.cninsure.payment.dao;
+
+import java.util.List;
+
+import com.cninsure.payment.entity.PMProducts;
+
+public interface PMProductsDao {
+	
+    public int deleteByPrimaryKey(Long id);
+
+    public int insert(PMProducts record);
+    
+    public int insertBatch(List<PMProducts> records);
+
+    public int insertSelective(PMProducts record);
+
+    public PMProducts selectByPrimaryKey(Long id);
+
+    public int updateByPrimaryKeySelective(PMProducts record);
+    
+    /**
+     * 通过支付流水号更新订单信息
+     * 
+     * @param record
+     * @return
+     */
+    public int updateByPayProtocolIdSelective(PMProducts record);
+    
+    
+    /**
+     * 通过结算流水号更新订单信息
+     * 
+     * @param record
+     * @return
+     */
+    public int updateByStatementProtocolId(PMProducts record);
+    
+    
+
+    public int updateByPrimaryKey(PMProducts record);
+    
+    /**
+     * 通过主表查询所有产品信息
+     * 
+     * @param paymentId
+     * @return
+     */
+    public List<PMProducts> selectByPaymentId(long paymentId);
+    /**
+     * 通过主表查询已经成功结算产品信息/'结算状态 0-成功，1-失败'
+     * 
+     * @param paymentId
+     * @return
+     */
+	public long selectActualSuccByPaymentId(Long id,String statuss);
+
+	public long updateProductsStatusByPaymentId(Long id,String statuss);
+	public long updateProductsStatusById(Long id,String statuss);
+}

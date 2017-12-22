@@ -1,0 +1,36 @@
+package com.cninsure.payment.enumm;
+
+public enum WithdrawStatusEnum {
+
+	VERIFY_WAITING("01", "待审核"), VERIFY_PASS("02", "审核通过"), VERIFY_FAIL("03", "审核不通过");
+
+	WithdrawStatusEnum(String value, String name) {
+		this.value = value;
+		this.name = name;
+	}
+
+	private final String value;
+	private final String name;
+
+	public String getValue()
+	{
+		return value;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public static WithdrawStatusEnum getEnum(String value)
+	{
+
+		for (WithdrawStatusEnum e : values())
+		{
+			if (e.getValue().equals(value))
+				return e;
+		}
+		throw new IllegalArgumentException("No such Enum ! value : " + value);
+	}
+
+}

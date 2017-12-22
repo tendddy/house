@@ -1,0 +1,42 @@
+package com.cninsure.payment.enumm;
+
+/**
+ * 账单交易类型
+ * 
+ * @author tongchang
+ *
+ */
+public enum BillTypeEnum {
+
+	PROFIT("01", "收益"), RECHARGE("02", "充值"), WITHDRAW("03", "提现");
+
+	BillTypeEnum(String vlaue, String name) {
+		this.value = vlaue;
+		this.name = name;
+	}
+
+	private final String value;
+	private final String name;
+
+	public String getValue()
+	{
+		return value;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public static BillTypeEnum getEnum(String value)
+	{
+		if ("01".equals(value))
+			return PROFIT;
+		if ("02".equals(value))
+			return RECHARGE;
+		if ("03".equals(value))
+			return WITHDRAW;
+		return null;
+	}
+
+}

@@ -1,0 +1,31 @@
+package com.cninsure.payment.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.cninsure.core.dao.BaseService;
+import com.cninsure.payment.entity.PMAppplatformuserbankcard;
+import com.cninsure.payment.model.BaseModel;
+
+public interface PMAppplatformuserbankcardService extends BaseService<PMAppplatformuserbankcard,Long> {
+
+	
+	/**
+	 * 查询绑卡结果
+	 * 
+	 * @param appId 平台ID
+	 * @param appUserId 平台用户ID
+	 * @param bankCardNo 银行卡号
+	 * @param ID 身份证号
+	 * @return
+	 */
+	public BaseModel getBindCardResult(long appId,String appUserId,long bankCardNo,String ID);
+	
+	/**
+	 * 查询用户已绑定的银行卡
+	 * @param appId
+	 * @param appUserId
+	 * @return
+	 */
+	public List<Map<String,Object>> queryUserBankCard(long appId, String appUserId);
+}

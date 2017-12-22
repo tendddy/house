@@ -1,0 +1,72 @@
+package com.cninsure.payment.util;
+
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+/**
+ * 二维码 生成工具
+ * @author ZH
+ *
+ */
+public class QRcodePayUtil {
+
+	
+	public  static String URLencode(String content) throws UnsupportedEncodingException{
+		
+		return URLEncoder.encode(content, "UTF-8").replace("+", "%20");  
+	}
+	
+	 /**
+	* @Title: QRfromGoogle
+	* @Description: 二维码生成
+	* @author pj
+	* @date 2016年8月18日 下午3:47:00
+	* @param chl
+	* @return
+	* @throws Exception 
+	*/
+	public static String QRfromGoogle(String chl) throws Exception{
+	        int widhtHeight = 300;
+	        String EC_level = "L";
+	        int margin = 0;
+	        String QRfromGoogle;
+	        chl = URLencode(chl);
+	        QRfromGoogle = "http://chart.apis.google.com/chart?chs=" + widhtHeight + "x" + widhtHeight + "&cht=qr&chld=" + EC_level + "|" + margin + "&chl=" + chl;
+	        return QRfromGoogle;
+	    }
+	
+	/**
+	* @Title: QRfromBaidu
+	* @Description: 二维码生成
+	* @author pj
+	* @date 2016年8月22日 上午10:08:42
+	* @param chl
+	* @return
+	* @throws Exception 
+	*/
+	public static String QRfromBaidu(String chl) throws Exception{
+		 int widhtHeight = 300;
+	     String EC_level = "L";
+	     int margin = 0;
+	     String QRfromGoogle;
+	     chl = URLencode(chl);
+	     QRfromGoogle = "http://pan.baidu.com/share/qrcode?w=" + widhtHeight + "&h=" + widhtHeight + "&cht=qr&chld=" + EC_level + "|" + margin + "&chl=" + chl;
+	     return QRfromGoogle;
+	}
+	
+	/**
+	* @Title: QRfromOSchina
+	* @Description: 二维码生成
+	* @author pj
+	* @date 2016年9月13日 下午1:06:59
+	* @param chl
+	* @return
+	* @throws Exception 
+	*/
+	public static String QRfromOSchina(String chl) throws Exception{
+		String  QRfromGoogle = "http://tool.oschina.net/action/qrcode/generate?output=image/jpeg&error=L&type=0&margin=0&size=4&data="+chl;
+		 return QRfromGoogle;
+	}
+	
+}

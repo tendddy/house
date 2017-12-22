@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cninsure.payment.entity">
+	<resultMap id="PMPaymentratebakMap" type="com.cninsure.payment.entity.PMPaymentratebak" >
+    <id column="bak_id" property="bakId" jdbcType="BIGINT" />
+    <result column="id" property="id" jdbcType="BIGINT" />
+    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+    <result column="payment_id" property="paymentId" jdbcType="BIGINT" />
+    <result column="channel_type" property="channelType" jdbcType="CHAR" />
+    <result column="rate_type" property="rateType" jdbcType="CHAR" />
+    <result column="rate" property="rate" jdbcType="DECIMAL" />
+    <result column="minimum_amount" property="minimumAmount" jdbcType="INTEGER" />
+    <result column="maximum_amount" property="maximumAmount" jdbcType="INTEGER" />
+    <result column="settlement_interval" property="settlementInterval" jdbcType="CHAR" />
+    <result column="modify_user" property="modifyUser" jdbcType="VARCHAR" />
+  </resultMap>
+	<!-- PMPaymentratebak -->
+	<insert useGeneratedKeys="true" keyProperty="id" id="PMPaymentratebak_insert" parameterType="com.cninsure.payment.entity.PMPaymentratebak" >
+		insert into PMPaymentratebak
+		(bak_id,id,createdate,modifydate,payment_id,channel_type,rate_type,rate,minimum_amount,maximum_amount,settlement_interval,modify_user) 
+		values
+		(#{bakId, jdbcType=BIGINT},#{id, jdbcType=BIGINT},#{createdate, jdbcType=TIMESTAMP},#{modifydate, jdbcType=TIMESTAMP},#{paymentId, jdbcType=BIGINT},#{channelType, jdbcType=CHAR},#{rateType, jdbcType=CHAR},#{rate, jdbcType=DECIMAL},#{minimumAmount, jdbcType=INTEGER},#{maximumAmount, jdbcType=INTEGER},#{settlementInterval, jdbcType=CHAR},#{modifyUser, jdbcType=VARCHAR}) 
+	</insert>
+	<select id="PMPaymentratebak_select" parameterType="Map" resultMap="PMPaymentratebakMap">
+		select * from PMPaymentratebak
+		<where>
+			<if test="bakId != null">
+				and bak_id = #{bakId, jdbcType=BIGINT}
+			</if>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="paymentId != null">
+				and payment_id = #{paymentId, jdbcType=BIGINT}
+			</if>
+			<if test="channelType != null">
+				and channel_type = #{channelType, jdbcType=CHAR}
+			</if>
+			<if test="rateType != null">
+				and rate_type = #{rateType, jdbcType=CHAR}
+			</if>
+			<if test="rate != null">
+				and rate = #{rate, jdbcType=DECIMAL}
+			</if>
+			<if test="minimumAmount != null">
+				and minimum_amount = #{minimumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="maximumAmount != null">
+				and maximum_amount = #{maximumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="settlementInterval != null">
+				and settlement_interval = #{settlementInterval, jdbcType=CHAR}
+			</if>
+			<if test="modifyUser != null">
+				and modify_user = #{modifyUser, jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMPaymentratebak_selectById" parameterType="Long" resultMap="PMPaymentratebakMap">
+		select * from PMPaymentratebak where id = #{id}
+	</select>
+	<select id="PMPaymentratebak_deleteById" parameterType="Long">
+		delete from PMPaymentratebak where id = #{id}
+	</select>
+	<select id="PMPaymentratebak_updateById" parameterType="com.cninsure.payment.entity.PMPaymentratebak">
+		update PMPaymentratebak  set bak_id = #{bakId, jdbcType=BIGINT},id = #{id, jdbcType=BIGINT},createdate = #{createdate, jdbcType=TIMESTAMP},modifydate = #{modifydate, jdbcType=TIMESTAMP},payment_id = #{paymentId, jdbcType=BIGINT},channel_type = #{channelType, jdbcType=CHAR},rate_type = #{rateType, jdbcType=CHAR},rate = #{rate, jdbcType=DECIMAL},minimum_amount = #{minimumAmount, jdbcType=INTEGER},maximum_amount = #{maximumAmount, jdbcType=INTEGER},settlement_interval = #{settlementInterval, jdbcType=CHAR},modify_user = #{modifyUser, jdbcType=VARCHAR} where id = #{id}
+	</select>
+	<select id="PMPaymentratebak_selectCount" parameterType="Map" resultType="Long">
+		select count(1) from PMPaymentratebak
+		<where>
+			<if test="bakId != null">
+				and bak_id = #{bakId, jdbcType=BIGINT}
+			</if>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="paymentId != null">
+				and payment_id = #{paymentId, jdbcType=BIGINT}
+			</if>
+			<if test="channelType != null">
+				and channel_type = #{channelType, jdbcType=CHAR}
+			</if>
+			<if test="rateType != null">
+				and rate_type = #{rateType, jdbcType=CHAR}
+			</if>
+			<if test="rate != null">
+				and rate = #{rate, jdbcType=DECIMAL}
+			</if>
+			<if test="minimumAmount != null">
+				and minimum_amount = #{minimumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="maximumAmount != null">
+				and maximum_amount = #{maximumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="settlementInterval != null">
+				and settlement_interval = #{settlementInterval, jdbcType=CHAR}
+			</if>
+			<if test="modifyUser != null">
+				and modify_user = #{modifyUser, jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMPaymentratebak_selectOne" parameterType="Map" resultMap="PMPaymentratebakMap">
+		select * from PMPaymentratebak
+		<where>
+			<if test="bakId != null">
+				and bak_id = #{bakId, jdbcType=BIGINT}
+			</if>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="paymentId != null">
+				and payment_id = #{paymentId, jdbcType=BIGINT}
+			</if>
+			<if test="channelType != null">
+				and channel_type = #{channelType, jdbcType=CHAR}
+			</if>
+			<if test="rateType != null">
+				and rate_type = #{rateType, jdbcType=CHAR}
+			</if>
+			<if test="rate != null">
+				and rate = #{rate, jdbcType=DECIMAL}
+			</if>
+			<if test="minimumAmount != null">
+				and minimum_amount = #{minimumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="maximumAmount != null">
+				and maximum_amount = #{maximumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="settlementInterval != null">
+				and settlement_interval = #{settlementInterval, jdbcType=CHAR}
+			</if>
+			<if test="modifyUser != null">
+				and modify_user = #{modifyUser, jdbcType=VARCHAR}
+			</if>
+		</where>
+		LIMIT 2
+	</select>
+</mapper>

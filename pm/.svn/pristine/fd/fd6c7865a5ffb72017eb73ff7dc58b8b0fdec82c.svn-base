@@ -1,0 +1,140 @@
+package com.cninsure.payment.entity;
+
+import java.io.Serializable;
+
+import java.util.Date;
+
+public class PMAPPcustomaccount implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 主键
+	 */
+	private Long id;
+
+	/**
+	 * 操作员
+	 */
+	private String operator;
+
+	/**
+	 * 创建时间
+	 */
+	private Date createtime;
+
+	/**
+	 * 修改时间
+	 */
+	private Date modifytime;
+
+	/**
+	 * 备注
+	 */
+	private String noti;
+
+	/**
+	 * 平台用户表id
+	 */
+	private Long pmappcustom_id;
+
+	/**
+	 * 账户总金额
+	 */
+	private String totalmoney;
+
+	/**
+	 * 冻结金额
+	 */
+	private String freezemoney;
+
+	/**
+	 * 昨日收益
+	 */
+	private String yesterdayownmoney;
+
+	/**
+	 * 累计收益
+	 */
+	private String totalownmoney;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getOperator() {
+		return operator;
+	}
+
+	public void setOperator(String operator) {
+		this.operator = operator;
+	}
+
+	public Date getCreatetime() {
+		return createtime;
+	}
+
+	public void setCreatetime(Date createtime) {
+		this.createtime = createtime;
+	}
+
+	public Date getModifytime() {
+		return modifytime;
+	}
+
+	public void setModifytime(Date modifytime) {
+		this.modifytime = modifytime;
+	}
+
+	public String getNoti() {
+		return noti;
+	}
+
+	public void setNoti(String noti) {
+		this.noti = noti;
+	}
+
+	public Long getPmappcustom_id() {
+		return pmappcustom_id;
+	}
+
+	public void setPmappcustom_id(Long pmappcustom_id) {
+		this.pmappcustom_id = pmappcustom_id;
+	}
+
+	public String getTotalmoney() {
+		return totalmoney;
+	}
+
+	public void setTotalmoney(String totalmoney) {
+		this.totalmoney = totalmoney;
+	}
+
+	public String getFreezemoney() {
+		return freezemoney;
+	}
+
+	public void setFreezemoney(String freezemoney) {
+		this.freezemoney = freezemoney;
+	}
+
+	public String getYesterdayownmoney() {
+		return yesterdayownmoney;
+	}
+
+	public void setYesterdayownmoney(String yesterdayownmoney) {
+		this.yesterdayownmoney = yesterdayownmoney;
+	}
+
+	public String getTotalownmoney() {
+		return totalownmoney;
+	}
+
+	public void setTotalownmoney(String totalownmoney) {
+		this.totalownmoney = totalownmoney;
+	}
+
+}

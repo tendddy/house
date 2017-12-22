@@ -1,0 +1,643 @@
+package com.cninsure.payment.service.impl;
+
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.core.dao.impl.BaseServiceImpl;
+import com.cninsure.core.utils.StringUtil;
+import com.cninsure.payment.dao.PMBanksDao;
+import com.cninsure.payment.dao.PMPaychannelDao;
+import com.cninsure.payment.entity.PMAppchannel;
+import com.cninsure.payment.entity.PMAppchannellmit;
+import com.cninsure.payment.entity.PMImage;
+import com.cninsure.payment.entity.PMPaychannel;
+import com.cninsure.payment.entity.PMPaychannellmit;
+import com.cninsure.payment.model.AcccimModel;
+import com.cninsure.payment.service.PMPaychannelService;
+
+@Service
+@Transactional
+public class PMPaychannelServiceImpl extends
+		BaseServiceImpl<PMPaychannel, Long> implements PMPaychannelService {
+	@Resource
+	private PMPaychannelDao pmPaychannelDao;
+	@Resource
+	private PMBanksDao pmbanksDao;
+	@Autowired
+	private HttpServletRequest request;
+
+	private long filesize = 0;// 文件大小
+	String url = "/pm/static/paychannel_logo/";// --网址式图片访问地址
+	@Override
+	protected BaseDao<PMPaychannel, Long> getBaseDao() {
+		return pmPaychannelDao;
+	}
+
+	/*
+	 * file是文件流
+	 */
+	public String LoadImageToServer(MultipartFile file,String newName) {
+		if (file != null) {
+			// 获取保存的路径，
+			String realPath = request.getSession().getServletContext()
+					.getRealPath("/static/paychannel_logo/");
+			if (file.isEmpty()) {
+				// 未选择文件
+				return "OK";
+			} else {
+				// 文件原名称
+				String originFileName = file.getOriginalFilename();
+				if(!checkGifJpgBmp(originFileName)){
+					return "NOextension";
+				}
+				filesize=file.getSize();
+				try {
+					// 这里使用Apache的FileUtils方法来进行保存
+					FileUtils.copyInputStreamToFile(file.getInputStream(),
+							new File(realPath, newName));
+					return "OK";
+				} catch (IOException e) {
+					System.out.println("文件上传失败");
+					return "ERROR";
+				}
+			}
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public Map<String, Object> saveOrUpdateBankInfo(AcccimModel acccimBean,
+			MultipartFile file) {
+		if(StringUtil.isNotEmpty(acccimBean.getMax_quota_per_time0())){
+			acccimBean.setMax_quota_per_time0(new DecimalFormat("####").format(new BigDecimal(acccimBean.getMax_quota_per_time0().replace(",", "")).movePointRight(2)));
+		}
+		if(StringUtil.isNotEmpty(acccimBean.getMax_quota_per_time1())){
+			acccimBean.setMax_quota_per_time1(new DecimalFormat("####").format(new BigDecimal(acccimBean.getMax_quota_per_time1().replace(",", "")).movePointRight(2)));
+		}
+		if(StringUtil.isNotEmpty(acccimBean.getMax_quota_per_day0())){
+			acccimBean.setMax_quota_per_day0(new DecimalFormat("####").format(new BigDecimal(acccimBean.getMax_quota_per_day0().replace(",", "")).movePointRight(2)));
+		}
+		if(StringUtil.isNotEmpty(acccimBean.getMax_quota_per_day1())){
+			acccimBean.setMax_quota_per_day1(new DecimalFormat("####").format(new BigDecimal(acccimBean.getMax_quota_per_day1().replace(",", "")).movePointRight(2)));
+		}
+		String newName = acccimBean.getPlatformName()+acccimBean.getChannel_name()+"."+acccimBean.getChannel_logo().substring(acccimBean.getChannel_logo().lastIndexOf(".") + 1);
+		String oldName = acccimBean.getChannel_logo();
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			PMImage pmimage = new PMImage();
+			PMPaychannel paychannel = new PMPaychannel();
+			PMAppchannel appchannel = new PMAppchannel();
+			PMPaychannellmit paychannellmit = new PMPaychannellmit();
+			PMAppchannellmit appchannellmit = new PMAppchannellmit();
+			if (StringUtil.isEmpty(acccimBean.getId())) {// 新增
+				List<Map<String, Object>> getPlatformList = pmPaychannelDao.getPlatformList();
+				if ("OK".equals(this.LoadImageToServer(file,newName))) {
+					paychannel.setPaymentId(Long.parseLong(acccimBean.getPaymentId()));// 支付平台ID
+					paychannel.setChannelType("01");// 渠道类型 01-银行 02-其它
+					paychannel.setChannelName(acccimBean.getChannel_name());// 渠道名称，银行名称、第三方平台名称等
+					paychannel.setChannelCode(acccimBean.getChannel_code());// 渠道代码
+					paychannel.setChannelLogo(url+ newName);// 渠道图片
+					paychannel.setStatus("1");// 渠道状态 0-启用，1-禁用，2-删除
+					if ("true".equals(acccimBean.getCard_type0())&&"0".equals(acccimBean.getStatus0())) {// 如果支持储蓄卡，银行状态为启用
+						paychannel.setStatus("0");// 渠道状态 0-启用，1-禁用，2-删除
+					}
+					if ("true".equals(acccimBean.getCard_type1())&&"0".equals(acccimBean.getStatus1())) {// 如果支持信用卡，银行状态为启用
+						paychannel.setStatus("0");// 渠道状态 0-启用，1-禁用，2-删除
+					}
+					pmPaychannelDao.savePayChannel(paychannel);
+					if("0".equals(paychannel.getStatus())){//新增银行时，根据银行名称去“泛华银行卡列表”里去往【suport_payment_banks】字段里添加银行id
+						changeChannelId(paychannel.getChannelName(),paychannel.getId(),"add");
+					}
+
+					acccimBean.setId(String.valueOf(paychannel.getId()));
+					if ("true".equals(acccimBean.getCard_type0())) {// 如果支持储蓄卡，就保存
+						paychannellmit.setPayChannelId(paychannel.getId());
+						paychannellmit.setMaxQuotaPerTime(Integer.parseInt(acccimBean.getMax_quota_per_time0()));
+						paychannellmit.setMaxQuotaPerDay(Integer.parseInt(acccimBean.getMax_quota_per_day0()));
+						paychannellmit.setCardType("0");
+						paychannellmit.setSettlementInterval(acccimBean.getSettlementInterval0());// 到账时间
+						paychannellmit.setStatus(acccimBean.getStatus0());
+						pmPaychannelDao.savePayChannelLmit(paychannellmit);
+					}
+					if ("true".equals(acccimBean.getCard_type1())) {// 如果支持信用卡，就保存
+						paychannellmit.setPayChannelId(paychannel.getId());
+						paychannellmit.setMaxQuotaPerTime(Integer.parseInt(acccimBean.getMax_quota_per_time1()));
+						paychannellmit.setMaxQuotaPerDay(Integer.parseInt(acccimBean.getMax_quota_per_day1()));
+						paychannellmit.setCardType("1");
+						paychannellmit.setSettlementInterval(acccimBean.getSettlementInterval1());// 到账时间
+						paychannellmit.setStatus(acccimBean.getStatus1());
+						pmPaychannelDao.savePayChannelLmit(paychannellmit);
+					}
+					pmimage.setObjectId(paychannel.getId());
+					pmimage.setObjectType(2);// 所属对象 1-应用平台 2-支付平台 3-渠道
+					pmimage.setPath(url + newName);// 存储路径
+					pmimage.setName(newName);// 图片名称
+					pmimage.setOldName(oldName);// 图片原名
+					pmimage.setSize((int)filesize);// 文件大小
+					pmimage.setType(newName.substring(newName.lastIndexOf(".") + 1));// 图片类型
+					pmimage.setStatus("1");// 附件状态 0-暂存 1-正常 2-删除
+					pmPaychannelDao.saveImageInfo(pmimage);
+					if (getPlatformList.size()>0) {
+						// 添加应用平台
+						for (int i = 0; i < getPlatformList.size(); i++) {
+							Map<String, Object> map2 = getPlatformList.get(i);
+							Object id = map2.get("id");
+							appchannel.setAppId(Long.parseLong(String.valueOf(id)));// 获取pmappflatform表id
+							appchannel.setChannelId(Long.parseLong(acccimBean.getId()));// 获取银行id
+							appchannel.setPaymentId(paychannel.getPaymentId());
+							pmPaychannelDao.saveAppChannel(appchannel);
+
+							if ("true".equals(acccimBean.getCard_type0())) {
+								List<Map<String, Object>> getBankLmitList = pmPaychannelDao.getBankLmitList(String.valueOf(id));
+								if (!StringUtil.isEmpty(getBankLmitList)) {
+									appchannellmit.setAppChannelId(appchannel.getId());
+									appchannellmit.setCardType("0");
+									appchannellmit.setMaxQuotaPerDay(Integer.parseInt(acccimBean.getMax_quota_per_day0()));
+									appchannellmit.setMaxQuotaPerTime(Integer.parseInt(acccimBean.getMax_quota_per_time0()));
+									appchannellmit.setSettlementInterval(acccimBean.getSettlementInterval0());
+									appchannellmit.setStatus(acccimBean.getStatus0());
+									pmPaychannelDao.saveAppChannelLmit(appchannellmit);
+								}
+							}
+							if ("true".equals(acccimBean.getCard_type1())) {
+								List<Map<String, Object>> getBankLmitList = pmPaychannelDao.getBankLmitList(String.valueOf(id));
+								if (!StringUtil.isEmpty(getBankLmitList)) {
+									appchannellmit.setAppChannelId(appchannel.getId());
+									appchannellmit.setCardType("1");
+									appchannellmit.setMaxQuotaPerDay(Integer.parseInt(acccimBean.getMax_quota_per_day1()));
+									appchannellmit.setMaxQuotaPerTime(Integer.parseInt(acccimBean.getMax_quota_per_time1()));
+									appchannellmit.setSettlementInterval(acccimBean.getSettlementInterval1());
+									appchannellmit.setStatus(acccimBean.getStatus1());
+									pmPaychannelDao.saveAppChannelLmit(appchannellmit);
+								}
+							}
+						}
+					}
+				}
+			} else {// 修改
+				if ("OK".equals(this.LoadImageToServer(file,newName))) {
+					//修改银行信息，如果包含【paychannel_logo】就说明，没有另外选择logo；如果不包含，就说明另外选择了logo图片
+					if(acccimBean.getChannel_logo().indexOf("paychannel_logo")>0){
+						paychannel.setChannelLogo(acccimBean.getChannel_logo());// 渠道图片
+						pmimage.setPath(acccimBean.getChannel_logo());// 存储路径
+					}else{
+						paychannel.setChannelLogo(url+ newName);// 渠道图片
+						pmimage.setPath(url + newName);// 存储路径
+					}
+					paychannel.setId(Long.parseLong(acccimBean.getId()));
+					paychannel.setPaymentId(Long.parseLong(acccimBean.getPaymentId()));// 支付平台ID
+					paychannel.setChannelType("01");// 渠道类型 01-银行 02-其它
+					paychannel.setChannelName(acccimBean.getChannel_name());// 渠道名称，银行名称、第三方平台名称等
+					paychannel.setChannelCode(acccimBean.getChannel_code());// 渠道代码
+					paychannel.setStatus("1");// 渠道状态 0-启用，1-禁用，2-删除
+					if ("true".equals(acccimBean.getCard_type0())&&"0".equals(acccimBean.getStatus0())) {// 如果支持储蓄卡，银行状态为启用
+						paychannel.setStatus("0");// 渠道状态 0-启用，1-禁用，2-删除
+					}
+					if ("true".equals(acccimBean.getCard_type1())&&"0".equals(acccimBean.getStatus1())) {// 如果支持储蓄卡，银行状态为启用
+						paychannel.setStatus("0");// 渠道状态 0-启用，1-禁用，2-删除
+					}
+					//得到数据库中的要修改的银行信息
+					PMPaychannel pc = pmPaychannelDao.selectById(Long.parseLong(acccimBean.getId()));
+					pmPaychannelDao.updatePayChannel(paychannel);
+					if("0".equals(paychannel.getStatus())&&!acccimBean.getChannel_name().equals(pc.getChannelName())){//修改银行时，根据银行名称去“泛华银行卡列表”里去往【suport_payment_banks】字段里更新银行id
+						//当channelname没有修改就不做操作，如果修改了，删除旧name在pmbanks里的关系，且添加新name在pmbanks里的关系
+						changeChannelId(pc.getChannelName(),paychannel.getId(),"del");
+						changeChannelId(paychannel.getChannelName(),paychannel.getId(),"add");
+					}
+					List<Map<String, Object>> getPlatformList = pmPaychannelDao.getPlatformList();//应用平台
+					List<Map<String, Object>> getList = pmPaychannelDao.getList(acccimBean.getId());//应用平台渠道
+						
+					if (StringUtil.isEmpty(acccimBean.getLmitid0())&& "true".equals(acccimBean.getCard_type0())) {// 修改时id为空且支持该卡类型，是新增操作
+						paychannellmit.setPayChannelId(paychannel.getId());
+						paychannellmit.setMaxQuotaPerTime(Integer.parseInt(acccimBean.getMax_quota_per_time0()));
+						paychannellmit.setMaxQuotaPerDay(Integer.parseInt(acccimBean.getMax_quota_per_day0()));
+						paychannellmit.setCardType("0");
+						paychannellmit.setSettlementInterval(acccimBean.getSettlementInterval0());// 到账时间
+						paychannellmit.setStatus(acccimBean.getStatus0());
+						pmPaychannelDao.savePayChannelLmit(paychannellmit);
+						
+						if (getPlatformList.size()>0) {
+						  for (int i = 0; i < getList.size(); i++) {
+							Map<String, Object> map2 = getList.get(i);
+							Object id = map2.get("id");
+							appchannel.setId(Long.parseLong(String.valueOf(id)));
+							
+						appchannellmit.setAppChannelId(appchannel.getId());
+						appchannellmit.setCardType("0");
+						appchannellmit.setMaxQuotaPerDay(Integer.parseInt(acccimBean.getMax_quota_per_day0()));
+						appchannellmit.setMaxQuotaPerTime(Integer.parseInt(acccimBean.getMax_quota_per_time0()));
+						appchannellmit.setSettlementInterval(acccimBean.getSettlementInterval0());
+						appchannellmit.setStatus(acccimBean.getStatus0());
+						pmPaychannelDao.saveAppChannelLmit(appchannellmit);
+						  }
+						}
+					} else {
+						if ("true".equals(acccimBean.getCard_type0())) {// 支持储蓄卡类型，就更新
+							paychannellmit.setPayChannelId(Long.parseLong(acccimBean.getId()));
+							paychannellmit.setMaxQuotaPerTime(Integer.parseInt(acccimBean.getMax_quota_per_time0()));
+							paychannellmit.setMaxQuotaPerDay(Integer.parseInt(acccimBean.getMax_quota_per_day0()));
+							paychannellmit.setSettlementInterval(acccimBean.getSettlementInterval0());// 到账时间
+							paychannellmit.setCardType("0");
+							paychannellmit.setStatus(acccimBean.getStatus0());
+							pmPaychannelDao.updateChannelLmit(paychannellmit);
+							
+							if("1".equals(acccimBean.getStatus0())){
+								System.out.println(acccimBean.getId());
+								paychannellmit.setPayChannelId(Long.parseLong(acccimBean.getId()));
+								paychannellmit.setCardType("0");
+								pmPaychannelDao.updateChannelLmit(acccimBean.getId(),"0");
+							}
+							
+						} else {// 不支持储蓄卡类型，就更新且状态禁用
+							if (StringUtil.isNotEmpty(acccimBean.getMax_quota_per_time0())) {// 有数据
+								paychannellmit.setPayChannelId(Long.parseLong(acccimBean.getId()));
+								paychannellmit.setMaxQuotaPerTime(Integer.parseInt(acccimBean.getMax_quota_per_time0()));
+								paychannellmit.setMaxQuotaPerDay(Integer.parseInt(acccimBean.getMax_quota_per_day0()));
+								paychannellmit.setSettlementInterval(acccimBean.getSettlementInterval0());// 到账时间
+								paychannellmit.setCardType("0");
+								paychannellmit.setStatus("1");
+								pmPaychannelDao.updateChannelLmit(paychannellmit);
+								
+								
+								if("1".equals(acccimBean.getStatus0())){
+									paychannellmit.setPayChannelId(Long.parseLong(acccimBean.getId()));
+									paychannellmit.setCardType("0");
+									pmPaychannelDao.updateChannelLmit(acccimBean.getId(),"0");
+								}
+								
+							}
+						}
+					}
+					if (StringUtil.isEmpty(acccimBean.getLmitid1())&& "true".equals(acccimBean.getCard_type1())) {// 修改时id为空且支持该卡类型，是新增操作
+						paychannellmit.setPayChannelId(paychannel.getId());
+						paychannellmit.setMaxQuotaPerTime(Integer.parseInt(acccimBean.getMax_quota_per_time1()));
+						paychannellmit.setMaxQuotaPerDay(Integer.parseInt(acccimBean.getMax_quota_per_day1()));
+						paychannellmit.setSettlementInterval(acccimBean.getSettlementInterval1());// 到账时间
+						paychannellmit.setCardType("1");
+						paychannellmit.setStatus(acccimBean.getStatus1());
+						pmPaychannelDao.savePayChannelLmit(paychannellmit);
+						
+						if (getPlatformList.size()>0) {
+						for (int i = 0; i < getList.size(); i++) {
+							Map<String, Object> map2 = getList.get(i);
+							Object id = map2.get("id");
+							appchannel.setId(Long.parseLong(String.valueOf(id)));
+
+						appchannellmit.setAppChannelId(appchannel.getId());
+						appchannellmit.setCardType("1");
+						appchannellmit.setMaxQuotaPerDay(Integer.parseInt(acccimBean.getMax_quota_per_day1()));
+						appchannellmit.setMaxQuotaPerTime(Integer.parseInt(acccimBean.getMax_quota_per_time1()));
+						appchannellmit.setSettlementInterval(acccimBean.getSettlementInterval1());
+						appchannellmit.setStatus(acccimBean.getStatus1());
+						pmPaychannelDao.saveAppChannelLmit(appchannellmit);
+						}
+						}
+					} else {
+						if ("true".equals(acccimBean.getCard_type1())) {// 支持信用卡类型，就更新
+							paychannellmit.setPayChannelId(Long.parseLong(acccimBean.getId()));
+							paychannellmit.setMaxQuotaPerTime(Integer.parseInt(acccimBean.getMax_quota_per_time1()));
+							paychannellmit.setMaxQuotaPerDay(Integer.parseInt(acccimBean.getMax_quota_per_day1()));
+							paychannellmit.setSettlementInterval(acccimBean.getSettlementInterval1());// 到账时间
+							paychannellmit.setCardType("1");
+							paychannellmit.setStatus(acccimBean.getStatus1());
+							pmPaychannelDao.updateChannelLmit(paychannellmit);
+							
+							if("1".equals(acccimBean.getStatus1())){
+								paychannellmit.setPayChannelId(Long.parseLong(acccimBean.getId()));
+								paychannellmit.setCardType("1");
+								pmPaychannelDao.updateChannelLmit(acccimBean.getId(),"1");
+							}
+							
+						} else {// 不支持信用卡类型，就更新且状态禁用
+							if (StringUtil.isNotEmpty(acccimBean.getMax_quota_per_time1())) {// 有数据
+								paychannellmit.setPayChannelId(Long.parseLong(acccimBean.getId()));
+								paychannellmit.setMaxQuotaPerTime(Integer.parseInt(acccimBean.getMax_quota_per_time1()));
+								paychannellmit.setMaxQuotaPerDay(Integer.parseInt(acccimBean.getMax_quota_per_day1()));
+								paychannellmit.setSettlementInterval(acccimBean.getSettlementInterval1());// 到账时间
+								paychannellmit.setCardType("1");
+								paychannellmit.setStatus("1");
+								pmPaychannelDao.updateChannelLmit(paychannellmit);
+								
+								if("1".equals(acccimBean.getStatus1())){
+									paychannellmit.setPayChannelId(Long.parseLong(acccimBean.getId()));
+									paychannellmit.setCardType("1");
+									pmPaychannelDao.updateChannelLmit(acccimBean.getId(),"1");
+								}
+							}
+						}
+					}
+					pmimage.setObjectId(Long.parseLong(acccimBean.getId()));
+					pmimage.setObjectType(2);// 所属对象 1-应用平台 2-支付平台 3-渠道
+					pmimage.setName(newName);// 图片名称
+					pmimage.setOldName(oldName);// 图片原名
+					pmimage.setSize((int)filesize);// 文件大小
+					pmimage.setType(newName.substring(newName.lastIndexOf(".") + 1));// 图片类型
+					pmimage.setStatus("1");// 附件状态 0-暂存 1-正常 2-删除
+					pmPaychannelDao.updateImageInfo(pmimage);
+					
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			map.put("status", "error");
+			return map;
+		}
+		
+		acccimBean = pmPaychannelDao.selectBankInfo(acccimBean);// 查询银行信息，且封装数据
+		map.put("status", "success");
+		map.put("result", "success");
+		map.put("id", acccimBean.getId());
+		map.put("channel_code", acccimBean.getChannel_code());
+		map.put("channel_name", acccimBean.getChannel_name());
+		map.put("channel_logo", acccimBean.getChannel_logo());
+		map.put("card_type0", acccimBean.getCard_type0());
+		map.put("card_type1", acccimBean.getCard_type1());
+		map.put("lmitid0", acccimBean.getLmitid0());
+		map.put("lmitid1", acccimBean.getLmitid1());
+		String max_quota_per_time0 = StringUtil.isEmpty(acccimBean.getMax_quota_per_time0())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(acccimBean.getMax_quota_per_time0()).movePointLeft(2));
+		String max_quota_per_time1 = StringUtil.isEmpty(acccimBean.getMax_quota_per_time1())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(acccimBean.getMax_quota_per_time1()).movePointLeft(2));
+		String max_quota_per_day0 = StringUtil.isEmpty(acccimBean.getMax_quota_per_day0())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(acccimBean.getMax_quota_per_day0()).movePointLeft(2));
+		String max_quota_per_day1 = StringUtil.isEmpty(acccimBean.getMax_quota_per_day1())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(acccimBean.getMax_quota_per_day1()).movePointLeft(2));
+		map.put("max_quota_per_time0",max_quota_per_time0);
+		map.put("max_quota_per_time1",max_quota_per_time1);
+		map.put("max_quota_per_day0",max_quota_per_day0);
+		map.put("max_quota_per_day1",max_quota_per_day1);
+		map.put("settlementInterval0", acccimBean.getSettlementInterval0());
+		map.put("settlementInterval1", acccimBean.getSettlementInterval1());
+		map.put("status0", acccimBean.getStatus0());
+		map.put("status1", acccimBean.getStatus1());
+		return map;
+	}
+	/*
+	 * 根据银行名称去“泛华银行卡列表”里去往【suport_payment_banks】字段里更新银行id
+	 */
+	private void changeChannelId(String channelName, Long id, String oper) {
+		System.out.println(oper+"操作："+channelName+"银行，id="+id);
+		String ids = "";
+		String banksId = pmbanksDao.getBanksId(channelName);
+		System.out.println("源："+banksId);
+		if("add".equals(oper)){
+			if(StringUtil.isEmpty(banksId)){
+				ids = String.valueOf(id);
+			}else if(banksId.indexOf(String.valueOf(id))>0){
+				ids = banksId;
+			}else{
+				ids = banksId + "," + String.valueOf(id);
+			}
+		}else if("del".equals(oper)){
+			if(StringUtil.isNotEmpty(banksId)){
+				banksId = "," + banksId;
+				banksId = banksId.replace("," + String.valueOf(id), "");
+				if(StringUtil.isNotEmpty(banksId)){
+					ids = banksId.substring(1);
+				}
+			}
+		}
+		System.out.println("结果："+ids);
+		pmbanksDao.updateBankIDByChannelName(channelName,ids);
+	}
+
+	// 得到选中的支付平台的银行信息
+	@Override
+	public List<Map<String, Object>> getBankList(String id) {
+		return pmPaychannelDao.getBankList(id);
+	}
+
+	// 查询银行信息
+	@Override
+	public Map<String, Object> selectBankInfo(AcccimModel acccimBean) {
+		acccimBean = pmPaychannelDao.selectBankInfo(acccimBean);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("id", acccimBean.getId());
+		map.put("channel_code", acccimBean.getChannel_code());
+		map.put("channel_name", acccimBean.getChannel_name());
+		map.put("channel_logo", acccimBean.getChannel_logo());
+		map.put("card_type0", acccimBean.getCard_type0());
+		map.put("card_type1", acccimBean.getCard_type1());
+		map.put("lmitid0", acccimBean.getLmitid0());
+		map.put("lmitid1", acccimBean.getLmitid1());
+		String max_quota_per_time0 = StringUtil.isEmpty(acccimBean.getMax_quota_per_time0())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(acccimBean.getMax_quota_per_time0()).movePointLeft(2));
+		String max_quota_per_time1 = StringUtil.isEmpty(acccimBean.getMax_quota_per_time1())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(acccimBean.getMax_quota_per_time1()).movePointLeft(2));
+		String max_quota_per_day0 = StringUtil.isEmpty(acccimBean.getMax_quota_per_day0())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(acccimBean.getMax_quota_per_day0()).movePointLeft(2));
+		String max_quota_per_day1 = StringUtil.isEmpty(acccimBean.getMax_quota_per_day1())?"":new DecimalFormat("#,##0.00").format(new BigDecimal(acccimBean.getMax_quota_per_day1()).movePointLeft(2));
+		map.put("max_quota_per_time0",max_quota_per_time0);
+		map.put("max_quota_per_time1",max_quota_per_time1);
+		map.put("max_quota_per_day0",max_quota_per_day0);
+		map.put("max_quota_per_day1",max_quota_per_day1);
+		map.put("settlementInterval0", acccimBean.getSettlementInterval0());
+		map.put("settlementInterval1", acccimBean.getSettlementInterval1());
+		map.put("status0", acccimBean.getStatus0());
+		map.put("status1", acccimBean.getStatus1());
+		return map;
+	}
+
+	// 删除银行信息且备份
+	@Override
+	public Map<String, Object> deleteBankInfo(AcccimModel acccimBean) {
+		acccimBean = pmPaychannelDao.selectBankInfo(acccimBean);
+		changeChannelId(acccimBean.getChannel_name(),Long.valueOf(acccimBean.getId()),"del");
+		pmPaychannelDao.deleteBankInfo(acccimBean);
+		pmPaychannelDao.deleteBankLmit(acccimBean);
+		pmPaychannelDao.deleteBankImage(acccimBean);
+		pmPaychannelDao.deleteAppBankLmit(acccimBean);
+		pmPaychannelDao.deleteAppBankInfo(acccimBean);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("message", "删除成功");
+		return map;
+	}
+
+	// 查询银行模块信息，拼装
+	@Override
+	public Map<String, Object> selectBankDiv(AcccimModel acccimBean) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		if (StringUtil.isNotEmpty(acccimBean.getCard_type())) {
+			if ("0".equals(acccimBean.getCard_type())) {
+				acccimBean.setCard_type0("0");
+			} else {
+				acccimBean.setCard_type1("1");
+			}
+		}
+		List<Map<String, Object>> banklist = pmPaychannelDao
+				.selectBankDiv(acccimBean);
+		String bankdiv="";
+		if(!StringUtil.isEmpty(banklist)){
+			for(int i=0;i<banklist.size();i++){
+				Map<String, Object> banks = banklist.get(i);
+				Object bankid = banks.get("id");
+				Object channel_code = banks.get("channel_code");
+				Object channel_name = banks.get("channel_name");
+				String channel_logo = String.valueOf(banks.get("channel_logo"));
+				String channel_logos = channel_logo;//.substring(channel_logo.lastIndexOf("//")+2);
+				String card_type0 = String.valueOf(banks.get("card_type0"))=="null"?"":String.valueOf(banks.get("card_type0"));
+				String card_type1 = String.valueOf(banks.get("card_type1"))=="null"?"":String.valueOf(banks.get("card_type1"));
+				String type0="0".equals(card_type0)?"checked":"";
+				String type1="1".equals(card_type1)?"checked":"";
+				String max_quota_per_day0 = String.valueOf(banks.get("max_quota_per_day0"))=="null"?"":String.valueOf(banks.get("max_quota_per_day0"));
+				String max_quota_per_day1 = String.valueOf(banks.get("max_quota_per_day1"))=="null"?"":String.valueOf(banks.get("max_quota_per_day1"));
+				String max_quota_per_time0 = String.valueOf(banks.get("max_quota_per_time0"))=="null"?"":String.valueOf(banks.get("max_quota_per_time0"));
+				String max_quota_per_time1 = String.valueOf(banks.get("max_quota_per_time1"))=="null"?"":String.valueOf(banks.get("max_quota_per_time1"));
+				max_quota_per_day0 = StringUtil.isEmpty(max_quota_per_day0)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_day0).movePointLeft(2));
+				max_quota_per_day1 = StringUtil.isEmpty(max_quota_per_day1)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_day1).movePointLeft(2));
+				max_quota_per_time0 = StringUtil.isEmpty(max_quota_per_time0)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_time0).movePointLeft(2));
+				max_quota_per_time1 = StringUtil.isEmpty(max_quota_per_time1)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_time1).movePointLeft(2));
+				Object status0 = banks.get("status0");
+				String status00="0".equals(status0)?"selected":"";
+				String status01="1".equals(status0)?"selected":"";
+				Object status1 = banks.get("status1");
+				String status10="0".equals(status1)?"selected":"";
+				String status11="1".equals(status1)?"selected":"";
+				Object settlementInterval0 = banks.get("settlementInterval0");
+				String settlementInterval00="01".equals(settlementInterval0)?"selected":"";
+				String settlementInterval01="02".equals(settlementInterval0)?"selected":"";
+				Object settlementInterval1 = banks.get("settlementInterval1");
+				String settlementInterval10="01".equals(settlementInterval1)?"selected":"";
+				String settlementInterval11="02".equals(settlementInterval1)?"selected":"";
+				String lmitid0 = String.valueOf(banks.get("lmitid0"))=="null"?"":String.valueOf(banks.get("lmitid0"));
+				String lmitid1 = String.valueOf(banks.get("lmitid1"))=="null"?"":String.valueOf(banks.get("lmitid1"));
+				
+				bankdiv += "<tr style=\"border-left: 1px solid #dddddd;\" class=\"yinhang\">"
+							+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<i class=\"deletebankdiv glyphicon glyphicon-minus\"></i>"
+							+ "</td>"
+							+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<label  class=\"col-md-2 control-label\" style=\"height:30px;line-height:30px;padding-left: 9px;\">"+ (i + 1)+ "</label> "
+							+ "</td>"
+							+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<input type=\"text\" class=\"form-control\" id=\"channel_code\" readonly value=\""+ channel_code+ "\" >"
+							+ "</td>"
+							+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<input type=\"text\" class=\"form-control\" id=\"channel_name\" readonly value=\""+ channel_name+ "\" >"
+							+ "</td>"
+							+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<label class=\"col-md-5 control-label\"  style=\"display:none;\" id=\"shangchuan\">"
+								+ "<a style=\"cursor:pointer;\">上传</a>"
+								+ "</label>"
+								+ "<div id=\"localImag\" >"
+									+ "<img id=\"preview\" src=\""+ channel_logo+ "\" style=\"display:block; width:138px;height:33px;cursor:pointer;\">"
+								+ "</div>"
+								+ "<input  type=\"file\" id=\"file\" name=\"file\" style=\"display:none;\" />"
+								+ "<input type=\"hidden\" class=\"form-control m-left-5\"  id=\"channelLogo\" value=\""+ channel_logos+ "\" >"
+							+ "</td>"
+							+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<div class=\"checkbox\" style=\"padding-bottom:10px;\">"
+								+ "<input type=\"checkbox\" style=\"position:static;\" disabled "+ type0+ " id=\"card_type00\" value=\"0\" >支持储蓄卡"
+								+ "<input  type=\"hidden\" id=\"lmitid0\" value=\""+ lmitid0+ "\">"
+								+ "</div>"
+								+ "<div class=\"checkbox\" style=\"padding-bottom:10px;\">"
+								+ "<input type=\"checkbox\" style=\"position:static;\" disabled "+ type1+ " id=\"card_type11\" value=\"1\">支持信用卡"
+								+ "</div>"
+								+ "<input type=\"hidden\" id=\"lmitid1\" value=\""+ lmitid1+ "\">"
+							+ "</td>"
+							+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<input type=\"text\" class=\"form-control\" id=\"max_quota_per_time0\" "
+								+ "onkeyup=\'constraintMoneyLength(12,2)\' onblur=\'constraintMoneyLength(12,2)\' value=\""+ max_quota_per_time0+ "\" readonly > &nbsp;"
+								+ "<input type=\"text\" class=\"form-control\" id=\"max_quota_per_time1\" value=\""
+								+ max_quota_per_time1+ "\" readonly "+ "onkeyup=\'constraintMoneyLength(12,2)\' onblur=\'constraintMoneyLength(12,2)\'>"
+							+ "</td>"
+							+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<input type=\"text\" class=\"form-control\" id=\"max_quota_per_day0\" value=\""
+								+ max_quota_per_day0+ "\" readonly  onkeyup=\'constraintMoneyLength(12,2)\' onblur=\'constraintMoneyLength(12,2)\'>&nbsp;"
+								+ "<input type=\"text\" class=\"form-control\" id=\"max_quota_per_day1\" value=\""
+								+ max_quota_per_day1+ "\" readonly onkeyup=\'constraintMoneyLength(12,2)\' onblur=\'constraintMoneyLength(12,2)\'>"
+							+ "</td>"
+							+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<select class=\"col-md-1 form-control col-md-2\" disabled id=\"settlementInterval0\">"
+								+ "<option value=\"\"></option><option "+ settlementInterval00+ " value=\"01\">即时</option><option "+ settlementInterval01+ " value=\"02\">T+1</option>"
+								+ "</select>&nbsp;"
+								+ "<select class=\"col-md-1 form-control col-md-2\" disabled id=\"settlementInterval1\">"
+								+ "<option value=\"\"></option><option "+ settlementInterval10+ " value=\"01\">即时</option><option "+ settlementInterval11+ " value=\"02\">T+1</option>"
+								+ "</select>"
+							+ "</td>"
+							+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<select class=\"form-control m-left-1 col-md-2\" disabled id=\"status0\" >"
+								+ "<option value=\"\"></option><option "+ status00+ " value=\"0\">启用</option><option "+ status01+ " value=\"1\">禁用</option>"
+								+ "</select>&nbsp;"
+								+ "<select class=\"form-control m-left-1 col-md-2\" disabled id=\"status1\" >"
+								+ "<option value=\"\"></option><option "+ status10+ " value=\"0\">启用</option><option "+ status11+ " value=\"1\">禁用</option>"
+								+ "</select>"
+							+ "</td>"
+							+ "<td style=\"text-align:center;vertical-align:middle;\">"
+								+ "<button  type=\"button\"  id=\"savebank\" disabled class=\"btn btn-primary\">保存</button> "
+								+ "<button  type=\"button\"  id=\"cancelbank\" disabled class=\"btn btn-primary\">取消</button> "
+								+ "<button  type=\"button\"  id=\"modifybank\" class=\"btn btn-primary\">修改</button>"
+							+ "</td>"
+							+ "<input type=\"hidden\"id=\"id\"value=\""+ bankid + "\">" 
+						+ "</tr>";
+			}
+		}
+		map.put("bankdiv", bankdiv);
+		return map;
+	}
+
+	// 查询银行卡类型信息
+	@Override
+	public Map<String, Object> selectLmitInfo(AcccimModel acccimBean) {
+		acccimBean = pmPaychannelDao.selectLmitInfo(acccimBean);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("id", acccimBean.getId());
+		map.put("max_quota_per_time", new DecimalFormat("#,##0.00").format(new BigDecimal(acccimBean.getMax_quota_per_time0()).movePointLeft(2)));
+		map.put("max_quota_per_day", new DecimalFormat("#,##0.00").format(new BigDecimal(acccimBean.getMax_quota_per_day0()).movePointLeft(2)));
+		map.put("settlement_interval", acccimBean.getSettlementInterval0());
+		map.put("status", acccimBean.getStatus0());
+		return map;
+	}
+	/**
+	  * 检查图片类型
+	  * @param filename文件名
+	  * @return
+	  */
+	 public boolean checkGifJpgBmp(String filename) {
+		String kuo=filename.substring(filename.lastIndexOf(".")+1).toLowerCase();
+		if(!"gif".equals(kuo)&&!"jpg".equals(kuo)&&!"jpeg".equals(kuo)&&!"png".equals(kuo)&&!"bmp".equals(kuo))
+		{
+		  return false;
+		}
+		return true;
+	 }
+
+	@Override
+	public String selectBankCodeBypaymentPlatformIdSysCode(long paymentPlatformId, String sysCode) {
+		//系统银行code得到 支付平台对应银行code
+		String allChannleIds = pmbanksDao.selectPaymentPlatformBankCodesBySysBankCode(sysCode);
+		if(allChannleIds==null){
+			return "noSuportbank";
+		}
+		String[] codeArray = null ;
+		try {
+			codeArray= allChannleIds.split(",");
+		} catch (Exception e) {
+			codeArray[0] = allChannleIds;
+		}
+		List<String>  channelIdsList= Arrays.asList(codeArray);
+		//通过Id 支付平台Id得到对应银行卡Code
+		String bankCode = pmPaychannelDao.selectBankCodesByPaymentplatformIDChannelIds(paymentPlatformId,channelIdsList);
+		if(bankCode==null){
+			return "noSuportbank";
+		}
+		return bankCode;
+	}
+	//得到中金或者商联的支付平台id
+	@Override
+	public String getPaymentId(String string) {
+		return pmPaychannelDao.getPaymentId(string);
+	}
+}

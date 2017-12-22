@@ -1,0 +1,198 @@
+package com.cninsure.payment.controller.platform;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cninsure.core.utils.BeanUtils;
+import com.cninsure.payment.model.BaseModel;
+import com.cninsure.payment.model.CustomAccountModel;
+import com.cninsure.payment.model.CustomBillModel;
+import com.cninsure.payment.model.CustomWalletModel;
+import com.cninsure.payment.service.PMAPPcustomService;
+import com.cninsure.payment.service.PMAPPcustomaccountService;
+import com.cninsure.payment.service.PMAPPcustombillService;
+import com.cninsure.payment.service.PMAPPcustomcardService;
+
+import payment.api.system.TxMessenger;
+import payment.api.tx.paymentbinding.Tx2531Request;
+import payment.api.tx.paymentbinding.Tx2531Response;
+import payment.tools.util.GUID;
+
+@Controller
+@RequestMapping("/wallet/")
+public class WalletController {
+
+	@Resource
+	private PMAPPcustomService customService;
+
+	@Resource
+	private PMAPPcustombillService customBillService;
+
+	@Resource
+	private PMAPPcustomcardService customCardService;
+
+	@Resource
+	private PMAPPcustomaccountService customAccountService;
+
+	/**
+	 * 查询账户总金额，冻结金额，总收益，昨日收益
+	 * 
+	 * @param customAccountModel
+	 * @return
+	 */
+	@RequestMapping(value = "assetProfile", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseModel queryAccountProfile(CustomAccountModel customAccountModel)
+	{
+		BaseModel baseModel = new BaseModel();
+		CustomAccountModel customAccount = customAccountService.getAccountProfile(BeanUtils.toMap(customAccountModel));
+		baseModel.setStatus("OK");
+		baseModel.setMessage("SUCCESS");
+		baseModel.setResult(customAccount);
+		return baseModel;
+	}
+
+	/**
+	 * 查询账户账单
+	 * 
+	 * @param customBillModel
+	 * @return
+	 */
+	@RequestMapping(value = "accountBill", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseModel queryAccountBill(CustomBillModel customBillModel)
+	{
+		BaseModel baseModel = new BaseModel();
+		List<CustomBillModel> bills = customBillService.queryAccountBill(BeanUtils.toMap(customBillModel));
+		baseModel.setStatus("OK");
+		baseModel.setMessage("SUCCESS");
+		baseModel.setResult(bills);
+		return baseModel;
+	}
+
+	@RequestMapping(value = "bindBankCard", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseModel bindBankCard() throws Exception
+	{
+		BaseModel baseModel = new BaseModel();
+
+		Tx2531Request tx2531Request = new Tx2531Request();
+		tx2531Request.setInstitutionID("001463");
+		String protocolId = GUID.generateGUID();
+		System.out.println("protocolId=TxSNBinding=" + protocolId);
+		tx2531Request.setTxSNBinding(protocolId);
+		tx2531Request.setBankID("308");
+		tx2531Request.setAccountName("张同昌");
+		tx2531Request.setAccountNumber("6214830112934343");
+		tx2531Request.setIdentificationType("0");
+		tx2531Request.setIdentificationNumber("42900419921007591X");
+		tx2531Request.setPhoneNumber("18518750049");
+		tx2531Request.setCardType("10");
+
+		// tx2531Request.setBankID("102");
+		// tx2531Request.setAccountName("张帝");
+		// tx2531Request.setAccountNumber("6212250200003999826");
+		// tx2531Request.setIdentificationType("0");
+		// tx2531Request.setIdentificationNumber("131182198910126232");
+		// tx2531Request.setPhoneNumber("18310766458");
+		// tx2531Request.setCardType("10");
+
+		// 加密
+		tx2531Request.process();
+		String message = tx2531Request.getRequestMessage();
+		String signature = tx2531Request.getRequestSignature();
+		TxMessenger txMessenger = new TxMessenger();
+		String[] respMsg = txMessenger.send(message, signature);
+
+		Tx2531Response zhongjinResponse = null;
+		try
+		{
+			zhongjinResponse = new Tx2531Response(respMsg[0], respMsg[1]);
+			net.sf.json.JSONObject Response = net.sf.json.JSONObject.fromObject(zhongjinResponse);
+			System.out.println("Tx2531Response.toString()" + Response.toString());
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			baseModel.setStatus("OK");
+			baseModel.setMessage("FAIL");
+			baseModel.setResult("2531接口反馈报文失败");
+			return baseModel;
+		}
+
+		baseModel.setStatus("OK");
+		baseModel.setMessage("SUCCESS");
+		return baseModel;
+	}
+
+	/**
+	 * 充值
+	 * 
+	 * @param customAccount
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "accountRecharge", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseModel accountRecharge(CustomWalletModel customWalletModel) throws Exception
+	{
+		BaseModel baseModel = new BaseModel();
+		try
+		{
+			if (!customService.checkPaypwd(BeanUtils.toMap(customWalletModel)))
+			{
+				baseModel.setStatus("Error");
+				baseModel.setMessage("支付密码错误");
+				return baseModel;
+			}
+
+			baseModel = customService.accountRecharge(customWalletModel);
+		}
+		catch (Exception e)
+		{
+			baseModel.setStatus("Error");
+			baseModel.setMessage("充值失败");
+		}
+
+		return baseModel;
+	}
+
+	/**
+	 * 提现申请
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "accountWithdrawApply", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseModel accountWithdrawApply(CustomWalletModel customWalletModel)
+	{
+		BaseModel baseModel = new BaseModel();
+		try
+		{
+			if (!customService.checkPaypwd(BeanUtils.toMap(customWalletModel)))
+			{
+				baseModel.setStatus("Error");
+				baseModel.setMessage("支付密码错误");
+				return baseModel;
+			}
+
+			baseModel = customService.accountWithdrawApply(customWalletModel);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			baseModel.setStatus("Error");
+			baseModel.setMessage("提现失败");
+		}
+
+		return baseModel;
+	}
+
+}

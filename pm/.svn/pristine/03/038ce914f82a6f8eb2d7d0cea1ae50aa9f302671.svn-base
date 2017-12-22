@@ -1,0 +1,20 @@
+package com.cninsure.payment.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.cninsure.core.dao.BaseService;
+import com.cninsure.payment.entity.PMApprate;
+
+public interface PMApprateService extends BaseService<PMApprate,Long> {
+	
+	Map<String, Object> saveOrUpdateRateInfo(PMApprate pmapptrate);
+
+	Map<String, Object> deleteRateInfo(PMApprate pmapptrate);
+
+	Map<String, Object> selectRateInfo(PMApprate pmapptrate);
+	
+	List<Map<String, Object>> getRateList(String id);
+	
+	Map<String, Object> selectRateTrackInfo(Map<String, Object> map);
+}

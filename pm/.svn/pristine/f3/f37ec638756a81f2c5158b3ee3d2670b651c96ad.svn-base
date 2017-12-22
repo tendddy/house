@@ -1,0 +1,22 @@
+package com.cninsure.payment.dao.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import com.cninsure.core.dao.impl.BaseDaoImpl;
+import com.cninsure.payment.dao.PMAPPcustombillDao;
+import com.cninsure.payment.entity.PMAPPcustombill;
+import com.cninsure.payment.model.CustomBillModel;
+
+@Repository
+public class PMAPPcustombillDaoImpl extends BaseDaoImpl<PMAPPcustombill, Long> implements PMAPPcustombillDao {
+
+	@Override
+	public List<CustomBillModel> queryAccountBill(Map<String, Object> params)
+	{
+		return this.sqlSessionTemplate.selectList("PMAPPcustombill_queryAccountBill", params);
+	}
+
+}

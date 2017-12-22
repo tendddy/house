@@ -1,0 +1,132 @@
+package com.cninsure.payment.model;
+
+public class CustomBillModel {
+
+	/**
+	 * 第三方平台id
+	 */
+	private String appId;
+	/**
+	 * 第三方用户id
+	 */
+	private String appUserId;
+	/**
+	 * 第三方用户姓名
+	 */
+	private String appUserName;
+	/**
+	 * 第三方用户身份证
+	 */
+	private String appUserIdno;
+	/**
+	 * 交易金额
+	 */
+	private String amount;
+	/**
+	 * 金额类型（收入：1，支出：0）
+	 */
+	private String inorout;
+	/**
+	 * 交易类型
+	 */
+	private String billType;
+	/**
+	 * 交易类型名称
+	 */
+	private String billTypeName;
+	/**
+	 * 交易时间
+	 */
+	private String billDate;
+
+	public String getAppId()
+	{
+		return appId;
+	}
+
+	public void setAppId(String appId)
+	{
+		this.appId = appId;
+	}
+
+	public String getAppUserId()
+	{
+		return appUserId;
+	}
+
+	public void setAppUserId(String appUserId)
+	{
+		this.appUserId = appUserId;
+	}
+
+	public String getAppUserName()
+	{
+		return appUserName;
+	}
+
+	public void setAppUserName(String appUserName)
+	{
+		this.appUserName = appUserName;
+	}
+
+	public String getAppUserIdno()
+	{
+		return appUserIdno;
+	}
+
+	public void setAppUserIdno(String appUserIdno)
+	{
+		this.appUserIdno = appUserIdno;
+	}
+
+	public String getAmount()
+	{
+		return amount;
+	}
+
+	public void setAmount(String amount)
+	{
+		this.amount = amount;
+	}
+
+	public String getInorout()
+	{
+		return inorout;
+	}
+
+	public void setInorout(String inorout)
+	{
+		this.inorout = inorout;
+	}
+
+	public String getBillType()
+	{
+		return billType;
+	}
+
+	public void setBillType(String billType)
+	{
+		this.billType = billType;
+	}
+
+	public String getBillTypeName()
+	{
+		return billTypeName;
+	}
+
+	public void setBillTypeName(String billTypeName)
+	{
+		this.billTypeName = billTypeName;
+	}
+
+	public String getBillDate()
+	{
+		return billDate;
+	}
+
+	public void setBillDate(String billDate)
+	{
+		this.billDate = billDate;
+	}
+
+}

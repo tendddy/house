@@ -1,0 +1,63 @@
+package com.cninsure.payment.model;
+
+
+public class PlatformModel{
+	String id;//主键id
+	String querymonth;//查询月份
+	String querydate;//查询月份
+	String payprotocolid;//支付号
+	String orderid;//订单号
+	String startdate;//查询日期起
+	String enddate;//查询日期止
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getQuerymonth() {
+		return querymonth;
+	}
+	public void setQuerymonth(String querymonth) {
+		this.querymonth = querymonth;
+	}
+	public String getQuerydate() {
+		return querydate;
+	}
+	public void setQuerydate(String querydate) {
+		this.querydate = querydate;
+	}
+	public String getPayprotocolid() {
+		return payprotocolid;
+	}
+	public void setPayprotocolid(String payprotocolid) {
+		this.payprotocolid = payprotocolid;
+	}
+	public String getOrderid() {
+		return orderid;
+	}
+	public void setOrderid(String orderid) {
+		this.orderid = orderid;
+	}
+	public String getStartdate() {
+		return startdate;
+	}
+	public void setStartdate(String startdate) {
+		this.startdate = startdate;
+	}
+	public String getEnddate() {
+		return enddate;
+	}
+	public void setEnddate(String enddate) {
+		this.enddate = enddate;
+	}
+	
+	
+
+
+	
+	
+	
+	
+	
+}

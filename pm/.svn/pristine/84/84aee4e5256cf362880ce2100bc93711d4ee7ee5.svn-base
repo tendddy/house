@@ -1,0 +1,230 @@
+package com.cninsure.payment.model;
+
+import java.io.Serializable;
+
+public class CustomBind4ActionModel implements Serializable{
+
+	private static final long serialVersionUID = 5604012522915150291L;
+	
+	/**
+	 * 绑卡信息id
+	 */
+	private long id;
+	/**
+	 * 订单信息id
+	 */
+	private long paymentId;
+	/**
+	 * 支付平台Id
+	 */
+	private long paymentPlatformId;
+	
+	/**
+	 * 应用平台Id
+	 */
+	private long appId; 
+	
+	/**
+	 * 用户Id
+	 */
+	private String platformUserId;
+	
+	/**
+	 * 银行卡编号
+	 */
+	private String bankcode;
+
+	/**
+	 * 银行预留手机号
+	 */
+	private String customphone;
+
+	/**
+	 * 银行卡号
+	 */
+	private String customcardno;
+
+	/**
+	 * 用户名
+	 */
+	private String customname;
+
+	/**
+	 * 卡类型 10-个人借记 20-个人贷记
+	 */
+	private String cardType;
+
+	/**
+	 * 开户证件类型：
+	0	身份证
+	1	户口簿
+	2	护照
+	3	军官证
+	4	士兵证
+	5	港澳居民来往内地通行证
+	6	台湾同胞来往内地通行证
+	7	临时身份证
+	8	外国人居留证
+	9	警官证
+	X	其他证件
+	 */
+	private String identificationType;
+
+	/**
+	 * 证件号码
+	 */
+	private String identificationNumber;
+
+	/**
+	 * 信用卡有效期
+	 */
+	private String validdate;
+
+	/**
+	 * 信用卡背面的末3位数字
+	 */
+	private String cvn2;
+	/**
+	 * 绑卡流水号
+	 */
+	private String protocolid;
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public String getCustomphone() {
+		return customphone;
+	}
+
+	public void setCustomphone(String customphone) {
+		this.customphone = customphone;
+	}
+
+	public String getCustomcardno() {
+		return customcardno;
+	}
+
+	public void setCustomcardno(String customcardno) {
+		this.customcardno = customcardno;
+	}
+
+	public String getCustomname() {
+		return customname;
+	}
+
+	public void setCustomname(String customname) {
+		this.customname = customname;
+	}
+
+	public String getCardType() {
+		return cardType;
+	}
+
+	public void setCardType(String cardType) {
+		this.cardType = cardType;
+	}
+
+	public String getIdentificationType() {
+		return identificationType;
+	}
+
+	public void setIdentificationType(String identificationType) {
+		this.identificationType = identificationType;
+	}
+
+	public String getIdentificationNumber() {
+		return identificationNumber;
+	}
+
+	public void setIdentificationNumber(String identificationNumber) {
+		this.identificationNumber = identificationNumber;
+	}
+
+	public String getValiddate() {
+		return validdate;
+	}
+
+	public void setValiddate(String validdate) {
+		this.validdate = validdate;
+	}
+
+	public String getCvn2() {
+		return cvn2;
+	}
+
+	public void setCvn2(String cvn2) {
+		this.cvn2 = cvn2;
+	}
+
+	public long getPaymentPlatformId() {
+		return paymentPlatformId;
+	}
+
+	public void setPaymentPlatformId(long paymentPlatformId) {
+		this.paymentPlatformId = paymentPlatformId;
+	}
+
+	public long getAppId() {
+		return appId;
+	}
+
+	public void setAppId(long appId) {
+		this.appId = appId;
+	}
+
+	public String getPlatformUserId() {
+		return platformUserId;
+	}
+
+	public void setPlatformUserId(String platformUserId) {
+		this.platformUserId = platformUserId;
+	}
+
+	
+	public long getPaymentId() {
+		return paymentId;
+	}
+
+	public void setPaymentId(long paymentId) {
+		this.paymentId = paymentId;
+	}
+
+	public String getBankcode() {
+		return bankcode;
+	}
+
+	public void setBankcode(String bankcode) {
+		this.bankcode = bankcode;
+	}
+
+	public String getProtocolid() {
+		return protocolid;
+	}
+
+	public void setProtocolid(String protocolid) {
+		this.protocolid = protocolid;
+	}
+
+	@Override
+	public String toString() {
+		return "CustomBind4ActionModel [id=" + id + ", paymentId=" + paymentId
+				+ ", paymentPlatformId=" + paymentPlatformId + ", appId="
+				+ appId + ", platformUserId=" + platformUserId + ", bankcode="
+				+ bankcode + ", customphone=" + customphone + ", customcardno="
+				+ customcardno + ", customname=" + customname + ", cardType="
+				+ cardType + ", identificationType=" + identificationType
+				+ ", identificationNumber=" + identificationNumber
+				+ ", validdate=" + validdate + ", cvn2=" + cvn2
+				+ ", protocolid=" + protocolid + "]";
+	}
+
+	
+
+	
+}
+

@@ -1,0 +1,23 @@
+package com.common;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import com.cninsure.core.tools.util.ValidateUtil;
+
+/**
+ * JavaMail 版本: 1.6.0
+ * JDK 版本: JDK 1.7 以上（必须）
+ */
+public class SendMsgUtill {
+	private static String payResultCallBack_url = ValidateUtil.getConfigValue("usercentersendmsg");
+
+	public static void sendMsg(String toUser,String orderSn,String interfaceName) throws Exception{
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("phone", toUser);
+		params.put("msg", "订单号[" + orderSn + "]调用" + interfaceName + "失败，请处理该问题");
+		HttpClientUtil.doPostJsonString(payResultCallBack_url, JSONObject.fromObject(params).toString());
+	}
+}

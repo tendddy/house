@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cninsure.payment.entity">
+	<resultMap id="PMImageMap" type="com.cninsure.payment.entity.PMImage" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+	    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+	    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+	    <result column="object_type" property="objectType" jdbcType="INTEGER" />
+	    <result column="object_id" property="objectId" jdbcType="BIGINT" />
+	    <result column="path" property="path" jdbcType="VARCHAR" />
+	    <result column="name" property="name" jdbcType="VARCHAR" />
+	    <result column="old_name" property="oldName" jdbcType="VARCHAR" />
+	    <result column="size" property="size" jdbcType="INTEGER" />
+	    <result column="type" property="type" jdbcType="VARCHAR" />
+	    <result column="status" property="status" jdbcType="CHAR" />
+	</resultMap>
+	<!-- PMImage -->
+	<insert id="PMImage_insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.cninsure.payment.entity.PMImage">
+		insert into PMImage
+		(createdate,modifydate,object_type,object_id,path,name,old_name,size,type,status) 
+		values
+		(#{createdate, jdbcType=TIMESTAMP},#{modifydate, jdbcType=TIMESTAMP},#{objectType, jdbcType=INTEGER},#{objectId, jdbcType=BIGINT},#{path, jdbcType=VARCHAR},#{name, jdbcType=VARCHAR},#{oldName, jdbcType=VARCHAR},#{size, jdbcType=INTEGER},#{type, jdbcType=VARCHAR},#{status, jdbcType=CHAR}) 
+	</insert>
+	<select id="PMImage_select" parameterType="Map" resultMap="PMImageMap">
+		select * from PMImage
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="objectType != null">
+				and object_type = #{objectType, jdbcType=INTEGER}
+			</if>
+			<if test="objectId != null">
+				and object_id = #{objectId, jdbcType=BIGINT}
+			</if>
+			<if test="path != null">
+				and path = #{path, jdbcType=VARCHAR}
+			</if>
+			<if test="name != null">
+				and name = #{name, jdbcType=VARCHAR}
+			</if>
+			<if test="oldName != null">
+				and old_name = #{oldName, jdbcType=VARCHAR}
+			</if>
+			<if test="size != null">
+				and size = #{size, jdbcType=INTEGER}
+			</if>
+			<if test="type != null">
+				and type = #{type, jdbcType=VARCHAR}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMImage_selectById" parameterType="Long" resultMap="PMImageMap">
+		select * from PMImage where id = #{id}
+	</select>
+	<select id="PMImage_deleteById" parameterType="Long">
+		delete from PMImage where id = #{id}
+	</select>
+	<select id="PMImage_updateById" parameterType="com.cninsure.payment.entity.PMImage">
+		update PMImage  set id = #{id, jdbcType=BIGINT},createdate = #{createdate, jdbcType=TIMESTAMP},modifydate = #{modifydate, jdbcType=TIMESTAMP},object_type = #{objectType, jdbcType=INTEGER},object_id = #{objectId, jdbcType=BIGINT},path = #{path, jdbcType=VARCHAR},name = #{name, jdbcType=VARCHAR},old_name = #{oldName, jdbcType=VARCHAR},size = #{size, jdbcType=INTEGER},type = #{type, jdbcType=VARCHAR},status = #{status, jdbcType=CHAR} where id = #{id}
+	</select>
+	<select id="PMImage_selectCount" parameterType="Map" resultType="Long">
+		select count(1) from PMImage
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="objectType != null">
+				and object_type = #{objectType, jdbcType=INTEGER}
+			</if>
+			<if test="objectId != null">
+				and object_id = #{objectId, jdbcType=BIGINT}
+			</if>
+			<if test="path != null">
+				and path = #{path, jdbcType=VARCHAR}
+			</if>
+			<if test="name != null">
+				and name = #{name, jdbcType=VARCHAR}
+			</if>
+			<if test="oldName != null">
+				and old_name = #{oldName, jdbcType=VARCHAR}
+			</if>
+			<if test="size != null">
+				and size = #{size, jdbcType=INTEGER}
+			</if>
+			<if test="type != null">
+				and type = #{type, jdbcType=VARCHAR}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMImage_selectOne" parameterType="Map" resultMap="PMImageMap">
+		select * from PMImage
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="objectType != null">
+				and object_type = #{objectType, jdbcType=INTEGER}
+			</if>
+			<if test="objectId != null">
+				and object_id = #{objectId, jdbcType=BIGINT}
+			</if>
+			<if test="path != null">
+				and path = #{path, jdbcType=VARCHAR}
+			</if>
+			<if test="name != null">
+				and name = #{name, jdbcType=VARCHAR}
+			</if>
+			<if test="oldName != null">
+				and old_name = #{oldName, jdbcType=VARCHAR}
+			</if>
+			<if test="size != null">
+				and size = #{size, jdbcType=INTEGER}
+			</if>
+			<if test="type != null">
+				and type = #{type, jdbcType=VARCHAR}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+		</where>
+		LIMIT 2
+	</select>
+</mapper>

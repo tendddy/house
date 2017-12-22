@@ -1,0 +1,67 @@
+package com.cninsure.payment.dao.impl;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import com.cninsure.core.dao.impl.BaseDaoImpl;
+import com.cninsure.payment.dao.PMAppplatformuserbankcardDao;
+import com.cninsure.payment.entity.PMAppplatformuserbankcard;
+import com.cninsure.payment.entity.PMLogRecords;
+
+@Repository
+public class PMAppplatformuserbankcardDaoImpl extends BaseDaoImpl<PMAppplatformuserbankcard,Long> implements
+		PMAppplatformuserbankcardDao {
+
+	@Override
+	public int deleteByLogicId(long appId, String userId,long payplatformId,String  cardNo) {
+		Map<String,Object> param = new HashMap<String,Object>();
+		param.put("appId", appId);
+		param.put("userId", userId);
+		param.put("cardNo", cardNo);
+		param.put("payplatformId", payplatformId);
+		return this.sqlSessionTemplate.delete(this.getSqlName("deleteByLogicId"), param);
+	}
+
+	@Override
+	public int selectCountByProtocolid(String protocolid) {
+		return this.sqlSessionTemplate.selectOne(this.getSqlName("selectCountByProtocolid"), protocolid);
+	}
+
+	@Override
+	public List<Map<Object, Object>> selectBindCardList(Map<String, Object> map) {
+		return this.sqlSessionTemplate.selectList(this.getSqlName("selectBindCardList"), map);
+	}
+
+	@Override
+	public long getBindCardListCount(Map<String, Object> map) {
+		return this.sqlSessionTemplate.selectOne(this.getSqlName("getBindCardListCount"), map);
+	}
+
+	@Override
+	public List<PMLogRecords> getLogRecordsInfo(Map<String, Object> map) {
+		return this.sqlSessionTemplate.selectList(this.getSqlName("getLogRecordsInfo"), map);
+	}
+
+	@Override
+	public PMLogRecords getLogRecordsInfoByPaymentID(Map<String, Object> map) {
+		return this.sqlSessionTemplate.selectOne(this.getSqlName("getLogRecordsInfoByPaymentID"), map);
+	}
+	@Override
+	public PMLogRecords getLogRecordsInfoByPaymentIDandProductID(Map<String, Object> map) {
+		return this.sqlSessionTemplate.selectOne(this.getSqlName("getLogRecordsInfoByPaymentIDandProductID"), map);
+	}
+	@Override
+	public PMLogRecords getLogRecordsInfoByBankcardID(Map<String, Object> map) {
+		return this.sqlSessionTemplate.selectOne(this.getSqlName("getLogRecordsInfoByBankcardID"), map);
+	}
+
+	@Override
+	public List<Map<String, Object>> selectUserBankCard(Map<String,Object> param)
+	{
+		return this.sqlSessionTemplate.selectList(getSqlName("selectUserBankCard"), param);
+	}
+
+}

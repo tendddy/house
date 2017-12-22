@@ -1,0 +1,1251 @@
+package com.cninsure.payment.service.impl;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.bouncycastle.util.encoders.Base64;
+import org.quartz.Scheduler;
+import org.springframework.beans.factory.annotation.Value;
+//import org.quartz.JobBuilder;
+//import org.quartz.JobDataMap;
+//import org.quartz.JobDetail;
+//import org.quartz.Scheduler;
+//import org.quartz.SchedulerException;
+//import org.quartz.SimpleTrigger;
+//import org.quartz.TriggerBuilder;
+import org.springframework.core.annotation.Order;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.core.dao.impl.BaseServiceImpl;
+import com.cninsure.core.utils.LogUtil;
+import com.cninsure.core.utils.StringUtil;
+import com.cninsure.payment.dao.PMAppplatformuserbankcardDao;
+import com.cninsure.payment.dao.PMBankcardDao;
+import com.cninsure.payment.dao.PMBanksDao;
+import com.cninsure.payment.dao.PMLogRecordsDao;
+import com.cninsure.payment.dao.PMPaymentDao;
+import com.cninsure.payment.entity.PMAppplatformuserbankcard;
+import com.cninsure.payment.entity.PMBankcard;
+import com.cninsure.payment.entity.PMLogRecords;
+import com.cninsure.payment.entity.PMPayment;
+import com.cninsure.payment.enumm.TxBizIdTypeEnum;
+import com.cninsure.payment.model.BaseModel;
+import com.cninsure.payment.model.BindCardModel;
+import com.cninsure.payment.model.BizBindCardModel;
+import com.cninsure.payment.model.BizCallBackBindCardModel;
+import com.cninsure.payment.model.CustomBaseModel;
+import com.cninsure.payment.model.CustomBind4ActionModel;
+import com.cninsure.payment.model.CustomBindWithCodeModel;
+import com.cninsure.payment.model.CustomUnBindModel;
+import com.cninsure.payment.model.FtlCoustomBindCardModel;
+import com.cninsure.payment.model.FtlCoustomBindedCardModel;
+import com.cninsure.payment.model.ShowBankCardModel;
+import com.cninsure.payment.service.PMBankcardService;
+import com.cninsure.payment.service.PMPaychannelService;
+import com.cninsure.payment.util.BizHttpClientUtil;
+import com.cninsure.payment.util.GetConfigPathUtil;
+import com.cninsure.payment.util.PMHttpClientUtil;
+import com.cninsure.payment.util.SMSUtil;
+import com.cninsure.payment.util.TxCore;
+import com.cninsure.payment.util.quartzUtil;
+import com.cninsure.payment.util.biz.UtilDES;
+import com.cninsure.payment.util.biz.UtilMD5;
+import com.cninsure.payment.util.biz.UtilSHA1;
+import com.cninsure.system.entity.INSCUser;
+import com.common.PmInterfaceFilter;
+
+import payment.api.tx.paymentbinding.Tx2501Request;
+import payment.api.tx.paymentbinding.Tx2501Response;
+import payment.api.tx.paymentbinding.Tx2502Request;
+import payment.api.tx.paymentbinding.Tx2502Response;
+import payment.api.tx.paymentbinding.Tx2503Request;
+import payment.api.tx.paymentbinding.Tx2503Response;
+import payment.api.tx.paymentbinding.Tx2531Request;
+import payment.api.tx.paymentbinding.Tx2531Response;
+import payment.api.tx.paymentbinding.Tx2532Request;
+import payment.api.tx.paymentbinding.Tx2532Response;
+import payment.tools.util.GUID;
+
+@Service
+@Transactional
+@Order(3)
+public class PMBankcardServiceImpl extends BaseServiceImpl<PMBankcard, Long> implements PMBankcardService {
+	@Resource
+	private PMBankcardDao pmBankcardDao;
+	@Resource
+	private PMPaymentDao paymentDao;
+	@Resource
+	private PMAppplatformuserbankcardDao appplatformuserbankcardDao;
+	@Resource
+	private ThreadPoolTaskExecutor pmthreadpool;
+	@Resource
+	public Scheduler sched;
+	@Resource
+	private PMBankcardDao bankcardDao;
+	@Resource
+	private PMBanksDao banksDao;
+	@Resource
+	private PMPaychannelService paychannelService;
+	@Resource
+	private PMLogRecordsDao pmLogRecordsDao;
+	@Resource
+	private PMPaymentDao pmPaymentDao;
+
+	@Value("${biz.Version}")
+	private String bizVersion;
+
+	@Value("${biz.charSet}")
+	private String bizCharSet;
+
+	@Value("${biz.systemId}")
+	private String bizSystemId;
+
+	@Value("${biz.businesstype}")
+	private String bizBusinesstype;
+
+	@Value("${biz.certfile}")
+	private String certfile;
+
+	@Value("${biz.certpwd}")
+	private String certpwd;
+
+	@Value("${tx.institutionID}")
+	private String txInstitutionID;
+
+	private static final Logger logger = LogUtil.getLogger();
+
+	@Override
+	protected BaseDao<PMBankcard, Long> getBaseDao() {
+		return pmBankcardDao;
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
+	public BaseModel bindBankCardTx2051(CustomBind4ActionModel cBindModel) {
+		BaseModel result = new BaseModel();
+		String protocolid = "000";
+
+		// 系统数据处理
+		Map<String, Object> pmDataResult = handlerPMDB(protocolid, cBindModel);
+		if ("relationShipSaved".equals(pmDataResult.get("status"))) {
+			result.setMessage("绑卡成功");
+			result.setStatus("OK");
+			result.setResult(protocolid);
+			return result;
+		}
+		else if ("cardDataSaved".equals(pmDataResult.get("status"))) {
+			// 查询
+			CustomBaseModel cbaseModel = new CustomBaseModel();
+			cbaseModel.setAppId(cBindModel.getAppId());
+			cbaseModel.setPlatformUserId(cBindModel.getPlatformUserId());
+			result = queryBindBankCardTx2052(cbaseModel, pmDataResult.get("protocolid").toString());
+			return result;
+		}
+		protocolid = pmDataResult.get("protocolid").toString();
+
+		// 调用中金绑卡接口
+		Tx2501Response bindCardResultModel = null;
+
+		Tx2501Request tx2501Request = setTx2501Request(cBindModel, protocolid);
+		String[] respMsg = TxCore.handlerParam(tx2501Request, "2501", "建立绑定关系");
+
+		// 启动定时任务
+		String jobName = "tx2501_" + protocolid;
+		quartzUtil.timeOut4TxQuartz(sched, jobName, "timeout2501", "2501");
+
+		try {
+			// 成功调通
+			bindCardResultModel = new Tx2501Response(respMsg[0], respMsg[1]);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result.setResult("绑卡失败请重试");
+			result.setStatus("ERROR");
+		}
+		try {
+			if ("2000".equals(bindCardResultModel.getCode())) {
+
+				// 取消开始90秒定时任务
+				quartzUtil.deleteHistoryJob(sched, jobName, "timeout2501");
+
+				// 绑卡成功
+				if (bindCardResultModel.getStatus() == 30) {
+
+					// 更新用户银行关系
+					setUserCardRelation((long) pmDataResult.get("bankcardId"), cBindModel);
+					result.setMessage("绑卡成功");
+					result.setStatus("OK");
+					result.setResult(protocolid);
+
+					// 绑卡处理中
+				}
+				else if (bindCardResultModel.getStatus() == 10) {
+
+					// 正在处理马上开始查询
+
+					quartzUtil.poll4TxQuartz(sched, jobName, "poll2501", "2501");
+					result.setMessage("绑卡处理中");
+
+				}
+				else if (bindCardResultModel.getStatus() == 20) {
+
+					// 绑卡失败PM数据保存回滚 TODO 全部成功
+					throw new RuntimeException("绑卡失败");
+				}
+
+				// 回调应用平台
+				pmthreadpool.execute(new Runnable() {
+					@Override
+					public void run() {
+						callBackAppPlatform(cBindModel);
+					}
+				});
+			}
+			else {
+				result.setResult("绑卡失败请重试");
+				result.setStatus("ERROR");
+			}
+		}
+		catch (Exception e) {
+			result.setMessage("绑卡成功");
+			result.setStatus("OK");
+			result.setResult(protocolid);
+		}
+		return result;
+	}
+
+	/**
+	 * PM系统数据处理
+	 * 
+	 * 绑卡流水号处理
+	 * 
+	 * @param cBindModel
+	 */
+	@Transactional(propagation = Propagation.REQUIRED)
+	private Map<String, Object> handlerPMDB(String protocolid, CustomBind4ActionModel cBindModel) {
+		Map<String, Object> result = new HashMap<String, Object>();
+
+		// 判断银行卡信息是否存在 解决重复发送验证码问题--卡号/身份证号/姓名三要素
+		PMBankcard bankCardEntity = pmBankcardDao.selectBankCardByLogicKey(cBindModel.getCustomcardno(), cBindModel.getIdentificationNumber(),
+				cBindModel.getCustomname());
+
+		// 不存在
+		if (bankCardEntity == null) {
+			// 生成绑卡流水号
+			protocolid = GUID.generateGUID();
+			PMBankcard insertEntity = new PMBankcard();
+			try {
+				PropertyUtils.copyProperties(insertEntity, cBindModel);
+				insertEntity.setCreatedate(new Date());
+				insertEntity.setModifydate(new Date());
+				insertEntity.setStatus("0");
+			}
+			catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+				e.printStackTrace();
+				throw new RuntimeException();
+			}
+			insertEntity.setProtocolid(protocolid);
+
+			// 保存银行卡信息
+			pmBankcardDao.insert(insertEntity);
+
+			result.put("status", "newCardDataSaved");
+			result.put("protocolid", protocolid);
+			result.put("bankcardId", insertEntity.getId());
+		}
+		else if (bankCardEntity.getStatus().equals("1")) {// 已绑定
+
+			protocolid = bankCardEntity.getProtocolid();
+			result.put("status", "cardDataSaved");
+			result.put("protocolid", protocolid);
+			result.put("bankcardId", bankCardEntity.getId());
+
+		}
+		else if (bankCardEntity.getStatus().equals("0")) {// 暂存
+			protocolid = bankCardEntity.getProtocolid();
+			result.put("status", "cardDataTempSaved");
+			result.put("protocolid", protocolid);
+			result.put("bankcardId", bankCardEntity.getId());
+		}
+		else {
+			protocolid = bankCardEntity.getProtocolid();
+			result.put("status", "2||3");
+			result.put("protocolid", protocolid);
+			result.put("bankcardId", bankCardEntity.getId());
+		}
+		return result;
+	}
+
+	/**
+	 * 绑卡发送验证码 中金接口-中金发送验证码，到时候再走接口验证就好了 商联接口要泛华自行发送验证码，如果卡号/身份证号/手机号三要素验证通过，就发送验证码并保存在数据库中
+	 */
+	@Override
+	public FtlCoustomBindCardModel bindBankCardSendVerificationCode(HttpServletRequest request, CustomBind4ActionModel cBindModel) {
+		FtlCoustomBindCardModel result = new FtlCoustomBindCardModel();
+		String protocolid = "000";
+		// 绑卡流水号处理
+		Map<String, Object> pmDataResult = handlerPMDB(protocolid, cBindModel);
+		protocolid = (String) pmDataResult.get("protocolid");
+		cBindModel.setProtocolid(protocolid);
+		cBindModel.setId(Long.parseLong(String.valueOf(pmDataResult.get("bankcardId"))));
+		if ("cardDataSaved".equals(pmDataResult.get("status"))) {// 已绑卡
+
+			// 银行卡验证完成
+			String vfCode = SMSUtil.SMSconfig(request, protocolid, cBindModel.getCustomphone());
+
+			// 订单信息保存验卡验证码
+			PMPayment updateBindCardSMS = new PMPayment();
+			updateBindCardSMS.setId(cBindModel.getPaymentId());
+			updateBindCardSMS.setBindCardVerifycode(vfCode);
+			paymentDao.updateByIdSelective(updateBindCardSMS);
+			result.setMessage("银行卡校验成功");
+			result.setStatus("OK");
+			result.setProtocolid(protocolid);
+			return result;
+		}
+		// -----------------------银行卡信息暂存完毕---------------------------------------------
+
+		String payid = paychannelService.getPaymentId("中金");// 中金不用手续费，记录一下绑卡所走的接口
+		cBindModel.setPaymentPlatformId(Long.parseLong(payid));
+		// 中金验卡
+		BaseModel tempResult = bindBankCardTx2531(cBindModel, pmDataResult);
+
+		if (tempResult.getStatus().equals("OK")) {// 绑定中金成功
+			// 更新用户卡关系--pmappplatformuserbankcard表
+			setUserCardRelationTx2532(cBindModel);
+			// 回调应用平台 补全用户数据--后序沟通
+			pmthreadpool.execute(new Runnable() {
+				@Override
+				public void run() {
+					callBackAppPlatform(cBindModel);
+				}
+			});
+			result.setMessage("银行卡校验成功");
+			result.setStatus("OK");
+		}
+		else {// 中金验卡不通过
+				// 商联验卡
+			payid = paychannelService.getPaymentId("商联");// 商联用手续费，记录一下绑卡所走的接口
+			cBindModel.setPaymentPlatformId(Long.parseLong(payid));
+			BaseModel bizBaseModel = bizCheckbankCard(cBindModel);
+			if (bizBaseModel.getStatus().equals("OK")) {// 绑定商联成功
+				// // 更新用户卡关系--pmappplatformuserbankcard表
+				// setUserCardRelationTx2532(cBindModel);
+				// pmBankcardDao.updateStatusByProtocolId(protocolid, "1",payid);
+				// // 发送短信
+				// String vfCodeBiz = SMSUtil.SMSconfig(request,protocolid, cBindModel.getCustomphone());
+				// PMPayment updateBindCardSMS = new PMPayment();
+				// updateBindCardSMS.setId(cBindModel.getPaymentId());
+				// updateBindCardSMS.setBindCardVerifycode(vfCodeBiz);
+				// paymentDao.updateByIdSelective(updateBindCardSMS);
+				// result.setMessage("银行卡校验成功");
+				// result.setStatus("OK");
+				// result.setProtocolid(protocolid);
+			}
+			else {// 商联验卡不通过
+				result.setMessage("银行卡校验失败");
+				result.setStatus("ERROR");
+			}
+		}
+		// 后序要修改 start
+		payid = paychannelService.getPaymentId("商联");// 商联不用手续费，记录一下绑卡所走的接口
+		pmBankcardDao.updateStatusByProtocolId(protocolid, "0", payid);
+		// 更新用户卡关系--pmappplatformuserbankcard表
+		setUserCardRelationTx2532(cBindModel);
+		// 发送短信
+		String vfCodeBiz = SMSUtil.SMSconfig(request, protocolid, cBindModel.getCustomphone());
+		PMPayment updateBindCardSMS = new PMPayment();
+		updateBindCardSMS.setId(cBindModel.getPaymentId());
+		updateBindCardSMS.setBindCardVerifycode(vfCodeBiz);
+		paymentDao.updateByIdSelective(updateBindCardSMS);
+		result.setMessage("银行卡校验成功");
+		result.setStatus("OK");
+		result.setProtocolid(protocolid);
+		// 后序要修改 end
+		return result;
+	}
+
+	/**
+	 * 商联验卡
+	 * 
+	 * @param cBindModel
+	 * @return
+	 */
+	@Override
+	public BaseModel bizCheckbankCard(CustomBind4ActionModel cBindModel) {
+		BaseModel result = new BaseModel();
+		// 数据处理重要
+		BizBindCardModel bcModel = setBizBankCardModel(cBindModel);
+		try {
+			String bizResult = BizHttpClientUtil.customBind2BizHttpClient(bcModel);
+			PMLogRecords pmLogRecords = new PMLogRecords();
+			pmLogRecords.setCreatedate(new Date());
+			pmLogRecords.setAppId(cBindModel.getAppId());
+			pmLogRecords.setPaymentId(cBindModel.getPaymentId());
+			pmLogRecords.setBankcardId(cBindModel.getId());
+			pmLogRecords.setAppOrderid(null);
+			pmLogRecords.setPlatformUserId(cBindModel.getPlatformUserId());
+			pmLogRecords.setProductId(null);
+			pmLogRecords.setInterfaceType(0);
+			pmLogRecords.setInterfaceName("商联-建立绑定关系");
+			pmLogRecords.setInterfaceMethod("customBind2BizHttpClient");
+			net.sf.json.JSONObject unencrypted = net.sf.json.JSONObject.fromObject(cBindModel);
+			pmLogRecords.setUnencryptedParams(unencrypted.toString());
+			net.sf.json.JSONObject Request = net.sf.json.JSONObject.fromObject(bcModel);
+			pmLogRecords.setRequestParams(Request.toString());
+			pmLogRecords.setResponseParams(bizResult);
+			pmLogRecordsDao.insertLogRecords(pmLogRecords);
+			if (bizResult != null) {
+				Map<String, Object> bizResultObject = null;
+				String resultCode = null;
+				try {
+					bizResultObject = JSONObject.parseObject(bizResult);
+					resultCode = (String) bizResultObject.get("resultcode");
+				}
+				catch (Exception e) {
+					logger.info("商联商联接口反馈报文解析失败：查看调用商联参数" + bcModel.toStringShow());
+					pmLogRecords.setRemark("商联接口反馈报文失败解析失败");
+				}
+
+				if ("0000".equals(resultCode)) {
+					// 验卡成功更新银行卡信息
+					result.setMessage("商联银行卡校验成功");
+					result.setStatus("OK");
+					pmLogRecords.setStatus("1");
+					pmLogRecords.setRemark("接口调用成功");
+				}
+				else {
+					// 失败
+					result.setMessage("商联银行卡校验失败");
+					result.setStatus("ERROR");
+					pmLogRecords.setStatus("0");
+					pmLogRecords.setRemark("接口调用失败");
+				}
+				// 接口操作日志状态更新
+				pmLogRecordsDao.updateLogRecordsOfResponse(pmLogRecords);
+			}
+			else {
+				// 验卡失败
+				result.setMessage("商联银行卡校验失败");
+				result.setStatus("ERROR");
+			}
+		}
+		catch (Exception e) {
+			result.setMessage("商联银行卡校验失败");
+			result.setStatus("ERROR");
+		}
+		return result;
+	}
+
+	private BizBindCardModel setBizBankCardModel(CustomBind4ActionModel cBindModel) {
+		BizBindCardModel bbm = new BizBindCardModel();
+		SimpleDateFormat sdf = new SimpleDateFormat("MMddHHmmss");
+		bbm.setVersion(bizVersion);
+		bbm.setCharset(bizCharSet);
+		bbm.setSystemid(bizSystemId);
+		bbm.setBusinesstype(bizBusinesstype);
+		// 消息流水号30位
+		bbm.setMsgseqno(cBindModel.getId() + sdf.format(new Date()));
+
+		// 银行卡账号加密
+		String accountnumber = UtilDES.encryptDES(cBindModel.getCustomcardno());
+		bbm.setAccountnumber(accountnumber);
+
+		// 用户姓名加密
+		String accountname = UtilDES.encryptDES(cBindModel.getCustomname());
+		bbm.setAccountname(accountname);
+		bbm.setIdentificationtype(TxBizIdTypeEnum.getBizByTx(cBindModel.getIdentificationType()));
+
+		// 身份证号加密
+		String identificationnumber = UtilDES.encryptDES(cBindModel.getIdentificationNumber());
+		bbm.setIdentificationnumber(identificationnumber);
+
+		// 电话号加密
+		String phonenumber = UtilDES.encryptDES(cBindModel.getCustomphone());
+		bbm.setPhonenumber(phonenumber);
+
+		bbm.setCardtype(cBindModel.getCardType());
+		bbm.setValiddate(cBindModel.getValiddate() != null ? cBindModel.getValiddate() : "");
+		bbm.setCvn2(cBindModel.getCvn2() != null ? cBindModel.getCvn2() : "");
+		bbm.setOrderid("");
+		bbm.setOrderpayfee("");
+		bbm.setCustominfo("");
+		bbm.setReserved("");
+		bbm.setFronturl("");
+		// 回调地址
+		String tempReceiveurl = "";
+		String receiveurl = null;
+		try {
+			receiveurl = new String(Base64.encode(tempReceiveurl.getBytes("UTF-8")));
+		}
+		catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		bbm.setReceiveurl(receiveurl); // TODO 回调后台url
+
+		// 算出签名
+		String bindStr = bbm.toString();
+		String signmsg;
+		try {
+			signmsg = UtilSHA1.fileSignMessage(UtilMD5.crypt(bindStr).toLowerCase(),
+					GetConfigPathUtil.getConfigPath("classpath:config/biz") + certfile, certpwd);
+			bbm.setSignmsg(signmsg);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return bbm;
+	}
+
+	@Override
+	public BaseModel bindBankCardTx2531(CustomBind4ActionModel cBindModel, Map<String, Object> pmDataResult) {
+		BaseModel result = new BaseModel();
+		String protocolid = pmDataResult.get("protocolid").toString();
+		Tx2531Response bindCardResultModel = null;
+
+		// 系统银行包含中金银行
+		String bankCode = paychannelService.selectBankCodeBypaymentPlatformIdSysCode(cBindModel.getPaymentPlatformId(), cBindModel.getBankcode());
+		if (bankCode.equals("noSuportbank")) {
+			result.setMessage("中金2531验卡失败不支持银行");
+			result.setStatus("noBank");
+			return result;
+		}
+		Tx2531Request tx2531Request = setTx2531Request(cBindModel, protocolid, bankCode);
+		PMPayment paymentModel = pmPaymentDao.selectById(cBindModel.getPaymentId());
+		PMLogRecords pmLogRecords = new PMLogRecords();
+		pmLogRecords.setCreatedate(new Date());
+		pmLogRecords.setAppId(paymentModel.getAppId());
+		pmLogRecords.setPaymentId(cBindModel.getPaymentId());
+		pmLogRecords.setBankcardId(cBindModel.getId());
+		pmLogRecords.setAppOrderid(paymentModel.getAppOrderId());
+		pmLogRecords.setPlatformUserId(String.valueOf(paymentModel.getAppUserId()));
+		pmLogRecords.setProductId(null);
+		pmLogRecords.setInterfaceType(0);
+		pmLogRecords.setInterfaceName("2531-建立绑定关系");
+		pmLogRecords.setInterfaceMethod("2531");
+		net.sf.json.JSONObject Request = net.sf.json.JSONObject.fromObject(tx2531Request);
+		pmLogRecords.setRequestParams(Request.toString());
+		pmLogRecordsDao.insertLogRecords(pmLogRecords);
+		System.out.println("2531Request.toString()" + Request.toString());
+		try {
+			String[] respMsg = TxCore.handlerParam(tx2531Request, "2531", "建立绑定关系");
+			bindCardResultModel = new Tx2531Response(respMsg[0], respMsg[1]);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("2531接口反馈报文失败");
+			pmLogRecords.setRemark("2531接口反馈报文失败");
+		}
+		net.sf.json.JSONObject Response = net.sf.json.JSONObject.fromObject(bindCardResultModel);
+		pmLogRecords.setResponseParams(Response.toString());
+		pmLogRecordsDao.updateLogRecordsOfResponse(pmLogRecords);
+		System.out.println("2531Response.toString()" + Response.toString());
+		if ("2000".equals(bindCardResultModel.getCode())) {
+			setUserCardRelation((long) pmDataResult.get("bankcardId"), cBindModel);
+			result.setMessage("中金2531验卡成功");
+			result.setStatus("OK");
+			// 接口操作日志状态更新
+			pmLogRecordsDao.updateLogStatusById(pmLogRecords.getId());
+		}
+		else {
+			result.setMessage(bindCardResultModel.getMessage());
+			result.setStatus("noBank");
+			// 验卡失败
+			// throw new RuntimeException("中金调用返回值失败2531");
+		}
+		return result;
+	}
+
+	private Tx2531Request setTx2531Request(CustomBind4ActionModel cBindModel, String protocolid, String bankCode) {
+		Tx2531Request tx2531Request = new Tx2531Request();
+		tx2531Request.setAccountName(cBindModel.getCustomname());
+		tx2531Request.setAccountNumber(cBindModel.getCustomcardno());
+		tx2531Request.setBankID(bankCode);
+		tx2531Request.setCardType(cBindModel.getCardType());
+		tx2531Request.setCvn2(cBindModel.getCvn2());
+		tx2531Request.setIdentificationNumber(cBindModel.getIdentificationNumber());
+		tx2531Request.setIdentificationType(cBindModel.getIdentificationType());
+		tx2531Request.setInstitutionID(txInstitutionID);
+		tx2531Request.setPhoneNumber(cBindModel.getCustomphone());
+		tx2531Request.setTxCode("2531");
+		tx2531Request.setTxSNBinding(protocolid);
+		tx2531Request.setValidDate(cBindModel.getValiddate());
+		return tx2531Request;
+	}
+
+	@Override
+	public BaseModel bizCallBackBindBankCard(BizCallBackBindCardModel callBackModel) {
+
+		String plainmsg = callBackModel.toString();
+		String signmsg = "";
+		try {
+			signmsg = UtilSHA1.fileSignMessage(UtilMD5.crypt(plainmsg).toLowerCase(),
+					GetConfigPathUtil.getConfigPath("classpath:config/biz") + "1608110001.pfx", "12345678");
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if (UtilSHA1.verifySign(signmsg, callBackModel.getSignmsg(), GetConfigPathUtil.getConfigPath("classpath:config/biz") + "TrustSltf.crt")) {
+
+			if (callBackModel.getResultcode().equals("0000")) {
+				// 更新绑卡信息
+				PMBankcard bankCardModel = pmBankcardDao.selectBankCardByLogicKey(callBackModel.getAccountnumber(),
+						callBackModel.getIdentificationnumber(), callBackModel.getPhonenumber());
+
+				bankCardModel.setStatus("1");
+				pmBankcardDao.updateByIdSelective(bankCardModel);
+
+			}
+
+		}
+
+		return null;
+	}
+
+	@Override
+	public FtlCoustomBindedCardModel bindBankCardTx2532(CustomBindWithCodeModel codeModel) {
+		FtlCoustomBindedCardModel result = new FtlCoustomBindedCardModel();
+		// 根据订单id得到订单中的绑卡验证码，如果为空，走中金接口；不为空就验证输入验证码是否正确，正确则绑卡通过。
+		String verifycode = paymentDao.getVerifyCode(codeModel.getPaymentId());
+		// 得到绑卡信息
+		ShowBankCardModel bankModel = banksDao.selectBankByProtocalId(codeModel.getProtocolid());
+		if (StringUtil.isNotEmpty(verifycode)) {// 根据订单id得到订单中的绑卡验证码，不为空就验证输入验证码是否正确，正确则绑卡通过。
+			if (verifycode.equals(codeModel.getSMSValidationCode())) {// 绑卡通过。
+				result.setMessage("绑卡成功");
+				result.setStatus("OK");
+				result.setBankModel(bankModel);
+				// 验卡成功 更新银行卡状态
+				String payid = paychannelService.getPaymentId("商联");// 商联用手续费，记录一下绑卡所走的接口
+				pmBankcardDao.updateStatusByProtocolId(codeModel.getProtocolid(), "1", payid);
+				// // 更新用户卡关系--pmappplatformuserbankcard表
+				// setUserCardRelationTx2532(codeModel);
+			}
+			else {// 提示验证码错误。
+				result.setMessage("验证码错误");
+				result.setStatus("FAIL");
+			}
+			return result;
+		}
+		else {// 根据订单id得到订单中的绑卡验证码，如果为空，走中金接口
+			Tx2532Response bindCardResultModel = null;
+			Tx2532Request tx2532Request = new Tx2532Request();
+			tx2532Request.setInstitutionID(txInstitutionID);
+			tx2532Request.setSMSValidationCode(codeModel.getSMSValidationCode());
+			tx2532Request.setTxSNBinding(codeModel.getProtocolid());
+			tx2532Request.setTxCode("2532");
+
+			PMPayment paymentModel = pmPaymentDao.selectById(Long.parseLong(codeModel.getPaymentId()));
+			PMLogRecords pmLogRecords = new PMLogRecords();
+			pmLogRecords.setCreatedate(new Date());
+			pmLogRecords.setAppId(paymentModel.getAppId());
+			pmLogRecords.setPaymentId(Long.parseLong(codeModel.getPaymentId()));
+			pmLogRecords.setBankcardId(Long.parseLong(bankModel.getId()));
+			pmLogRecords.setAppOrderid(paymentModel.getAppOrderId());
+			pmLogRecords.setPlatformUserId(String.valueOf(paymentModel.getAppUserId()));
+			pmLogRecords.setProductId(null);
+			pmLogRecords.setInterfaceType(0);
+			pmLogRecords.setInterfaceName("建立绑定关系（验证并绑定）");
+			pmLogRecords.setInterfaceMethod("2532");
+			net.sf.json.JSONObject Request = net.sf.json.JSONObject.fromObject(tx2532Request);
+			pmLogRecords.setRequestParams(Request.toString());
+			pmLogRecordsDao.insertLogRecords(pmLogRecords);
+			System.out.println("2532Request.toString()" + Request.toString());
+			// 启动定时任务
+			// 开个timeout2011定时任务(4秒延时处理,3秒执行一次，执行4次)用于查询，防止参数过去了，而且返回报文因断网而丢失，通过查询状态更新平台订单信息
+			String jobName = "tx2532_" + pmLogRecords.getId() + "_" + codeModel.getProtocolid();
+			quartzUtil.timeOut4TxQuartz(sched, jobName, "timeout2532", "2532");
+
+			try {
+				String[] respMsg = TxCore.handlerParam(tx2532Request, "2532", "建立绑定关系（验证并绑定）");
+				bindCardResultModel = new Tx2532Response(respMsg[0], respMsg[1]);
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("2532接口反馈报文失败");
+				pmLogRecords.setRemark("2532接口反馈报文失败");
+			}
+			net.sf.json.JSONObject Response = net.sf.json.JSONObject.fromObject(bindCardResultModel);
+			pmLogRecords.setResponseParams(Response.toString());
+			pmLogRecordsDao.updateLogRecordsOfResponse(pmLogRecords);
+			System.out.println("2532Response.toString()" + Response.toString());
+			if ("2000".equals(bindCardResultModel.getCode())) {
+				// 有个4秒延时处理，当2532接口报文反馈回来，关闭timeout2532定时任务
+				// 取消开始90秒定时任务
+				quartzUtil.deleteHistoryJob(sched, jobName, "timeout2532");
+				// 绑卡成功
+				if (bindCardResultModel.getStatus() == 30) {
+					result.setMessage("绑卡成功");
+					result.setStatus("OK");
+					result.setBankModel(bankModel);
+					// // 更新用户卡关系--pmappplatformuserbankcard表
+					// setUserCardRelationTx2532(codeModel);
+					// 接口操作日志状态更新
+					pmLogRecordsDao.updateLogStatusById(pmLogRecords.getId());
+					// 验卡成功 更新银行卡状态
+					String payid = paychannelService.getPaymentId("中金");// 中金不用手续费，记录一下绑卡所走的接口
+					pmBankcardDao.updateStatusByProtocolId(codeModel.getProtocolid(), "1", payid);
+				}
+				else if (bindCardResultModel.getStatus() == 10) {
+					// 正在处理马上开始查询
+					quartzUtil.poll4TxQuartz(sched, jobName, "poll2532", "2532");
+				}
+				else if (bindCardResultModel.getStatus() == 20) {
+					// 绑卡失败银行卡数据作废
+					pmBankcardDao.updateStatusByProtocolId(codeModel.getProtocolid(), "3");
+					result.setMessage("绑卡失败");
+					result.setStatus("FAIL");
+				}
+			}
+			// 后序要修改 start
+			result.setMessage("绑卡成功");
+			result.setStatus("OK");
+			result.setBankModel(bankModel);
+			// 接口操作日志状态更新
+			pmLogRecordsDao.updateLogStatusById(pmLogRecords.getId());
+			// // 更新用户卡关系
+			// setUserCardRelationTx2532(codeModel);
+			// 后序要修改 end
+			return result;
+		}
+	}
+
+	/**
+	 * 确认绑卡
+	 * 
+	 * @param codeModel
+	 */
+	private void setUserCardRelationTx2532(CustomBind4ActionModel cBindModel) {
+		PMBankcard bankCardModel = pmBankcardDao.selectDataByProtocolid(cBindModel.getProtocolid());
+
+		PMAppplatformuserbankcard userCardModel = new PMAppplatformuserbankcard();
+		userCardModel.setAppPlatformId(cBindModel.getAppId());
+		userCardModel.setPlatformUserId(cBindModel.getPlatformUserId());
+		userCardModel.setIdcard(bankCardModel.getIdentificationNumber());
+		userCardModel.setBankcardId(bankCardModel.getId());
+		userCardModel.setCreatedate(new Date());
+		userCardModel.setModifydate(new Date());
+		appplatformuserbankcardDao.insert(userCardModel);
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED)
+	public BaseModel queryBindBankCardTx2052(CustomBaseModel cbaseModel, String protocolid) {
+		BaseModel result = new BaseModel();
+
+		Tx2502Response resultModel = null;
+		try {
+			Tx2502Request txRequest = new Tx2502Request();
+			txRequest.setTxSNBinding(protocolid);
+			txRequest.setTxCode("2502");
+			txRequest.setInstitutionID(txInstitutionID);
+
+			String[] respMsg = TxCore.handlerParam(txRequest, "2502", "绑定关系查询");
+			// 成功调通
+
+			resultModel = new Tx2502Response(respMsg[0], respMsg[1]);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result.setResult("绑卡失败请重试");
+			result.setStatus("ERROR");
+		}
+		if ("2000".equals(resultModel.getCode())) {
+			// 绑卡成功
+			if (resultModel.getStatus() == 30) {
+
+				PMBankcard bankcardModel = pmBankcardDao.selectDataByProtocolid(protocolid);
+				setUserCardRelation(bankcardModel, cbaseModel.getAppId(), cbaseModel.getPlatformUserId());
+				result.setMessage("绑卡成功");
+				result.setStatus("OK");
+				result.setResult(protocolid);
+
+				// 绑卡处理中
+			}
+			else if (resultModel.getStatus() == 10) {
+				result.setMessage("绑卡处理中");
+				result.setStatus("ERROR");
+				result.setResult(protocolid);
+
+				// 绑卡失败
+			}
+			else if (resultModel.getStatus() == 20) {
+				result.setResult("绑卡失败请重试");
+				result.setStatus("ERROR");
+
+				// 更新银行卡信息表状态为绑定失败
+				pmBankcardDao.updateStatusByProtocolId(protocolid, "3");
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 中金数据赋值
+	 * 
+	 * @param cBindModel
+	 * @return
+	 */
+	private Tx2501Request setTx2501Request(CustomBind4ActionModel cBindModel, String txSNBinding) {
+		Tx2501Request tx2501Request = new Tx2501Request();
+		tx2501Request.setInstitutionID(txInstitutionID);
+		tx2501Request.setTxCode("2501");
+		tx2501Request.setTxSNBinding(txSNBinding); // 绑卡流水号
+		tx2501Request.setBankID(cBindModel.getBankcode());// 银行ID
+		tx2501Request.setAccountName(cBindModel.getCustomname());// 账户名称
+		tx2501Request.setAccountNumber(cBindModel.getCustomcardno());// 银行卡号
+		tx2501Request.setIdentificationNumber(cBindModel.getIdentificationNumber());// 证件号
+		tx2501Request.setIdentificationType(cBindModel.getIdentificationType());// 证件类型
+		tx2501Request.setPhoneNumber(cBindModel.getCustomphone());// 电话号
+		tx2501Request.setCardType(cBindModel.getCardType());// 卡类型
+		tx2501Request.setValidDate(!StringUtils.isBlank(cBindModel.getValiddate()) ? cBindModel.getValiddate().trim() : null);// 信用卡有效期
+		tx2501Request.setCvn2(!StringUtils.isBlank(cBindModel.getCvn2()) ? cBindModel.getCvn2().trim() : null); // 信用卡CVN号
+		return tx2501Request;
+	}
+
+	/**
+	 * 设置用户银行卡关联关系
+	 * 
+	 * @param id
+	 *            绑卡信息id
+	 * @param cBindModel
+	 *            基础信息
+	 * @return
+	 */
+	@Transactional(propagation = Propagation.REQUIRED)
+	private void setUserCardRelation(long id, CustomBind4ActionModel cBindModel) {
+		PMAppplatformuserbankcard userCardModel = new PMAppplatformuserbankcard();
+
+		userCardModel.setAppPlatformId(cBindModel.getAppId());
+		userCardModel.setPlatformUserId(cBindModel.getPlatformUserId());
+		userCardModel.setIdcard(cBindModel.getIdentificationNumber());
+		userCardModel.setBankcardId(id);
+		userCardModel.setCreatedate(new Date());
+		userCardModel.setModifydate(new Date());
+		appplatformuserbankcardDao.insert(userCardModel);
+	}
+
+	private void setUserCardRelation(PMBankcard bankcardModel, long appId, String appUserId) {
+		PMAppplatformuserbankcard userCardModel = new PMAppplatformuserbankcard();
+
+		userCardModel.setAppPlatformId(appId);
+		userCardModel.setPlatformUserId(appUserId);
+		userCardModel.setIdcard(bankcardModel.getIdentificationNumber());
+		userCardModel.setBankcardId(bankcardModel.getId());
+		userCardModel.setCreatedate(new Date());
+		userCardModel.setModifydate(new Date());
+		appplatformuserbankcardDao.insert(userCardModel);
+	}
+
+	@Override
+	@PmInterfaceFilter
+	public BaseModel unBindBankCard(CustomUnBindModel model) {
+		BaseModel result = new BaseModel();
+
+		// 查询当前银行卡的状态
+		int protocolidcount = pmBankcardDao.selectCountByProtocolid(model.getProtocolid());
+		if (protocolidcount == 0) {
+			result.setStatus("OK");
+			result.setMessage("解绑成功");
+			return result;
+		}
+
+		// 删除卡和用户关系表关系
+		appplatformuserbankcardDao.deleteByLogicId(model.getAppId(), model.getUserId(), model.getPayplatformId(), model.getCardNo());
+
+		// 判断当前卡号关联关系数量
+		pmthreadpool.execute(new Runnable() {
+			@Override
+			public void run() {
+				// 查询当前银行卡是否还有用户使用。无解绑卡通知中金
+				long count = appplatformuserbankcardDao.selectCountByProtocolid(model.getProtocolid());
+				if (count == 0) {
+					// 解绑流水号
+					String cprotocalid = GUID.generateGUID();
+
+					try {
+						Tx2503Request tx2503Request = setTx2503Request(model.getProtocolid(), cprotocalid);
+						String[] respMsg = TxCore.handlerParam(tx2503Request, "2503", "解除绑定关系");
+						// 成功调通
+						Tx2503Response bindCardResultModel = null;
+						try {
+							bindCardResultModel = new Tx2503Response(respMsg[0], respMsg[1]);
+						}
+						catch (Exception e) {
+							e.printStackTrace();
+						}
+						if ("2000".equals(bindCardResultModel.getCode())) {
+
+							// 解绑成功
+							if (bindCardResultModel.getStatus() == 20) {
+
+								pmBankcardDao.updateCardStatusByProtocolid(model.getProtocolid(), cprotocalid);
+							}
+							else if (bindCardResultModel.getStatus() == 10) {
+
+								// TODO 定时任务去查一次。工程启动主动检测未解绑银行卡（分布式的话要考虑）
+							}
+							else if (bindCardResultModel.getStatus() == 30) {
+								// TODO 同上面
+							}
+						}
+						else {
+							// TODO 同上面
+						}
+					}
+					catch (Exception e) {
+						e.printStackTrace();
+						// TODO 同上面
+					}
+				}
+			}
+		});
+
+		result.setStatus("OK");
+		result.setMessage("解绑成功");
+		return result;
+	}
+
+	/**
+	 * 整理数据
+	 * 
+	 * 解绑银行卡流水 TODO
+	 * 
+	 * @param protocolid
+	 * @return
+	 */
+	private Tx2503Request setTx2503Request(String protocolid, String cprotocalid) {
+		Tx2503Request tx2503Request = new Tx2503Request();
+		// 机构编号 TODO
+		tx2503Request.setInstitutionID(txInstitutionID);
+		tx2503Request.setTxCode("2503");
+		tx2503Request.setTxSNBinding(protocolid);
+		// 解绑流水号
+		tx2503Request.setTxSNUnBinding(cprotocalid);
+		return tx2503Request;
+	}
+
+	/**
+	 * 回调应用平台补全用户信息
+	 */
+	private void callBackAppPlatform(CustomBind4ActionModel cBindModel) {
+		Map<String, String> parmaMap = new HashMap<String, String>();
+		parmaMap.put("appId", String.valueOf(cBindModel.getAppId()));
+		parmaMap.put("userId", cBindModel.getPlatformUserId());
+		parmaMap.put("identificationnumber", cBindModel.getIdentificationNumber());
+
+		PMHttpClientUtil.callBackAppPlatformHttpClient(parmaMap);
+	}
+
+	@Override
+	public Map<String, Object> selectBindCardList(Map<String, Object> map) {
+		long total = appplatformuserbankcardDao.getBindCardListCount(map);
+		List<Map<Object, Object>> infoList = appplatformuserbankcardDao.selectBindCardList(map);
+		for (int i = 0; i < infoList.size(); i++) {
+			Map<Object, Object> map2 = infoList.get(i);
+			Object createdate = map2.get("createdate");
+			if (createdate != null && !"".equals(createdate)) {
+				createdate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createdate);
+			}
+			map2.put("createdate", createdate);
+			Object createdates = map2.get("createdates");
+			if (createdates != null && !"".equals(createdates)) {
+				createdates = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createdates);
+			}
+			map2.put("createdates", createdates);
+			Object card_type = map2.get("card_type");
+			if (card_type != null && !"".equals(card_type)) {
+				if (card_type.equals("10")) {
+					map2.put("card_type", "储蓄卡");
+				}
+				else if (card_type.equals("20")) {
+					map2.put("card_type", "信用卡");
+				}
+			}
+			Object status = map2.get("status");
+			if (status != null && !"".equals(status)) {
+				if (status.equals("0")) {
+					map2.put("status", "暂存");
+				}
+				else if (status.equals("1")) {
+					map2.put("status", "已绑定");
+				}
+				else if (status.equals("2")) {
+					map2.put("status", "绑定失败");
+				}
+			}
+		}
+		map.put("total", total);
+		map.put("rows", infoList);
+		return map;
+	}
+
+	@Override
+	public List<PMLogRecords> getLogRecordsInfo(Map<String, Object> map) {
+		return appplatformuserbankcardDao.getLogRecordsInfo(map);
+	}
+
+	@Override
+	public Map<String, Object> visitAgain(Map<String, Object> map, INSCUser loginUser, HttpServletRequest request) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		PMLogRecords pmLogRecords = appplatformuserbankcardDao.getLogRecordsInfoByBankcardID(map);
+		String requestParams = null;
+		if (StringUtil.isEmpty(pmLogRecords)) {
+			CustomBind4ActionModel cBindModel = new CustomBind4ActionModel();
+			PMPayment paymentMainModel = pmPaymentDao.selectById(Long.parseLong(String.valueOf(map.get("paymentid"))));
+			PMBankcard bankCardModel = pmBankcardDao.selectDataByProtocolid(paymentMainModel.getProtocolid());
+			String payid = paychannelService.getPaymentId("商联");// 商联用手续费，记录一下绑卡所走的接口
+			cBindModel.setPaymentPlatformId(Long.parseLong(payid));
+			cBindModel.setAppId(paymentMainModel.getAppId());
+			cBindModel.setPlatformUserId(paymentMainModel.getAppUserId());
+			cBindModel.setPaymentId(Long.parseLong(String.valueOf(map.get("paymentid"))));
+			cBindModel.setCustomphone(bankCardModel.getCustomphone());
+			cBindModel.setCustomcardno(bankCardModel.getCustomcardno());
+			cBindModel.setCustomname(bankCardModel.getCustomname());
+			cBindModel.setCardType(bankCardModel.getCardType());
+			cBindModel.setIdentificationNumber(bankCardModel.getIdentificationNumber());
+			cBindModel.setBankcode(bankCardModel.getBankcode());
+			cBindModel.setValiddate(bankCardModel.getValiddate());
+			cBindModel.setCvn2(bankCardModel.getCvn2());
+
+			BizBindCardModel bcModel = setBizBankCardModel(cBindModel);
+			PMPayment paymentModel = pmPaymentDao.selectById(Long.parseLong(String.valueOf(map.get("paymentid"))));
+			pmLogRecords.setCreatedate(new Date());
+			pmLogRecords.setAppId(paymentModel.getAppId());
+			pmLogRecords.setPaymentId(Long.parseLong(String.valueOf(map.get("paymentid"))));
+			pmLogRecords.setBankcardId(cBindModel.getId());
+			pmLogRecords.setAppOrderid(paymentModel.getAppOrderId());
+			pmLogRecords.setPlatformUserId(String.valueOf(paymentModel.getAppUserId()));
+			pmLogRecords.setProductId(null);
+			pmLogRecords.setInterfaceType(0);
+			pmLogRecords.setInterfaceName("商联-建立绑定关系");
+			pmLogRecords.setInterfaceMethod("customBind2BizHttpClient");
+			net.sf.json.JSONObject unencrypted = net.sf.json.JSONObject.fromObject(cBindModel);
+			pmLogRecords.setUnencryptedParams(unencrypted.toString());
+			net.sf.json.JSONObject Request = net.sf.json.JSONObject.fromObject(bcModel);
+			pmLogRecords.setRequestParams(Request.toString());
+			pmLogRecordsDao.insertLogRecords(pmLogRecords);
+			requestParams = Request.toString();
+		}
+		else {
+			if ((StringUtil.isNotEmpty(pmLogRecords.getResponseParams()) && pmLogRecords.getResponseParams().indexOf("0000") >= 0)
+					|| "1".equals(pmLogRecords.getStatus())) {
+				result.put("message", "日志显示返回参数为成功，不可再次访问！");
+				result.put("status", "SPECIAL");
+				return result;
+			}
+			requestParams = pmLogRecords.getRequestParams();
+		}
+		BizBindCardModel bcModel = JSON.parseObject(requestParams, BizBindCardModel.class);
+		try {
+			String bizResult = BizHttpClientUtil.customBind2BizHttpClient(bcModel);
+
+			if (bizResult != null) {
+				Map<String, Object> bizResultObject = null;
+				String resultCode = null;
+				try {
+					bizResultObject = JSONObject.parseObject(bizResult);
+					net.sf.json.JSONObject Response = net.sf.json.JSONObject.fromObject(bizResultObject);
+					pmLogRecords.setResponseParams(Response.toString());
+					resultCode = (String) bizResultObject.get("resultcode");
+				}
+				catch (Exception e) {
+					System.out.println("商联解析失败：查看调用商联参数" + bcModel.toStringShow());
+					result.put("message", "商联返回参数解析失败");
+					result.put("status", "FAIL");
+					pmLogRecords.setRemark(pmLogRecords.getRemark() + "【" + loginUser.getName() + "-手动操作-fail商联返回参数解析失败-"
+							+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "】");
+				}
+
+				if ("0001".equals(resultCode)) {
+					// 失败
+					result.put("message", "商联银行卡校验失败");
+					result.put("status", "ERROR");
+					pmLogRecords.setRemark(pmLogRecords.getRemark() + "【" + loginUser.getName() + "-手动操作-error商联银行卡校验失败-"
+							+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "】");
+				}
+				else if ("0000".equals(resultCode)) {
+					// 接口操作日志状态更新
+					pmLogRecordsDao.updateLogStatusById(pmLogRecords.getId());
+					// 验卡成功更新银行卡信息
+					result.put("message", "商联银行卡校验成功");
+					result.put("status", "OK");
+					pmLogRecords.setRemark(pmLogRecords.getRemark() + "【" + loginUser.getName() + "-手动操作-ok商联银行卡校验成功-"
+							+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "】");
+					PMBankcard bankCardModel = pmBankcardDao.selectById(pmLogRecords.getBankcardId());
+					String protocolid = bankCardModel.getProtocolid();
+					String payid = paychannelService.getPaymentId("商联");// 商联不用手续费，记录一下绑卡所走的接口
+					pmBankcardDao.updateStatusByProtocolId(protocolid, "1", payid);
+				}
+			}
+			else {
+				// 验卡失败
+				result.put("message", "商联银行卡校验失败");
+				result.put("status", "ERROR");
+				pmLogRecords.setRemark(pmLogRecords.getRemark() + "【" + loginUser.getName() + "-手动操作-null商联银行卡校验失败-"
+						+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "】");
+			}
+		}
+		catch (IOException e) {
+			result.put("message", "商联银行卡校验失败");
+			result.put("status", "ERROR");
+			pmLogRecords.setRemark(pmLogRecords.getRemark() + "【" + loginUser.getName() + "-手动操作-try商联银行卡校验失败-"
+					+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + "】");
+		}
+
+		pmLogRecordsDao.updateLogRecordsOfResponse(pmLogRecords);
+
+		pmLogRecords = appplatformuserbankcardDao.getLogRecordsInfoByBankcardID(map);
+		result.put("unencrypted_params", pmLogRecords.getUnencryptedParams());
+		result.put("request_params", pmLogRecords.getRequestParams());
+		result.put("response_params", pmLogRecords.getResponseParams());
+		result.put("remark", pmLogRecords.getRemark());
+		return result;
+	}
+
+	@Override
+	public FtlCoustomBindCardModel bankcardVerify(CustomBind4ActionModel cBindModel) {
+		FtlCoustomBindCardModel result = new FtlCoustomBindCardModel();
+
+		// 绑卡流水号处理
+		Map<String, Object> pmDataResult = handlerPMDB(null, cBindModel);
+		String protocolid = (String) pmDataResult.get("protocolid");
+		cBindModel.setProtocolid(protocolid);
+		cBindModel.setId(Long.valueOf(String.valueOf(pmDataResult.get("bankcardId"))));
+		// 已绑卡，不再调用第三方接口
+		if ("cardDataSaved".equals(pmDataResult.get("status"))) {
+			result.setMessage("银行卡验证已通过");
+			result.setStatus("OK");
+			result.setProtocolid(protocolid);
+			return result;
+		}
+		// 绑卡接口调用次数限制：一个用户一天内只能成功绑定5次，一张卡最多调用5次
+		Map<String, String> queryParams = new HashMap<String, String>();
+		String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+		queryParams.put("appId", String.valueOf(cBindModel.getAppId()));
+		queryParams.put("appUserId", cBindModel.getPlatformUserId());
+		queryParams.put("status", "1");// 接口调用成功
+		queryParams.put("startTime", date + " 00:00:00");
+		queryParams.put("endTime", date + " 23:59:59");
+		if (pmLogRecordsDao.countUserVerifyTime(queryParams) >= 5) {
+			result.setMessage("该用户一天内银行卡校验次数超过限制，请明天再试！");
+			result.setStatus("ERROR");
+			return result;
+		}
+		queryParams.put("bankcardId", String.valueOf(pmDataResult.get("bankcardId")));
+		if (!"newCardDataSaved".equals(pmDataResult.get("status")) && pmLogRecordsDao.countCardVerifyTime(queryParams) >= 5) {
+			result.setMessage("该银行卡一天内校验失败次数超过限制，请核对信息！");
+			result.setStatus("ERROR");
+			return result;
+		}
+
+		// 商联用手续费，记录一下绑卡所走的接口:商联
+		String payid = "2";
+		cBindModel.setPaymentPlatformId(Long.parseLong(payid));
+		logger.info("调用商联银行卡验证接口开始");
+		BaseModel bizBaseModel = bizCheckbankCard(cBindModel);
+		// 绑定商联成功
+		if (bizBaseModel.getStatus().equals("OK")) {
+			logger.info("绑定商联成功,更新用户卡关系及银行卡状态");
+			// 更新银行卡状态为 已绑定
+			pmBankcardDao.updateStatusById(pmDataResult.get("bankcardId").toString(), "1", payid);
+			// 更新用户卡关系--pmappplatformuserbankcard表
+			PMAppplatformuserbankcard userCardModel = new PMAppplatformuserbankcard();
+			userCardModel.setAppPlatformId(cBindModel.getAppId());
+			userCardModel.setPlatformUserId(cBindModel.getPlatformUserId());
+			userCardModel.setIdcard(cBindModel.getIdentificationNumber());
+			userCardModel.setBankcardId(cBindModel.getId());
+			userCardModel.setCreatedate(new Date());
+			userCardModel.setModifydate(new Date());
+			appplatformuserbankcardDao.insert(userCardModel);
+			result.setMessage("银行卡校验成功");
+			result.setStatus("OK");
+			result.setProtocolid(protocolid);
+		}
+		// 商联验卡不通过
+		else {
+			logger.info("绑定商联失败");
+			// 更新银行卡状态为 绑定失败
+			pmBankcardDao.updateStatusById(pmDataResult.get("bankcardId").toString(), "3", payid);
+			result.setMessage("银行卡校验失败");
+			result.setStatus("ERROR");
+		}
+
+		return result;
+
+	}
+
+	@Override
+	public Map<String, Object> getBindCardList(Map<String, Object> map) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		try {
+			List<Map<Object, Object>> list = pmBankcardDao.getBindCardList(map);
+			long total = pmBankcardDao.getBindCardListCount(map);
+			result.put("status", "OK");
+			result.put("rows", list);
+			result.put("total", total);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result.put("status", "ERROR");
+		}
+		return result;
+	}
+	
+	@Override
+	public Map<String, Object> getBindLogs(Map<String, Object> map) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		try {
+			List<Map<Object, Object>> list = pmBankcardDao.getBindLogs(map);
+			long total = pmBankcardDao.getBindLogsCount(map);
+			result.put("status", "OK");
+			result.put("rows", list);
+			result.put("total", total);
+		} 
+		catch (Exception e) {
+			e.printStackTrace();
+			result.put("status", "ERROR");
+		}
+		return result;
+	}
+
+	@Override
+	public Map<String, Object> changeCardStatus(BindCardModel bindcardModel) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		try {
+			if (StringUtil.isEmpty(bindcardModel.getId()) || StringUtil.isEmpty(bindcardModel.getStatus())) {
+				result.put("status", "ERROR");
+				result.put("message", "参数不能为空！");
+			}
+			pmBankcardDao.updateStatusById(bindcardModel.getId(), bindcardModel.getStatus(), "2");
+			result.put("status", "OK");
+			result.put("message", "修改成功！");
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result.put("status", "ERROR");
+			result.put("message", "修改失败！");
+
+		}
+		return result;
+	}
+	
+}

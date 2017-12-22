@@ -1,0 +1,15 @@
+package com.cninsure.payment.dao;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.payment.entity.PMLogRecords;
+
+public interface PMLogRecordsDao extends BaseDao<PMLogRecords,Long> {
+
+	int updateLogStatusById(Long id);
+
+	int insertLogRecords(PMLogRecords pmLogRecords);
+
+	int updateLogRecordsOfResponse(PMLogRecords pmLogRecords);
+
+
+}

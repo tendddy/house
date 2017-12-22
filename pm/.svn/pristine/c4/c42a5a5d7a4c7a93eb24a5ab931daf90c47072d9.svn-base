@@ -1,0 +1,979 @@
+package com.cninsure.payment.controller.platform;
+
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.cninsure.core.tools.util.ValidateUtil;
+import com.cninsure.core.utils.LogUtil;
+import com.cninsure.payment.entity.PMBanks;
+import com.cninsure.payment.entity.PMLogRecords;
+import com.cninsure.payment.entity.PMPayment;
+import com.cninsure.payment.enumm.PaymentStatusEnum;
+import com.cninsure.payment.model.BaseModel;
+import com.cninsure.payment.model.CustomBind4ActionModel;
+import com.cninsure.payment.model.CustomBindWithCodeModel;
+import com.cninsure.payment.model.CustomUnBindModel;
+import com.cninsure.payment.model.FtlCoustomBindCardModel;
+import com.cninsure.payment.model.FtlCoustomBindedCardModel;
+import com.cninsure.payment.model.FtlPayVerifyCodeModel;
+import com.cninsure.payment.model.OrderDetail4ActionModel;
+import com.cninsure.payment.model.OrderPayModel;
+import com.cninsure.payment.model.PayDownModel;
+import com.cninsure.payment.model.PaymentCoustomerModel;
+import com.cninsure.payment.model.PaymentPlatformModel;
+import com.cninsure.payment.model.PaymentPlatformsModel;
+import com.cninsure.payment.model.QueryPayCodeModel;
+import com.cninsure.payment.model.QueryPaymentPlatFormModel;
+import com.cninsure.payment.service.PMAppplatformuserbankcardService;
+import com.cninsure.payment.service.PMBankcardService;
+import com.cninsure.payment.service.PMLogRecordsService;
+import com.cninsure.payment.service.PMPaychannelService;
+import com.cninsure.payment.service.PMPaymentService;
+import com.cninsure.payment.service.PMPaymentplatformService;
+import com.cninsure.payment.util.Des;
+import com.cninsure.payment.util.SMSUtil;
+import com.tenpay.RequestHandler;
+import com.tenpay.ResponseHandler;
+import com.tenpay.client.ClientResponseHandler;
+import com.tenpay.client.TenpayHttpClient;
+
+/**
+ * 应用平台支付操作
+ */
+@Controller
+@RequestMapping("/payment/")
+public class CustomPaymentController {
+
+	@Resource
+	private PMBankcardService bankcardService;
+	@Resource
+	private PMPaymentService paymentService;
+	@Resource
+	private PMPaymentplatformService paymentplatformService;
+	@Resource
+	private PMPaychannelService paychannelService;
+	@Resource
+	private PMAppplatformuserbankcardService appplatformuserbankcardService;
+	@Resource
+	private PMLogRecordsService logRecordsService;
+
+	private static final Logger logger = LogUtil.getLogger();
+
+	/**
+	 * 财付通商户id
+	 */
+	private String partnerId = ValidateUtil.getConfigValue("tenpay.partnerId");
+	/**
+	 * 财付通商户key
+	 */
+	private String key = ValidateUtil.getConfigValue("tenpay.key");
+	/**
+	 * 财付通支付地址
+	 */
+	private String gateUrl = ValidateUtil.getConfigValue("tenpay.gateUrl");
+	/**
+	 * 财付通页面回调地址
+	 */
+	private String returnUrl = ValidateUtil.getConfigValue("tenpay.return_url");
+	/**
+	 * 财付通后台回调地址
+	 */
+	private String nofityUrl = ValidateUtil.getConfigValue("tenpay.notify_url");
+	/**
+	 * 财付通后台回调返回地址
+	 */
+	private String verifyNotifyUrl = ValidateUtil.getConfigValue("tenpay.verifynotifyUrl");
+
+	/**
+	 * 模拟订单信息
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "order", method = RequestMethod.GET)
+	public ModelAndView initOrderData() {
+		ModelAndView mv = new ModelAndView("platfrom/order");
+		return mv;
+	}
+
+	/**
+	 * 
+	 * 初始化第三方支付,把订单信息带到支付页面 参数信息：订单列表
+	 * 返回信息：应用平台用户ID、应用平台id、订单支付信息id、应用平台订单编号、订单时间、应用平台订单总金额 响应前台操作：第三方应用平台提交订单
+	 * 
+	 * @param ppModel
+	 * @return paymentId(订单信息id) defaultPaymentPlatformId(默认展示支付平台)
+	 *         paymentPlatforms(所有支付平台)
+	 */
+	@RequestMapping(value = "initOrder", method = RequestMethod.POST)
+	public ModelAndView initOrder(String orderMessage) {
+		String decodeData = Des.strDecrypt(orderMessage);
+		ModelAndView mv = null;
+		OrderDetail4ActionModel orderModel = JSON.parseObject(decodeData, OrderDetail4ActionModel.class);
+		PaymentPlatformsModel initData = paymentService.initAllPayments(orderModel);
+		if ("PROBLEM".equals(initData.getStatus())) {// 订单信息错误
+			mv = new ModelAndView("platfrom/problem");
+			mv.addObject("payfee",
+					new DecimalFormat("#,###,###,###,##0.00").format(new BigDecimal(orderModel.getOrderfee()).movePointLeft(2)));
+			mv.addObject("orderid", orderModel.getAppOrderId());
+			mv.addObject("receiveurl", orderModel.getReceiveurl());
+			try {
+				mv.addObject("orderdatetime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+						.format(new SimpleDateFormat("yyyyMMddHHmmss").parse(orderModel.getOrderdatetime())));
+			}
+			catch (ParseException e) {
+				e.printStackTrace();
+				mv.addObject("orderdatetime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+			}
+		}
+		else {
+			mv = new ModelAndView("platfrom/pay");
+			System.out.println(initData.getPaymentId()+"zd");
+			System.out.println(initData.getAppOrderid()+"zd");
+			mv.addObject("pModel", initData);
+		}
+		return mv;
+	}
+	/**
+	 * 
+	 * @param queryPaymentPlatFormMessage
+	 * @return
+	 */
+	@RequestMapping(value = "initOrder4PlatForm",produces="application/json;charset=UTF-8", method = RequestMethod.POST)
+	@ResponseBody
+	public String initOrder4PlatForm(String orderMessage) {
+		LogUtil.error(orderMessage+"zdzdzdzd");
+		System.out.println(orderMessage+"zdzdzdzd");
+		OrderDetail4ActionModel orderModel = JSON.parseObject(orderMessage, OrderDetail4ActionModel.class);
+		PaymentPlatformsModel initData = paymentService.initAllPayments(orderModel);
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		resultMap.put("paymentId", initData.getPaymentId());
+		resultMap.put("appOrderid", initData.getAppOrderid());
+		net.sf.json.JSONObject jsonPayObject = net.sf.json.JSONObject.fromObject(resultMap);
+		return jsonPayObject.toString();
+	}
+	
+
+	/**
+	 * 初始化单个支付平台信息,得到可绑卡银行信息和可支付绑卡信息 参数信息：支付平台id和应用平台用户id 返回信息：可绑卡银行信息和可支付绑卡信息
+	 * 响应前台操作：进入支付页面
+	 * 
+	 * @param paymentPlatformId
+	 * @return 优先判断status
+	 */
+	@RequestMapping(value = "initPaymentPlatForm", method = RequestMethod.POST)
+	@ResponseBody
+	public PaymentPlatformModel initPaymentPlatForm(String queryPaymentPlatFormMessage) {
+		String decodeData = Des.strDecrypt(queryPaymentPlatFormMessage);
+		QueryPaymentPlatFormModel queryModel = JSON.parseObject(decodeData, QueryPaymentPlatFormModel.class);
+
+		PaymentPlatformModel result = new PaymentPlatformModel();
+		try {
+			result = paymentplatformService.getPayment(queryModel);
+			result.setStatus("OK");
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result.setStatus("ERROR");
+		}
+		return result;
+	}
+
+	/**
+	 * 查询全部可绑卡银行信息 参数信息：无 返回信息：可绑卡银行信息，第16个开始 响应前台操作：点击【更多银行】
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "initAllBanks", method = RequestMethod.POST)
+	@ResponseBody
+	public List<PMBanks> initAllBanks() {
+		List<PMBanks> result = new ArrayList<PMBanks>();
+		try {
+			result = paymentplatformService.getAllBanks();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	/**
+	 * 无验证码绑卡(暂时无用)
+	 * 
+	 * @param cBindModel
+	 * @return
+	 */
+	@RequestMapping(value = "coustomBindCard", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseModel coustomBindCard(String bindMessage) {
+		String decodeData = Des.strDecrypt(bindMessage);
+		CustomBind4ActionModel cBindModel = JSON.parseObject(decodeData, CustomBind4ActionModel.class);
+		BaseModel result = new BaseModel();
+		try {
+			result = bankcardService.bindBankCardTx2051(cBindModel);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result.setStatus("ERROR");
+		}
+		return result;
+
+	}
+
+	/**
+	 * 得到绑卡验证码 参数信息：应用平台、用户Id、银行预留手机号、银行卡号、用户名、卡类型、身份证号、银行编码、信用卡有效时间、信用卡安全码、订单id
+	 * 返回信息：返回状态，成功的话有绑卡流水号 响应前台操作：选择银行，录入绑卡信息，点击【点击获取验证码】
+	 * 
+	 * @param cBindModel
+	 * @return
+	 */
+	@RequestMapping(value = "coustomBindCardGetCode", method = RequestMethod.POST)
+	@ResponseBody
+	public FtlCoustomBindCardModel coustomBindCardGetCode(HttpServletRequest request, String bindMessage) {
+		String decodeData = Des.strDecrypt(bindMessage);
+		CustomBind4ActionModel cBindModel = JSON.parseObject(decodeData, CustomBind4ActionModel.class);
+		FtlCoustomBindCardModel result = new FtlCoustomBindCardModel();
+		try {
+			result = bankcardService.bindBankCardSendVerificationCode(request, cBindModel);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result.setStatus("ERROR");
+		}
+		return result;
+	}
+
+	/**
+	 * 验证短信验证码并绑卡 参数信息：应用平台、用户Id、绑卡流水号、短信验证码、订单id 返回信息：返回状态，成功的话有绑卡信息
+	 * 响应前台操作：录入绑卡验证码，选择泛华收银台相关协议，点击【同意绑定】
+	 * 
+	 * @param cBindModel
+	 * @return
+	 */
+	@RequestMapping(value = "coustomBindCardWithCode", method = RequestMethod.POST)
+	@ResponseBody
+	public FtlCoustomBindedCardModel coustomBindCardWithCode(HttpServletRequest request, String bindCardWithCode) {
+		FtlCoustomBindedCardModel result = new FtlCoustomBindedCardModel();
+
+		String decodeData = Des.strDecrypt(bindCardWithCode);
+		CustomBindWithCodeModel codeModel = JSON.parseObject(decodeData, CustomBindWithCodeModel.class);
+
+		long endTime = (long) request.getSession().getAttribute("fhbaoxian" + codeModel.getProtocolid());
+
+		boolean timeResult = SMSUtil.verificationTime(endTime);
+		if (!timeResult) {
+			result.setStatus("ERROR");
+			result.setMessage("验证码超时");
+			return result;
+		}
+		try {
+			result = bankcardService.bindBankCardTx2532(codeModel);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result.setStatus("ERROR");
+		}
+		return result;
+	}
+
+	/**
+	 * 解绑银行卡
+	 */
+	/**
+	 * @param appId
+	 *            应用平台Id
+	 * @param userId
+	 *            用户id
+	 * @param payplatformId
+	 *            支付平台Id
+	 * @param cardNo
+	 *            银行卡号
+	 * @param protocolid
+	 *            绑卡流水号
+	 */
+	@RequestMapping(value = "unBindCard", method = RequestMethod.POST)
+	public BaseModel unBindCard(String unbindMessage) {
+		String decodeData = Des.strDecrypt(unbindMessage);
+		CustomUnBindModel model = JSON.parseObject(decodeData, CustomUnBindModel.class);
+		BaseModel result = new BaseModel();
+		try {
+			result = bankcardService.unBindBankCard(model);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result.setStatus("ERROR");
+			result.setMessage("解绑失败");
+		}
+		return result;
+	}
+
+	/**
+	 * 绑卡轮询接口
+	 * 
+	 * 检查当前绑卡人和银行卡的绑卡关系
+	 * 
+	 * @param appId
+	 *            应用平台id
+	 * @param appUserId
+	 *            应用平台用户id
+	 * @param bankCardNo
+	 *            银行卡号
+	 * @param identificationNumber
+	 *            身份证号
+	 * @return
+	 */
+	@RequestMapping(value = "queryCoustomBindResult", method = RequestMethod.GET)
+	@ResponseBody
+	public BaseModel queryCoustomBindResult(long appId, String appUserId, long bankCardNo, String identificationNumber) {
+		BaseModel result = new BaseModel();
+		try {
+			result = appplatformuserbankcardService.getBindCardResult(appId, appUserId, bankCardNo, identificationNumber);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result.setStatus("ERROR");
+			result.setMessage("绑卡失败请重试");
+		}
+		return result;
+	}
+
+	/**
+	 * 
+	 * 发送支付验证码 参数信息：应用平台、绑卡流水号、订单id 返回信息：返回状态，成功的话有支付流水号
+	 * 响应前台操作：点击【点击获取验证码（发送短信至手机尾号****）】
+	 * 
+	 * @param paymentId
+	 *            支付信息id
+	 * @param protocolid
+	 *            绑卡协议号
+	 * @return
+	 */
+	@RequestMapping(value = "sendVerifyCode", method = RequestMethod.POST)
+	@ResponseBody
+	public FtlPayVerifyCodeModel sendVerifycode(HttpServletRequest request, String payCodeMessage) {
+		String decodeData = Des.strDecrypt(payCodeMessage);
+		QueryPayCodeModel model = JSON.parseObject(decodeData, QueryPayCodeModel.class);
+		FtlPayVerifyCodeModel result = new FtlPayVerifyCodeModel();
+		try {
+			result = paymentService.orderPaySendVerificationCode(request, model);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result.setStatus("ERROR");
+		}
+		return result;
+
+	}
+
+	/**
+	 * 验证支付验证码并支付 参数信息：支付流水号、短信验证码 返回信息：返回状态 响应前台操作：录入支付验证码，点击【立即支付】
+	 * 
+	 * @param paymentId
+	 * @param protocolid
+	 * @return (返回支付结果)
+	 */
+	@RequestMapping(value = "orderPay", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseModel orderPay(HttpServletRequest request, String orderPayMessage) {
+		BaseModel result = new BaseModel();
+
+		String decodeData = Des.strDecrypt(orderPayMessage);
+		OrderPayModel model = JSON.parseObject(decodeData, OrderPayModel.class);
+
+		long endTime = (long) request.getSession().getAttribute("fhbaoxian" + model.getPayProtocolid());
+
+		boolean timeResult = SMSUtil.verificationTime(endTime);
+		if (!timeResult) {
+			result.setStatus("ERROR");
+			result.setMessage("验证码过期");
+			return result;
+		}
+		try {
+			result = paymentService.orderPay(model.getPayProtocolid(), model.getSmsValidationCode());
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result.setStatus("ERROR");
+			result.setMessage("系统错误");
+		}
+		return result;
+	}
+
+	/**
+	 * 当支付返回状态为支付中时，再次去查询 参数信息：支付流水号、短信验证码 返回信息：返回状态 响应前台操作：无
+	 * 
+	 * @param request
+	 * @param orderPayMessage
+	 * @return
+	 */
+	@RequestMapping(value = "selectOrderPay", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseModel selectOrderPay(HttpServletRequest request, String orderPayMessage) {
+		BaseModel result = new BaseModel();
+
+		String decodeData = Des.strDecrypt(orderPayMessage);
+		OrderPayModel model = JSON.parseObject(decodeData, OrderPayModel.class);
+
+		try {
+			result = paymentService.selectOrderPay(model.getPayProtocolid(), model.getSmsValidationCode());
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result.setStatus("ERROR");
+			result.setMessage("系统错误");
+		}
+		return result;
+	}
+
+	/**
+	 * 微信公众号支付
+	 * 
+	 * @param paymentId
+	 * @param protocolid
+	 * @return (返回支付结果)
+	 */
+	@RequestMapping(value = "orderWeixinPay", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseModel orderWeixinPay(HttpServletRequest request, String orderPayMessage) {
+		BaseModel result = new BaseModel();
+
+		String decodeData = Des.strDecrypt(orderPayMessage);
+
+		// JSONObject jsonObject = JSONObject.parseObject(decodeData);
+		OrderPayModel model = JSON.parseObject(decodeData, OrderPayModel.class);
+
+		/* MessageSender.sendGetMessage(); */
+
+		long endTime = (long) request.getSession().getAttribute("fhbaoxian" + model.getPayProtocolid());
+
+		boolean timeResult = SMSUtil.verificationTime(endTime);
+		if (!timeResult) {
+			result.setStatus("ERROR");
+			return result;
+		}
+		try {
+			result = paymentService.orderPay(model.getPayProtocolid(), model.getSmsValidationCode());
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			result.setStatus("ERROR");
+			result.setMessage("系统错误");
+		}
+		return result;
+	}
+
+	@RequestMapping("toWeChatOfficialAccountsPayPage.do")
+	public ModelAndView toWeChatOfficialAccountsPayPage(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = "code", required = false) String code, @RequestParam(value = "state", required = false) String state) {
+		ModelAndView mav = new ModelAndView();
+		String openId = paymentService.getOpenIdByCode(code);
+		;
+
+		// 从入到session中
+		request.getSession().setAttribute("openId", openId);
+
+		mav.addObject("openId", openId);
+		mav.setViewName("platfrom/orderweixin");
+
+		return mav;
+	}
+
+	@RequestMapping("weChatOfficialAccountsPay.do")
+	public JSONObject weChatOfficialAccountsPay(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = "orderPayMessage", required = false) String orderPayMessage) {
+		String decodeData = Des.strDecrypt(orderPayMessage);
+
+		@SuppressWarnings("unchecked")
+		HashMap<String, String> map = JSON.parseObject(decodeData, HashMap.class);
+
+		map.clear();
+
+		map.put("txamt", "1");
+		map.put("txcurrcd", "CNY");
+		map.put("pay_type", "800201");
+		map.put("out_trade_no", "145399626053599943");
+		map.put("txdtm", "2016-04-11 17:51:00");
+		map.put("goods_name", "goods_name");
+		map.put("limit_pay", "no_credit");
+
+		String url = "https://openapi-test.qfpay.com/trade/v1/payment";
+
+		JSONObject result = paymentService.sendOrderToWeixin(map, url);
+
+		return result;
+	}
+
+	/**
+	 * 扫码支付
+	 * 
+	 * @param request
+	 * @param response
+	 * @param orderPayMessage
+	 * @return
+	 */
+	@RequestMapping("getweChatScanCode.do")
+	public JSONObject getweChatScanCode(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = "orderPayMessage", required = false) String orderPayMessage) {
+		String decodeData = Des.strDecrypt(orderPayMessage);
+
+		@SuppressWarnings("unchecked")
+		HashMap<String, String> map = JSON.parseObject(decodeData, HashMap.class);
+
+		map.clear();
+
+		map.put("txamt", "1");
+		map.put("txcurrcd", "CNY");
+		map.put("pay_type", "800201");
+		map.put("out_trade_no", "aa145399626053599943");
+		SimpleDateFormat sDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		String date = sDateFormat.format(new Date());
+		map.put("txdtm", date);
+		map.put("goods_name", "前方测试");
+		map.put("limit_pay", "no_credit");
+
+		String url = "https://openapi-test.qfpay.com/trade/v1/payment";
+
+		JSONObject result = paymentService.sendOrderToWeixin(map, url);
+
+		return result;
+	}
+
+	@RequestMapping("weChatScanCodePay.do")
+	public JSONObject weChatScanCodePay(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = "orderPayMessage", required = false) String orderPayMessage) {
+		String decodeData = Des.strDecrypt(orderPayMessage);
+
+		@SuppressWarnings("unchecked")
+		HashMap<String, String> map = JSON.parseObject(decodeData, HashMap.class);
+		String url = "https://openapi-test.qfpay.com/trade/v1/query";
+
+		JSONObject result = paymentService.sendOrderToWeixin(map, url);
+
+		return result;
+	}
+
+	/**
+	 * APP支付
+	 * 
+	 * @param request
+	 * @param response
+	 * @param orderPayMessage
+	 * @return
+	 */
+	@RequestMapping(value = "weChatAppPay.do", method = RequestMethod.POST)
+	public String weChatAppPay(HttpServletRequest request, HttpServletResponse response, String orderPayMessage) {
+		return "";
+	}
+
+	/**
+	 * 异步接收微信支付结果通知的回调接口
+	 * 
+	 * @param payResult
+	 * @return
+	 */
+	@RequestMapping(value = "payResultNotify.do", method = RequestMethod.POST)
+	public String payResult(HttpServletRequest request, HttpServletResponse response, String payResult) {
+		return "";
+	}
+
+	/**
+	 * 支付结果查询操作
+	 * 
+	 * @param pcModel
+	 * @return (返回支付结果)
+	 */
+	@Deprecated
+	@RequestMapping(value = "queryorderpayresult", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String, Object> queryOrderPayResult(@RequestBody PaymentCoustomerModel pcModel) {
+		Map<String, Object> result = paymentService.queryPayResult(pcModel);
+		return result;
+	}
+
+	/**
+	 * 支付成功并跳转到成功页面 参数信息：订单id 返回信息：支付结果回调地址、应用平台订单编号、订单时间、应用平台订单总金额 响应前台操作：无
+	 * 
+	 * @param resultMessage
+	 * @return
+	 */
+
+	@RequestMapping(value = "payDown", method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView payDown(String paymentMessage) {
+
+		String decodeData = Des.strDecrypt(paymentMessage);
+		PayDownModel model = JSON.parseObject(decodeData, PayDownModel.class);
+		ModelAndView mv = new ModelAndView("platfrom/success");
+		PMPayment pm = paymentService.getBasicMess(model.getPaymentId());
+		mv.addObject("payfee", new DecimalFormat("#,###,###,###,##0.00").format(new BigDecimal(pm.getOrderfee()).movePointLeft(2)));
+		mv.addObject("orderid", pm.getOrderid());
+		mv.addObject("receiveurl", pm.getReceiveurl());
+		try {
+			mv.addObject("orderdatetime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+					.format(new SimpleDateFormat("yyyyMMddHHmmss").parse(pm.getOrderdatetime())));
+		}
+		catch (ParseException e) {
+			e.printStackTrace();
+			mv.addObject("orderdatetime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+		}
+		return mv;
+	}
+
+	/**
+	 * 支付成功并跳转到失败页面 参数信息：订单id 返回信息：支付结果回调地址、应用平台订单编号、订单时间、应用平台订单总金额 响应前台操作：无
+	 * 
+	 * @param resultMessage
+	 * @return
+	 */
+
+	@RequestMapping(value = "payDown1", method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView payDown1(String paymentMessage) {
+		String decodeData = Des.strDecrypt(paymentMessage);
+
+		PayDownModel model = JSON.parseObject(decodeData, PayDownModel.class);
+		ModelAndView mv = new ModelAndView("platfrom/failure");
+		PMPayment pm = paymentService.getBasicMess(model.getPaymentId());
+		mv.addObject("payfee", new DecimalFormat("#,###,###,###,##0.00").format(new BigDecimal(pm.getOrderfee()).movePointLeft(2)));
+		mv.addObject("orderid", pm.getAppOrderId());
+		mv.addObject("receiveurl", pm.getReceiveurl());
+		try {
+			mv.addObject("orderdatetime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+					.format(new SimpleDateFormat("yyyyMMddHHmmss").parse(pm.getOrderdatetime())));
+		}
+		catch (ParseException e) {
+			e.printStackTrace();
+			mv.addObject("orderdatetime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+		}
+		return mv;
+	}
+
+	@RequestMapping(value = "getPasswd", method = RequestMethod.POST)
+	@ResponseBody
+	public BaseModel getPasswd() {
+		
+		BaseModel baseModel = new BaseModel();
+		baseModel.setStatus("OK");
+		baseModel.setMessage("成功");
+		baseModel.setResult("1111");
+		baseModel.setResponse("");
+		return baseModel;
+	}
+
+	/**
+	 * 财付通支付接口
+	 * 
+	 * @param request
+	 * @param response
+	 * @param orderPayMessage
+	 * @return
+	 */
+	@RequestMapping("gotoTenpay.do")
+	@ResponseBody
+	public BaseModel gotoTenpay(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam(value = "orderPayMessage", required = false) String orderPayMessage) {
+
+		BaseModel baseModel = new BaseModel();
+		String decodeData = Des.strDecrypt(orderPayMessage);
+		logger.debug("跳转到财付通支付orderPayMessage-->" + decodeData);
+		@SuppressWarnings("unchecked")
+		Map<String, String> map = JSON.parseObject(decodeData, HashMap.class);
+		String paymentId = map.get("paymentId");
+		// 订单支付信息
+		PMPayment payment = paymentService.queryById(Long.valueOf(paymentId));
+		if (PaymentStatusEnum.success.getValue().equals(payment.getStatus())
+				|| PaymentStatusEnum.cancled.getValue().equals(payment.getStatus())) {
+			baseModel.setStatus("ERROR");
+			baseModel.setMessage("订单已经不能支付了！");
+			return baseModel;
+		}
+		// 生成请求url
+		String gateUrl = createRequestUrl(request, response, payment);
+		logger.debug("cft支付请求gateUrl--->" + gateUrl);
+		// 记录交易日志，更新订单状态
+		paymentService.gotoTenpay(payment, gateUrl);
+
+		baseModel.setStatus("OK");
+		baseModel.setResult(gateUrl);
+		return baseModel;
+	}
+
+	/**
+	 * 财付通支付地址及请求参数生成
+	 * 
+	 * @param request
+	 * @param response
+	 * @param pament
+	 * @return
+	 */
+	private String createRequestUrl(HttpServletRequest request, HttpServletResponse response, PMPayment pament) {
+		RequestHandler reqHandler = new RequestHandler(request, response);
+
+		reqHandler.init();
+		// 设置密钥
+		reqHandler.setKey(this.key);
+		// 请求的url
+		reqHandler.setGateUrl(this.gateUrl);
+		// 商户号
+		reqHandler.setParameter("partner", this.partnerId);
+		// 商家订单号
+		reqHandler.setParameter("out_trade_no", pament.getOrderid());
+		// 商品金额,以分为单位
+		reqHandler.setParameter("total_fee", String.valueOf(pament.getOrderfee()));
+		// 交易完成后跳转的URL
+		reqHandler.setParameter("return_url", this.returnUrl);
+		// 接收财付通通知的URL
+		reqHandler.setParameter("notify_url", this.nofityUrl);
+		// 商品描述
+		reqHandler.setParameter("body", "测试");
+		// 银行类型
+		reqHandler.setParameter("bank_type", "DEFAULT");
+		// 用户的公网ip
+		reqHandler.setParameter("spbill_create_ip", getClientIP(request));
+		reqHandler.setParameter("fee_type", "1");
+
+		reqHandler.setParameter("sign_type", "MD5");
+		reqHandler.setParameter("service_version", "1.0");
+		reqHandler.setParameter("input_charset", "utf-8");
+		reqHandler.setParameter("sign_key_index", "1");
+		// 业务可选参数
+		reqHandler.setParameter("attach", "");
+		reqHandler.setParameter("product_fee", String.valueOf(pament.getOrderfee()));
+		reqHandler.setParameter("transport_fee", "0");
+		reqHandler.setParameter("time_start", new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+		reqHandler.setParameter("time_expire", "");
+		reqHandler.setParameter("buyer_id", "");
+		reqHandler.setParameter("goods_tag", "");
+		String gateUrl = "";
+		try {
+			gateUrl = reqHandler.getRequestURL();
+		}
+		catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return gateUrl;
+
+	}
+
+	private String getClientIP(HttpServletRequest request) {
+
+		String ip = request.getHeader("x-forwarded-for");
+		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+			ip = request.getHeader("Proxy-Client-IP");
+		}
+		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+			ip = request.getHeader("WL-Proxy-Client-IP");
+		}
+		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+			ip = request.getRemoteAddr();
+		}
+		if (ip != null && ip.length() > 0 && ip.indexOf(",") > 0) {
+			ip = ip.substring(0, ip.indexOf(","));
+		}
+		return ip;
+	}
+
+	/**
+	 * 财富通支付结果回调页面
+	 * 
+	 * @param request
+	 * @param response
+	 * @param payResult
+	 * @return
+	 */
+	@RequestMapping("tenpayReturn.do")
+	public ModelAndView tenpayReturn(HttpServletRequest request, HttpServletResponse response, String payResult) {
+
+		logger.debug("tenpayReturn请求到达！");
+
+		ModelAndView mv;
+		// 创建支付应答对象
+		ResponseHandler resHandler = new ResponseHandler(request, response);
+		resHandler.setKey(key);
+		// 商户订单号
+		String out_trade_no = resHandler.getParameter("out_trade_no");
+
+		// 判断签名
+		if (resHandler.isTenpaySign()) {
+			logger.debug("tenpayReturn签名校验成功！");
+			logger.info("tenpayReturn------>out_trade_no=" + out_trade_no);
+			// 通知id
+			String notify_id = resHandler.getParameter("notify_id");
+			// 财付通订单号
+			String transaction_id = resHandler.getParameter("transaction_id");
+			// 金额,以分为单位
+			String total_fee = resHandler.getParameter("total_fee");
+			// 如果有使用折扣券，discount有值，total_fee+discount=原请求的total_fee
+			String discount = resHandler.getParameter("discount");
+			// 支付结果
+			String trade_state = resHandler.getParameter("trade_state");
+			String trade_mode = resHandler.getParameter("trade_mode");
+
+			PMPayment payment = new PMPayment();
+			payment.setOrderid(out_trade_no);
+			List<PMPayment> list = paymentService.queryList(payment);
+			if (list != null && list.size() > 0) {
+				payment = list.get(0);
+			}
+
+			paymentService.tenpayReturn(payment);
+
+			mv = new ModelAndView("platfrom/success");
+			mv.addObject("orderid", payment.getOrderid());
+			mv.addObject("orderdatetime", payment.getOrderdatetime());
+			mv.addObject("payfee", new BigDecimal(total_fee).divide(new BigDecimal(100)).toString());
+			mv.addObject("receiveurl", payment.getReceiveurl());
+		}
+		else {
+			logger.warn("tenpayReturn签名校验失败！");
+			mv = new ModelAndView("platfrom/failure");
+		}
+		return mv;
+	}
+
+	/**
+	 * 财付通支付结果通知接口
+	 * 
+	 * @param request
+	 * @param response
+	 * @param payResult
+	 */
+	@RequestMapping("tenpayNotify.do")
+	@ResponseBody
+	public void tenpayNotify(HttpServletRequest request, HttpServletResponse response, String payResult) {
+
+		try {
+			logger.debug("tenpayNotify请求到达！");
+			// 创建支付应答对象
+			ResponseHandler resHandler = new ResponseHandler(request, response);
+			resHandler.setKey(key);
+			// 判断签名
+			if (resHandler.isTenpaySign()) {
+				// 通知id
+				String notify_id = resHandler.getParameter("notify_id");
+				logger.info("tenpayNotify------>notify_id=" + notify_id);
+				// 创建请求对象
+				RequestHandler queryReq = new RequestHandler(null, null);
+				queryReq.init();
+				queryReq.setKey(key);
+				queryReq.setGateUrl(verifyNotifyUrl);
+				queryReq.setParameter("partner", partnerId);
+				queryReq.setParameter("notify_id", notify_id);
+				// 通信对象
+				TenpayHttpClient httpClient = new TenpayHttpClient();
+				httpClient.setTimeOut(5);
+				// 设置请求内容
+				String requestUrl = queryReq.getRequestURL();
+				httpClient.setReqContent(requestUrl);
+				logger.debug("tenpayNotify应答requestUrl------>" + requestUrl);
+				// 后台调用
+				if (httpClient.call()) {
+
+					// 应答对象
+					ClientResponseHandler queryRes = new ClientResponseHandler();
+					// 设置结果参数
+					String respContent = httpClient.getResContent();
+					queryRes.setContent(respContent);
+					logger.debug("tenpayNotify应答结果------>" + respContent);
+
+					queryRes.setKey(key);
+					// 获取返回参数
+					String retcode = queryRes.getParameter("retcode");
+					String trade_state = queryRes.getParameter("trade_state");
+					String trade_mode = queryRes.getParameter("trade_mode");
+					String out_trade_no = queryRes.getParameter("out_trade_no");
+					// 判断签名及结果
+					if (queryRes.isTenpaySign()) {
+						if ("0".equals(retcode)) {
+							if ("0".equals(trade_state)) {
+								if ("1".equals(trade_mode)) {
+
+									PMPayment payment = new PMPayment();
+									payment.setOrderid(out_trade_no);
+									List<PMPayment> list = paymentService.queryList(payment);
+									if (list != null && list.size() > 0) {
+										payment = list.get(0);
+									}
+									synchronized (payment.getOrderid()) {
+										PMLogRecords logRecords = new PMLogRecords();
+										logRecords.setPaymentId(payment.getId());
+										logRecords = logRecordsService.queryOne(logRecords);
+										if (logRecords != null && !"1".equals(logRecords.getStatus())) {
+											logRecords.setModifydate(new Date());
+											logRecords.setResponseParams(respContent);
+											logRecords.setStatus("1");
+											logRecordsService.updateByIdSelective(logRecords);
+										}
+										else {
+											// 已完成支付，忽略重复回调
+											resHandler.sendToCFT("Success");
+											return;
+										}
+									}
+
+									paymentService.tenpayNotify(payment, queryRes);
+									resHandler.sendToCFT("Success");
+								}
+								else {
+									// TODO 进入后台回调：查询失败:
+									logger.info("trade_mode!=1,:" + trade_mode);
+								}
+							}
+							else {
+								// TODO 进入后台回调：查询失败:
+								logger.info("trade_state!=0,:" + trade_state);
+							}
+						}
+						else {
+							// TODO 进入后台回调：查询失败:
+							logger.info("retcode!=0,:" + retcode);
+						}
+
+					}
+					else {
+						// TODO 进入后台回调：查询失败:
+						logger.warn("tenpayNotify应答返回签名错误！");
+					}
+				}
+				else {
+					// TODO 后台调用通信失败
+					logger.error("tenpayNotify应答请求异常：" + requestUrl);
+				}
+			}
+			else {
+				// 签名校验失败
+				logger.warn("tenpayNotify签名错误！");
+			}
+
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			// TODO 财付通后台返回主程序出现异常
+		}
+
+	}
+
+}

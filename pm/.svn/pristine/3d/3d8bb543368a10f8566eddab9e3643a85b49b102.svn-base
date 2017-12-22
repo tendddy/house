@@ -1,0 +1,88 @@
+package com.cninsure.payment.timer.job;
+
+
+import javax.annotation.Resource;
+
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.Scheduler;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import payment.api.tx.marketorder.Tx1350Request;
+import payment.api.tx.marketorder.Tx1350Response;
+
+import com.cninsure.payment.dao.PMBankcardDao;
+import com.cninsure.payment.dao.PMLogRecordsDao;
+import com.cninsure.payment.dao.PMPaymentDao;
+import com.cninsure.payment.dao.PMProductsDao;
+import com.cninsure.payment.entity.PMProducts;
+import com.cninsure.payment.util.TxCore;
+import com.cninsure.payment.util.quartzUtil;
+
+/**
+ * 单笔代收查询
+ * 规则：5秒一次轮询90秒 
+ * 成功：回写数据库
+ * 失败：人工干预 通知管理员处理
+ * 
+ * 
+ */
+@Service
+public class Tx1350QueryPayResultJob  implements Job    {
+	@Resource
+	private PMBankcardDao pmBankcardDao;
+	@Resource
+	private PMProductsDao productsDao;
+	@Resource
+	private PMPaymentDao pmPaymentDao;
+	@Resource
+	private PMLogRecordsDao pmLogRecordsDao;
+	@Resource
+	public  Scheduler sched;
+	
+	@Value("${tx.institutionID}")
+	private String txInstitutionID;
+	
+	@Override
+	public void execute(JobExecutionContext context)throws JobExecutionException {
+		
+		
+		// jobName
+		String ProInstanceId_Prvcode = context.getJobDetail().getKey().getName();
+		String logId = ProInstanceId_Prvcode.split("_")[1];
+		String statementProtocolId = ProInstanceId_Prvcode.split("_")[2];
+		
+		Tx1350Request txRequest = new Tx1350Request();
+		txRequest.setInstitutionID(txInstitutionID);
+		txRequest.setSerialNumber(statementProtocolId);
+		
+		String[] respMsg = TxCore.handlerParam(txRequest, "1350", "市场订单结算交易查询");
+		Tx1350Response zhongjinResponse = null;
+		try {
+			zhongjinResponse = new Tx1350Response(respMsg[0], respMsg[1]);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if ("2000".equals(zhongjinResponse.getCode())) {
+			
+			if (zhongjinResponse.getStatus() == 20) {
+				// TODO 超时查询，处理中需要人工干预 暂不处理
+			} else if (zhongjinResponse.getStatus() == 30) {
+				//接口操作日志状态更新
+				pmLogRecordsDao.updateLogStatusById(Long.parseLong(logId));
+				PMProducts updateSatusProductsModel = new PMProducts();	
+				updateSatusProductsModel.setStatementProtocolid(statementProtocolId);
+				updateSatusProductsModel.setStatus("0");
+				productsDao.updateByStatementProtocolId(updateSatusProductsModel);
+				// 取消开始90秒定时任务
+				quartzUtil.deleteHistoryJob(sched, ProInstanceId_Prvcode, "timeout1341");
+				quartzUtil.deleteHistoryJob(sched, ProInstanceId_Prvcode, "poll2011");
+			} else if (zhongjinResponse.getStatus() == 40) {
+				// TODO 超时查询，处理中需要人工干预 暂不处理
+			}
+		} else {
+		}
+	}
+}

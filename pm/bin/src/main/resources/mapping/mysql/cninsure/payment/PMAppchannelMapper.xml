@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cninsure.payment.entity">
+	<resultMap id="PMAppchannelResultMap" type="com.cninsure.payment.entity.PMAppchannel" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+	    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+	    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+	    <result column="app_id" property="appId" jdbcType="BIGINT" />
+	    <result column="payment_id" property="paymentId" jdbcType="BIGINT" />
+	    <result column="channel_id" property="channelId" jdbcType="BIGINT" />
+  	</resultMap>
+  	<resultMap id="TempPMAppchannelResultMap" type="com.cninsure.payment.entity.PMAppchannel" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+	    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+	    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+	    <result column="app_id" property="appId" jdbcType="BIGINT" />
+	    <result column="payment_id" property="paymentId" jdbcType="BIGINT" />
+	    <result column="channel_id" property="channelId" jdbcType="BIGINT" />
+	    <result column="max_quota_per_time" property="maxQuotaPerTime" jdbcType="INTEGER" />
+	    <result column="max_quota_per_day" property="maxQuotaPerDay" jdbcType="INTEGER" />
+	    <result column="channel_type" property="channelType" jdbcType="VARCHAR" />
+	    <result column="channel_name" property="channelName" jdbcType="VARCHAR" />
+	    <result column="channel_code" property="channelCode" jdbcType="VARCHAR" />
+	    <result column="channel_logo" property="channelLogo" jdbcType="VARCHAR" />
+	    <result column="channel_id" property="channelId" jdbcType="VARCHAR" />
+  	</resultMap>
+	<!-- PMAppchannel -->
+	<resultMap id="AppPMPaychannelModelResultMap" type="com.cninsure.payment.model.PMPaychannelModel" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+	    <result column="payment_id" property="paymentId" jdbcType="BIGINT" />
+	    <result column="channel_type" property="channelType" jdbcType="CHAR" />
+	    <result column="channel_name" property="channelName" jdbcType="VARCHAR" />
+	    <result column="channel_code" property="channelCode" jdbcType="VARCHAR" />
+	    <result column="channel_logo" property="channelLogo" jdbcType="VARCHAR" />
+	  </resultMap>
+	  
+	  <resultMap id="pmpaymentplatformResult" type="com.cninsure.payment.entity.PMPaymentplatform" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+	    <result column="platform_no" property="platformNo" jdbcType="VARCHAR" />
+	    <result column="platform_name" property="platformName" jdbcType="VARCHAR" />
+	    <result column="platform_logo" property="platformLogo" jdbcType="VARCHAR" />
+	    <result column="status" property="status" jdbcType="CHAR" />
+	    <result column="pp_type" property="ppType" jdbcType="CHAR" />
+	    <result column="settlement_interval" property="settlementInterval" jdbcType="BIGINT" />
+	    <result column="settlement_type" property="settlementType" jdbcType="VARCHAR" />
+	    <result column="settlement_bank" property="settlementBank" jdbcType="VARCHAR" />
+	    <result column="settlement_card" property="settlementCard" jdbcType="VARCHAR" />
+	    <result column="settlement_party" property="settlementParty" jdbcType="VARCHAR" />
+	    <result column="minimum_amount" property="minimumAmount" jdbcType="BIGINT" />
+	    <result column="maximum_amount" property="maximumAmount" jdbcType="BIGINT" />
+	    <result column="rate" property="rate" jdbcType="NUMERIC" />
+	    <result column="rate_fee" property="rateFee" jdbcType="NUMERIC" />
+	  </resultMap>
+	  
+	<insert id="PMAppchannel_insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.cninsure.payment.entity.PMAppchannel" >
+		insert into PMAppchannel
+		(createdate,modifydate,app_id,payment_id,channel_id) 
+		values
+		(#{createdate, jdbcType=TIMESTAMP},#{modifydate, jdbcType=TIMESTAMP},#{appId, jdbcType=BIGINT},#{paymentId, jdbcType=BIGINT},#{channelId, jdbcType=BIGINT}) 
+	</insert>
+	<select id="PMAppchannel_select" parameterType="Map" resultMap="PMAppchannelResultMap">
+		select * from PMAppchannel
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="appId != null">
+				and app_id = #{appId, jdbcType=BIGINT}
+			</if>
+			<if test="paymentId != null">
+				and payment_id = #{paymentId, jdbcType=BIGINT}
+			</if>
+			<if test="channelId != null">
+				and channel_id = #{channelId, jdbcType=BIGINT}
+			</if>
+		</where>
+	</select>
+	<select id="PMAppchannel_selectById" parameterType="Long" resultMap="PMAppchannelResultMap">
+		select * from PMAppchannel where id = #{id}
+	</select>
+	<select id="PMAppchannel_deleteById" parameterType="Long">
+		delete from PMAppchannel where id = #{id}
+	</select>
+	<select id="PMAppchannel_updateById" parameterType="com.cninsure.payment.entity.PMAppchannel">
+		update PMAppchannel  set id = #{id, jdbcType=BIGINT},createdate = #{createdate, jdbcType=TIMESTAMP},modifydate = #{modifydate, jdbcType=TIMESTAMP},app_id = #{appId, jdbcType=BIGINT},channel_id = #{channelId, jdbcType=BIGINT} where id = #{id}
+	</select>
+	<select id="PMAppchannel_selectCount" parameterType="Map" resultType="Long">
+		select count(1) from PMAppchannel
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="appId != null">
+				and app_id = #{appId, jdbcType=BIGINT}
+			</if>
+			<if test="paymentId != null">
+				and payment_id = #{paymentId, jdbcType=BIGINT}
+			</if>
+			<if test="channelId != null">
+				and channel_id = #{channelId, jdbcType=BIGINT}
+			</if>
+		</where>
+	</select>
+	<select id="PMAppchannel_selectOne" parameterType="Map" resultMap="PMAppchannelResultMap">
+		select * from PMAppchannel
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="appId != null">
+				and app_id = #{appId, jdbcType=BIGINT}
+			</if>
+			<if test="paymentId != null">
+				and payment_id = #{paymentId, jdbcType=BIGINT}
+			</if>
+			<if test="channelId != null">
+				and channel_id = #{channelId, jdbcType=BIGINT}
+			</if>
+		</where>
+		LIMIT 2
+	</select>
+	<select id="PMAppchannel_queryChannelsByPaymentId" resultMap="TempPMAppchannelResultMap" parameterType="Map">
+		select app.*,ppc.channel_type,ppc.channel_name,ppc.channel_code,ppc.channel_logo,ppc.id as channel_id,
+		pcl.max_quota_per_time as max_quota_per_time,
+		pcl.max_quota_per_day as max_quota_per_day
+		from PMAppchannel app 
+		left join pmpaychannel ppc on ppc.id=app.channel_id
+		left join pmappchannellmit pcl on app.id=pcl.app_channel_id and pcl.`status`='0'
+		<where>
+			app.app_id =#{appId} and app.payment_id=#{payment}
+		</where>
+	</select>
+	
+	<insert id="PMAppchannel_saveAppChannel" parameterType="com.cninsure.payment.entity.PMAppchannel" useGeneratedKeys="true" keyProperty="id" >
+		INSERT INTO `pmappchannel` (`createdate`, `modifydate`, `app_id`, `channel_id`, `payment_id`) VALUES (sysdate(),sysdate(),#{appId, jdbcType=BIGINT},#{channelId, jdbcType=BIGINT},#{paymentId, jdbcType=BIGINT})
+	</insert>
+	<insert id="PMAppchannel_saveAppChannelLmit" parameterType="com.cninsure.payment.entity.PMAppchannellmit" useGeneratedKeys="true" keyProperty="id" >
+		INSERT INTO `pmappchannellmit` (`createdate`, `modifydate`, `app_channel_id`, `max_quota_per_time`, `max_quota_per_day`, `card_type`,
+		`status`,`settlement_interval`) VALUES (
+		sysdate(),sysdate(),#{appChannelId, jdbcType=BIGINT},#{maxQuotaPerTime, jdbcType=INTEGER},
+		 #{maxQuotaPerDay, jdbcType=INTEGER},#{cardType, jdbcType=CHAR},#{status, jdbcType=CHAR},#{settlementInterval, jdbcType=CHAR})
+	</insert>
+	<select id="PMAppchannel_selectList" resultType="Map" parameterType="String">
+	  select p.id,p.app_id,pp.platform_name,pc.channel_name,pc.channel_code,
+		pl0.card_type as card_type0,pl0.max_quota_per_day as max_quota_per_day0,pl0.max_quota_per_time as max_quota_per_time0,
+        pc0.`status` as status0,pl0.`status` as status2,pl0.`settlement_interval` as settlementInterval0,pl0.`id` as lmitid0,
+		pl1.card_type as card_type1,pl1.max_quota_per_day as max_quota_per_day1,pl1.max_quota_per_time as max_quota_per_time1,
+        pc1.`status` as status1,pl1.`status` as status3,pl1.`settlement_interval` as settlementInterval1,pl1.`id` as lmitid1
+	  from pmappchannel p 
+        left join pmpaymentplatform pp on pp.id=p.payment_id
+        left join pmpaychannel pc on pc.id=p.channel_id
+        left join pmpaychannellmit pc0 on pc.id=pc0.pay_channel_id and pc0.card_type='0'
+        left join pmpaychannellmit pc1 on pc.id=pc1.pay_channel_id and pc1.card_type='1'
+		left join pmappchannellmit pl0 on pl0.app_channel_id=p.id and pl0.card_type='0'
+ 		left join pmappchannellmit pl1 on pl1.app_channel_id=p.id and pl1.card_type='1'
+		<where>
+			<if test="_parameter != null and _parameter != ''">
+				and p.app_id = #{_parameter, jdbcType=VARCHAR}
+			</if>
+		</where>
+		order by pc.channel_code
+	</select>
+	<select id="PMAppchannel_selectBankInfo" resultType="com.cninsure.payment.model.EachplatformModel" parameterType="com.cninsure.payment.model.EachplatformModel">
+	 select p.id,p.app_id,pp.platform_name,pc.channel_name,pc.channel_code,
+		pl0.card_type as card_type0,pl0.max_quota_per_day as max_quota_per_day0,pl0.max_quota_per_time as max_quota_per_time0,
+        pc0.`status` as status0,pl0.`status` as status2,pl0.`settlement_interval` as settlementInterval0,pl0.`id` as lmitid0,
+		pl1.card_type as card_type1,pl1.max_quota_per_day as max_quota_per_day1,pl1.max_quota_per_time as max_quota_per_time1,
+        pc1.`status` as status1,pl1.`status` as status3,pl1.`settlement_interval` as settlementInterval1,pl1.`id` as lmitid1
+	  from pmappchannel p 
+        left join pmpaymentplatform pp on pp.id=p.payment_id
+        left join pmpaychannel pc on pc.id=p.channel_id
+        left join pmpaychannellmit pc0 on pc.id=pc0.pay_channel_id and pc0.card_type='0'
+        left join pmpaychannellmit pc1 on pc.id=pc1.pay_channel_id and pc1.card_type='1'
+		left join pmappchannellmit pl0 on pl0.app_channel_id=p.id and pl0.card_type='0'
+ 		left join pmappchannellmit pl1 on pl1.app_channel_id=p.id and pl1.card_type='1'
+		<where>
+			<if test="id != null and id != ''">
+				and p.id = #{id, jdbcType=BIGINT}
+			</if>
+		</where>
+	</select>
+	<select id="PMAppchannel_getAppId" parameterType="String" resultType="Map">
+		select * from PMAppPlatform where status = '0'
+			<if test="_parameter != null and _parameter != ''">
+				and platform_no = #{_parameter, jdbcType=VARCHAR}
+			</if>
+	</select>
+	<select id="PMAppchannel_selectLmitInfo" resultType="com.cninsure.payment.model.EachplatformModel" parameterType="com.cninsure.payment.model.EachplatformModel">
+		select p.id,p.max_quota_per_time max_quota_per_time0,p.max_quota_per_day max_quota_per_day0,p.settlement_interval settlementInterval0,p.`status` status2
+		from pmappchannellmit p where p.id=#{id, jdbcType=VARCHAR}
+	</select>
+	<select id="PMAppchannel_selectBankDiv" resultType="Map" parameterType="com.cninsure.payment.model.EachplatformModel">
+	  select p.id,p.app_id,pp.platform_name,pc.channel_name,pc.channel_code,
+		pl0.card_type as card_type0,pl0.max_quota_per_day as max_quota_per_day0,pl0.max_quota_per_time as max_quota_per_time0,
+        pc0.`status` as status0,pl0.`status` as status2,pl0.`settlement_interval` as settlementInterval0,pl0.`id` as lmitid0,
+		pl1.card_type as card_type1,pl1.max_quota_per_day as max_quota_per_day1,pl1.max_quota_per_time as max_quota_per_time1,
+        pc1.`status` as status1,pl1.`status` as status3,pl1.`settlement_interval` as settlementInterval1,pl1.`id` as lmitid1
+	  from pmappchannel p 
+        left join pmpaymentplatform pp on pp.id=p.payment_id
+        left join pmpaychannel pc on pc.id=p.channel_id
+        left join pmpaychannellmit pc0 on pc.id=pc0.pay_channel_id and pc0.card_type='0'
+        left join pmpaychannellmit pc1 on pc.id=pc1.pay_channel_id and pc1.card_type='1'
+		left join pmappchannellmit pl0 on pl0.app_channel_id=p.id and pl0.card_type='0'
+ 		left join pmappchannellmit pl1 on pl1.app_channel_id=p.id and pl1.card_type='1'
+		<where>
+			<if test="appId != null and appId != ''">
+				and p.app_id = #{appId, jdbcType=VARCHAR}
+			</if>
+			<if test="platform_name != null and platform_name != ''">
+				and pp.platform_name like concat('%',#{platform_name},'%')  
+			</if>
+			<if test="channel_name != null and channel_name != ''">
+				and pc.channel_name like concat('%',#{channel_name},'%')  
+			</if>
+			<if test="card_type0 != null and card_type0 != ''">
+				and pl0.card_type = #{card_type0, jdbcType=VARCHAR} and pl0.`status`='0'
+			</if>
+			<if test="card_type1 != null and card_type1 != ''">
+				and pl1.card_type = #{card_type1, jdbcType=VARCHAR} and pl1.`status`='0'
+			</if>
+		</where>
+		order by pc.channel_code
+	</select>
+	<select id="PMAppchannel_getBankLmitList" resultType="Map" parameterType="String">
+	    select * from pmpaychannellmit where pay_channel_id = #{_parameter}
+	</select>
+	<select id="PMAppchannel_queryOutsidePaymentsByAppId" resultMap="pmpaymentplatformResult" parameterType="Map" >
+		select ppf.*,
+		case
+		when ppr.rate_type='0' then #{orderFee}*ppr.rate
+		when ppr.rate_type='1' then ppr.rate
+		end rate_fee 
+		from pmpaymentplatform  ppf
+		left join pmpaymentrate ppr on ppr.payment_id = ppf.id
+		where ppf.id in 
+			(select distinct(pc.payment_id ) id 
+			from pmappchannel pc 
+			left join pmappchannellmit pcl on pcl.app_channel_id=pc.id 
+			where app_id=#{appid} and pcl.status='0' ) 
+			<if test="paymentType !=0">
+			and pp_type='1'
+			</if>
+		order by rate_fee asc
+	</select>
+	<select id="PMAppchannel_queryPaymentsByAppIdRate" resultMap="pmpaymentplatformResult" parameterType="Map" >
+		select ppf.*,ppr.rate as rate 
+		from pmpaymentplatform  ppf
+		left join pmpaymentrate ppr on ppr.payment_id = ppf.id
+		where ppf.id in 
+			(select distinct(pc.payment_id ) id 
+			from pmappchannel pc 
+			left join pmappchannellmit pcl on pcl.app_channel_id=pc.id 
+			where app_id=#{appid} and pcl.status='0' ) 
+			<if test="paymentType !=0">
+			and pp_type=#{paymentType}
+			</if>
+		order by ppr.rate asc
+	</select>
+	<select id="PMAppchannel_queryPaymentsByAppId" resultMap="pmpaymentplatformResult" parameterType="Map" >
+		select * from pmpaymentplatform
+		where pp_type=#{paymentType} and  id in 
+		(select distinct payment_id
+				from pmappchannel
+				where app_id=#{appid} and  id in 
+				(select app_channel_id
+						from pmappchannellmit
+						where status = 0
+				)
+		)	
+	</select>
+	<select id="PMAppchannel_getList" resultType="Map" >
+		select * from pmappchannel
+	
+	</select>
+	
+	<select id="PMAppchannel_getConfigListCount" resultType="long" parameterType="Map">
+		select count(1) 
+			from pmappchannel p 
+			left join pmpaymentplatform pp on pp.id=pp.id
+			left join pmpaychannel pc on pc.id=p.channel_id
+			left join pmappchannellmit pl on pl.app_channel_id=p.id 
+		<where>
+		pl.status='0'
+			<if test="app_id != null and app_id != ''">
+				and p.app_id = #{app_id, jdbcType=VARCHAR}
+			</if>
+			<if test="platform_name != null and platform_name != ''">
+				and pp.platform_name like concat('%',#{platform_name},'%')  
+			</if>
+			<if test="channel_name != null and channel_name != ''">
+				and pc.channel_name like concat('%',#{channel_name},'%')  
+			</if>
+			<if test="card_type != null and card_type != ''">
+				and pl.card_type = #{card_type, jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMAppchannel_selectConfigList" resultType="Map" parameterType="Map">
+		select p.id,p.app_id,pp.platform_name,pc.channel_name,pc.channel_code,
+			pl.`status`,pl.card_type,pl.max_quota_per_day,pl.max_quota_per_time 
+			from pmappchannel p
+			left join pmpaymentplatform pp on pp.id=pp.id
+			left join pmpaychannel pc on pc.id=p.channel_id
+			left join pmappchannellmit pl on pl.app_channel_id=p.id 
+		<where>
+			pl.status='0'
+			<if test="app_id != null and app_id != ''">
+				and p.app_id = #{app_id, jdbcType=VARCHAR}
+			</if>
+			<if test="platform_name != null and platform_name != ''">
+				and pp.platform_name like concat('%',#{platform_name},'%')  
+			</if>
+			<if test="channel_name != null and channel_name != ''">
+				and pc.channel_name like concat('%',#{channel_name},'%')  
+			</if>
+			<if test="card_type != null and card_type != ''">
+				and pl.card_type = #{card_type, jdbcType=VARCHAR}
+			</if>
+		</where>
+		<if test="sort != null and order != null">
+			order by ${sort}  ${order}
+		</if>
+		<if test="sort == null">
+			order by p.createdate desc
+		</if>
+		limit #{offset},#{limit}
+	</select>
+	<select id="PMAppchannel_updateChannelLmit" parameterType="com.cninsure.payment.entity.PMAppchannellmit" resultType="int">
+			UPDATE pmappchannellmit SET  `modifydate`=SYSDATE(), `max_quota_per_time`=#{maxQuotaPerTime, jdbcType=INTEGER}, 
+			`max_quota_per_day`=#{maxQuotaPerDay, jdbcType=INTEGER},`card_type`=#{cardType, jdbcType=CHAR} ,`status`=#{status, jdbcType=CHAR},
+			`settlement_interval`=#{settlementInterval, jdbcType=CHAR}
+			WHERE `app_channel_id`=#{appChannelId, jdbcType=BIGINT} and `card_type`=#{cardType, jdbcType=CHAR}
+
+	</select>
+
+</mapper>

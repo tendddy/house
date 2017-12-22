@@ -1,0 +1,58 @@
+package com.cninsure.payment.dao.impl;
+
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import com.cninsure.core.dao.impl.BaseDaoImpl;
+import com.cninsure.payment.dao.PMLogRecordsDao;
+import com.cninsure.payment.entity.PMLogRecords;
+
+@Repository
+public class PMLogRecordsDaoImpl extends BaseDaoImpl<PMLogRecords,Long> implements PMLogRecordsDao {
+
+	@Override
+	public int updateLogStatusById(Long id) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("id", id);
+		return sqlSessionTemplate.update("PMLogRecords_updateLogStatusById",map);
+	}
+
+	@Override
+	public int insertLogRecords(PMLogRecords pmLogRecords) {
+		sqlSessionTemplate.insert("PMLogRecords_insertLogRecords",pmLogRecords);
+		return 0;
+	}
+
+	@Override
+	public int updateLogRecordsOfResponse(PMLogRecords pmLogRecords) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("id", pmLogRecords.getId());
+		map.put("remark", pmLogRecords.getRemark());
+		map.put("responseParams", pmLogRecords.getResponseParams());
+		return sqlSessionTemplate.update("PMLogRecords_updateLogRecordsOfResponse",map);
+	}
+
+
+
+//	@Override
+//	public String selectBankCodesByPaymentplatformIDChannelIds(long paymentPlatformId,List<String>  channelIdsList){
+//		Map<String,Object> params = new HashMap<String, Object>();
+//		params.put("paymentId", paymentPlatformId);
+//		params.put("Ids", channelIdsList);
+//		
+//		return this.sqlSessionTemplate.selectList(this.getSqlName("selectBankCodesByPaymentplatformIDChannelIds"), params);
+//	}
+//
+//	@Override
+//	public String getPaymentId(String string) {
+//		Map<String, String> map = new HashMap<String, String>();
+//		map.put("platform_name", string);
+//		return sqlSessionTemplate.selectOne("PMPaychannel_getPaymentIdByName",map);
+//	}
+
+
+
+}

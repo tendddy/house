@@ -1,0 +1,102 @@
+package com.cninsure.payment.entity;
+
+import com.cninsure.core.dao.domain.BaseEntity;
+import com.cninsure.core.dao.domain.Identifiable;
+
+import java.util.Date;
+
+public class PMAPPcustomcard extends BaseEntity implements Identifiable {
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 平台用户表id
+	 */
+	private String pmappcustom_id;
+
+	/**
+	 * 卡券id
+	 */
+	private String card_id;
+
+	/**
+	 * 卡券类型（优惠券：01，现金券：02）
+	 */
+	private String cardtype;
+
+	/**
+	 * 面值
+	 */
+	private String amount;
+
+	/**
+	 * 优惠券有效期起
+	 */
+	private Date validStartTime;
+
+	/**
+	 * 优惠券有效期止
+	 */
+	private Date validEndTime;
+
+	/**
+	 * 使用状态（01：已使用，02：未使用，03：已过期）
+	 */
+	private String status;
+
+	public String getPmappcustom_id() {
+		return pmappcustom_id;
+	}
+
+	public void setPmappcustom_id(String pmappcustom_id) {
+		this.pmappcustom_id = pmappcustom_id;
+	}
+
+	public String getCard_id() {
+		return card_id;
+	}
+
+	public void setCard_id(String card_id) {
+		this.card_id = card_id;
+	}
+
+	public String getCardtype() {
+		return cardtype;
+	}
+
+	public void setCardtype(String cardtype) {
+		this.cardtype = cardtype;
+	}
+
+	public String getAmount() {
+		return amount;
+	}
+
+	public void setAmount(String amount) {
+		this.amount = amount;
+	}
+
+	public Date getValidStartTime() {
+		return validStartTime;
+	}
+
+	public void setValidStartTime(Date validStartTime) {
+		this.validStartTime = validStartTime;
+	}
+
+	public Date getValidEndTime() {
+		return validEndTime;
+	}
+
+	public void setValidEndTime(Date validEndTime) {
+		this.validEndTime = validEndTime;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+}

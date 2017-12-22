@@ -1,0 +1,30 @@
+package com.cninsure.payment.model;
+
+import java.io.Serializable;
+
+
+/**
+ * 获取验证码返回页面参数
+ * 
+ */
+public class FtlPayVerifyCodeModel extends BaseModel implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	
+	private String mainPayProtocolId;
+	
+	public String getMainPayProtocolId() {
+		return mainPayProtocolId;
+	}
+
+	public void setMainPayProtocolId(String mainPayProtocolId) {
+		this.mainPayProtocolId = mainPayProtocolId;
+	}
+
+	@Override
+	public String toString() {
+		return "FtlPayVerifyCodeModel [mainPayProtocolId=" + mainPayProtocolId
+				+ ", toString()=" + super.toString() + "]";
+	}
+	
+}

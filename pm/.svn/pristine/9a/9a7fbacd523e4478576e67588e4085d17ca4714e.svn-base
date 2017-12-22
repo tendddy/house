@@ -1,0 +1,110 @@
+package com.cninsure.payment.model;
+
+import java.io.Serializable;
+
+
+
+public class OrderPaymentModel implements Serializable {
+
+	private static final long serialVersionUID = 1220025925387434477L;
+	
+	private String paymentid;
+	private String id;
+	private String platformName;
+	private String startdate;
+	private String enddate;
+	private String appOrderId;
+	private String orderid;
+	private String protocolid;
+	private String payProtocolid;
+	private String orderfee;
+	private String appUserId;
+	private String status;
+	
+	public String getPaymentid() {
+		return paymentid;
+	}
+	public void setPaymentid(String paymentid) {
+		this.paymentid = paymentid;
+	}
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getPlatformName() {
+		return platformName;
+	}
+	public void setPlatformName(String platformName) {
+		this.platformName = platformName;
+	}
+	public String getStartdate() {
+		return startdate;
+	}
+	public void setStartdate(String startdate) {
+		this.startdate = startdate;
+	}
+	public String getEnddate() {
+		return enddate;
+	}
+	public void setEnddate(String enddate) {
+		this.enddate = enddate;
+	}
+	public String getAppOrderId() {
+		return appOrderId;
+	}
+	public void setAppOrderId(String appOrderId) {
+		this.appOrderId = appOrderId;
+	}
+	public String getOrderid() {
+		return orderid;
+	}
+	public void setOrderid(String orderid) {
+		this.orderid = orderid;
+	}
+	public String getProtocolid() {
+		return protocolid;
+	}
+	public void setProtocolid(String protocolid) {
+		this.protocolid = protocolid;
+	}
+	public String getPayProtocolid() {
+		return payProtocolid;
+	}
+	public void setPayProtocolid(String payProtocolid) {
+		this.payProtocolid = payProtocolid;
+	}
+	public String getOrderfee() {
+		return orderfee;
+	}
+	public void setOrderfee(String orderfee) {
+		this.orderfee = orderfee;
+	}
+	public String getAppUserId() {
+		return appUserId;
+	}
+	public void setAppUserId(String appUserId) {
+		this.appUserId = appUserId;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	@Override
+	public String toString() {
+		return "OrderPaymentModel [paymentid=" + paymentid + ", id=" + id
+				+ ", platformName=" + platformName + ", startdate=" + startdate
+				+ ", enddate=" + enddate + ", appOrderId=" + appOrderId
+				+ ", orderid=" + orderid + ", protocolid=" + protocolid
+				+ ", payProtocolid=" + payProtocolid + ", orderfee=" + orderfee
+				+ ", appUserId=" + appUserId + ", status=" + status + "]";
+	}
+	
+	
+	
+	
+	
+}

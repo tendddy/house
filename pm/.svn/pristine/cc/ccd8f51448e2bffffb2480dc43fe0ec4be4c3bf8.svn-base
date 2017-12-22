@@ -1,0 +1,17 @@
+package com.cninsure.payment.dao;
+
+import java.util.List;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.payment.entity.PMApppayment;
+import com.cninsure.payment.entity.PMPaymentplatform;
+
+public interface PMApppaymentDao extends BaseDao<PMApppayment,Long> {
+	
+	/**
+	 * 通过appId得到支付平台信息
+	 * @return
+	 */
+	public List<PMPaymentplatform> quertPaymentsByAppId(long appId);
+
+}

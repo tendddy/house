@@ -1,0 +1,153 @@
+package com.cninsure.payment.entity;
+
+import java.io.Serializable;
+
+import java.util.Date;
+
+public class PMAPPcustombill implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 主键
+	 */
+	private Long id;
+
+	/**
+	 * 操作员
+	 */
+	private String operator;
+
+	/**
+	 * 创建时间
+	 */
+	private Date createtime;
+
+	/**
+	 * 修改时间
+	 */
+	private Date modifytime;
+
+	/**
+	 * 备注
+	 */
+	private String noti;
+
+	/**
+	 * 平台用户表id
+	 */
+	private Long pmappcustom_id;
+
+	/**
+	 * 交易金额
+	 */
+	private String amount;
+
+	/**
+	 * 金额类型（收入：1，支出：0）
+	 */
+	private String inorout;
+
+	/**
+	 * 交易类型（收益：01，充值：02，提现：03）
+	 */
+	private String billtype;
+
+	/**
+	 * 交易时间
+	 */
+	private Date billdate;
+
+	/**
+	 * 交易状态(01:支付成功，02：支付失败，03：审核中)
+	 */
+	private String status;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getOperator() {
+		return operator;
+	}
+
+	public void setOperator(String operator) {
+		this.operator = operator;
+	}
+
+	public Date getCreatetime() {
+		return createtime;
+	}
+
+	public void setCreatetime(Date createtime) {
+		this.createtime = createtime;
+	}
+
+	public Date getModifytime() {
+		return modifytime;
+	}
+
+	public void setModifytime(Date modifytime) {
+		this.modifytime = modifytime;
+	}
+
+	public String getNoti() {
+		return noti;
+	}
+
+	public void setNoti(String noti) {
+		this.noti = noti;
+	}
+
+	public Long getPmappcustom_id() {
+		return pmappcustom_id;
+	}
+
+	public void setPmappcustom_id(Long pmappcustom_id) {
+		this.pmappcustom_id = pmappcustom_id;
+	}
+
+	public String getAmount() {
+		return amount;
+	}
+
+	public void setAmount(String amount) {
+		this.amount = amount;
+	}
+
+	public String getInorout() {
+		return inorout;
+	}
+
+	public void setInorout(String inorout) {
+		this.inorout = inorout;
+	}
+
+	public String getBilltype() {
+		return billtype;
+	}
+
+	public void setBilltype(String billtype) {
+		this.billtype = billtype;
+	}
+
+	public Date getBilldate() {
+		return billdate;
+	}
+
+	public void setBilldate(Date billdate) {
+		this.billdate = billdate;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+}

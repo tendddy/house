@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cninsure.payment.entity">
+
+	<resultMap id="BaseResultMap" type="com.cninsure.payment.entity.PMAppchannellmit" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+	    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+	    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+	    <result column="app_channel_id" property="appChannelId" jdbcType="BIGINT" />
+	    <result column="max_quota_per_time" property="maxQuotaPerTime" jdbcType="INTEGER" />
+	    <result column="max_quota_per_day" property="maxQuotaPerDay" jdbcType="INTEGER" />
+	    <result column="card_type" property="cardType" jdbcType="CHAR" />
+	    <result column="status" property="status" jdbcType="CHAR" />
+	    <result column="settlement_interval" property="settlementInterval" jdbcType="CHAR" />
+	    <result column="modify_user" property="modifyUser" jdbcType="VARCHAR" />
+  	</resultMap>
+  	
+	<!-- PMAppchannellmit -->
+	<select id="PMAppchannellmit_insert" parameterType="com.cninsure.payment.entity.PMAppchannellmit" resultType="int">
+		insert into PMAppchannellmit
+		(id,createdate,modifydate,app_channel_id,max_quota_per_time,max_quota_per_day,card_type,status,settlement_interval,modify_user) 
+		values
+		(#{id, jdbcType=BIGINT},#{createdate, jdbcType=TIMESTAMP},#{modifydate, jdbcType=TIMESTAMP},#{appChannelId, jdbcType=BIGINT},#{maxQuotaPerTime, jdbcType=INTEGER},#{maxQuotaPerDay, jdbcType=INTEGER},#{cardType, jdbcType=CHAR},#{status, jdbcType=CHAR},#{settlementInterval, jdbcType=CHAR},#{modifyUser, jdbcType=VARCHAR}) 
+	</select>
+	<select id="PMAppchannellmit_select" parameterType="Map" resultMap="BaseResultMap">
+		select * from PMAppchannellmit
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="appChannelId != null">
+				and app_channel_id = #{appChannelId, jdbcType=BIGINT}
+			</if>
+			<if test="maxQuotaPerTime != null">
+				and max_quota_per_time = #{maxQuotaPerTime, jdbcType=INTEGER}
+			</if>
+			<if test="maxQuotaPerDay != null">
+				and max_quota_per_day = #{maxQuotaPerDay, jdbcType=INTEGER}
+			</if>
+			<if test="cardType != null">
+				and card_type = #{cardType, jdbcType=CHAR}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+			<if test="settlementInterval != null">
+				and settlement_interval = #{settlementInterval, jdbcType=CHAR}
+			</if>
+			<if test="modifyUser != null">
+				and modify_user = #{modifyUser, jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMAppchannellmit_selectById" parameterType="Long" resultMap="BaseResultMap">
+		select * from PMAppchannellmit where id = #{id}
+	</select>
+	<select id="PMAppchannellmit_deleteById" parameterType="Long">
+		delete from PMAppchannellmit where id = #{id}
+	</select>
+	<select id="PMAppchannellmit_updateById" parameterType="com.cninsure.payment.entity.PMAppchannellmit">
+		update PMAppchannellmit  set id = #{id, jdbcType=BIGINT},createdate = #{createdate, jdbcType=TIMESTAMP},modifydate = #{modifydate, jdbcType=TIMESTAMP},app_channel_id = #{appChannelId, jdbcType=BIGINT},max_quota_per_time = #{maxQuotaPerTime, jdbcType=INTEGER},max_quota_per_day = #{maxQuotaPerDay, jdbcType=INTEGER},card_type = #{cardType, jdbcType=CHAR},status = #{status, jdbcType=CHAR},settlement_interval = #{settlementInterval, jdbcType=CHAR},modify_user = #{modifyUser, jdbcType=VARCHAR} where id = #{id}
+	</select>
+	<select id="PMAppchannellmit_selectCount" parameterType="Map" resultType="Long">
+		select count(1) from PMAppchannellmit
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="appChannelId != null">
+				and app_channel_id = #{appChannelId, jdbcType=BIGINT}
+			</if>
+			<if test="maxQuotaPerTime != null">
+				and max_quota_per_time = #{maxQuotaPerTime, jdbcType=INTEGER}
+			</if>
+			<if test="maxQuotaPerDay != null">
+				and max_quota_per_day = #{maxQuotaPerDay, jdbcType=INTEGER}
+			</if>
+			<if test="cardType != null">
+				and card_type = #{cardType, jdbcType=CHAR}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+			<if test="settlementInterval != null">
+				and settlement_interval = #{settlementInterval, jdbcType=CHAR}
+			</if>
+			<if test="modifyUser != null">
+				and modify_user = #{modifyUser, jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMAppchannellmit_selectOne" parameterType="Map" resultMap="BaseResultMap">
+		select * from PMAppchannellmit
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="appChannelId != null">
+				and app_channel_id = #{appChannelId, jdbcType=BIGINT}
+			</if>
+			<if test="maxQuotaPerTime != null">
+				and max_quota_per_time = #{maxQuotaPerTime, jdbcType=INTEGER}
+			</if>
+			<if test="maxQuotaPerDay != null">
+				and max_quota_per_day = #{maxQuotaPerDay, jdbcType=INTEGER}
+			</if>
+			<if test="cardType != null">
+				and card_type = #{cardType, jdbcType=CHAR}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+			<if test="settlementInterval != null">
+				and settlement_interval = #{settlementInterval, jdbcType=CHAR}
+			</if>
+			<if test="modifyUser != null">
+				and modify_user = #{modifyUser, jdbcType=VARCHAR}
+			</if>
+		</where>
+		LIMIT 2
+	</select>
+</mapper>

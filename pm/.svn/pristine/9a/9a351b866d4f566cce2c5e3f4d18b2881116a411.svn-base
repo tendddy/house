@@ -1,0 +1,14 @@
+package com.cninsure.payment.service;
+
+import java.util.List;
+import java.util.Map;
+
+import com.cninsure.core.dao.BaseService;
+import com.cninsure.payment.entity.PMAPPcustombill;
+import com.cninsure.payment.model.CustomBillModel;
+
+public interface PMAPPcustombillService extends BaseService<PMAPPcustombill, Long> {
+
+	List<CustomBillModel> queryAccountBill(Map<String, Object> params);
+
+}

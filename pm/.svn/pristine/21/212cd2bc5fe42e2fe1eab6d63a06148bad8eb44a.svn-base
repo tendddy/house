@@ -1,0 +1,189 @@
+package com.cninsure.payment.dao.impl;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import com.cninsure.core.dao.impl.BaseDaoImpl;
+import com.cninsure.payment.dao.PMPaychannelDao;
+import com.cninsure.payment.entity.PMAppchannel;
+import com.cninsure.payment.entity.PMAppchannellmit;
+import com.cninsure.payment.entity.PMImage;
+import com.cninsure.payment.entity.PMPaychannel;
+import com.cninsure.payment.entity.PMPaychannellmit;
+import com.cninsure.payment.model.AcccimModel;
+import com.cninsure.payment.model.PMPaychannelModel;
+
+@Repository
+public class PMPaychannelDaoImpl extends BaseDaoImpl<PMPaychannel,Long> implements
+		PMPaychannelDao {
+
+
+
+	@Override
+	public List<PMPaychannelModel> queryChannelsByPaymentId(long payment) {
+		return this.sqlSessionTemplate.selectList(this.getSqlName("queryChannelsByPaymentId"), payment);
+	}
+
+	@Override
+	public String getUploadPathByCode(String uploadPath) {
+		return this.sqlSessionTemplate.selectOne("PMPaychannel_getUploadPath",uploadPath);
+	}
+
+	@Override
+	public int savePayChannel(PMPaychannel paychannel) {
+		sqlSessionTemplate.insert("PMPaychannel_savePayChannel",paychannel);
+		return 0;
+	}
+
+	@Override
+	public int savePayChannelLmit(PMPaychannellmit paychannellmit) {
+		return sqlSessionTemplate.insert("PMPaychannel_savePayChannelLmit",paychannellmit);
+	}
+	
+	@Override
+	public int saveImageInfo(PMImage pmimage) {
+		return this.sqlSessionTemplate.insert("PMPaychannel_saveImageInfo",pmimage);
+	}
+
+	@Override
+	public List<Map<String, String>> getPaymentId() {
+		String s ="";
+		return this.sqlSessionTemplate.selectList("PMPaychannel_getPaymentId",s);
+	}
+
+	@Override
+	public long getConfigListCount(Map<String, Object> map) {
+		return this.sqlSessionTemplate.selectOne("PMPaychannel_getConfigListCount",map);
+	}
+
+	@Override
+	public List<Map<Object, Object>> selectConfigList(Map<String, Object> map) {
+		return this.sqlSessionTemplate.selectList("PMPaychannel_selectConfigList",map);
+	}
+
+	@Override
+	public int updatePayChannel(PMPaychannel paychannel) {
+		this.sqlSessionTemplate.insert("PMPaychannel_back_paychannel",paychannel);//备份
+		return sqlSessionTemplate.update("PMPaychannel_updatePayChannel",paychannel);
+	}
+
+	@Override
+	public int updateChannelLmit(PMPaychannellmit paychannellmit) {
+		this.sqlSessionTemplate.insert("PMPaychannel_back_paychannellmit",paychannellmit);//备份
+		return sqlSessionTemplate.update("PMPaychannel_updateChannelLmit",paychannellmit);
+	}
+
+	@Override
+	public int updateImageInfo(PMImage pmimage) {
+		return sqlSessionTemplate.update("PMPaychannel_updateImageInfo",pmimage);
+	}
+
+	@Override
+	public List<Map<String, Object>> getBankList(String id) {
+		return this.sqlSessionTemplate.selectList("PMPaychannel_selectBankList",id);
+	}
+
+	@Override
+	public AcccimModel selectBankInfo(AcccimModel acccimBean) {
+		return this.sqlSessionTemplate.selectOne("PMPaychannel_selectBankInfo",acccimBean);
+	}
+
+	@Override
+	public int deleteBankInfo(AcccimModel acccimBean) {
+		this.sqlSessionTemplate.insert("PMPaychannel_back_bank",acccimBean);//备份
+		return this.sqlSessionTemplate.delete("PMPaychannel_deleteBankInfo", acccimBean);
+	}
+
+	@Override
+	public int deleteBankLmit(AcccimModel acccimBean) {
+		this.sqlSessionTemplate.insert("PMPaychannel_back_lmit",acccimBean);//备份
+		return this.sqlSessionTemplate.delete("PMPaychannel_deleteBankLmit", acccimBean);
+	}
+
+	@Override
+	public int deleteBankImage(AcccimModel acccimBean) {
+		return this.sqlSessionTemplate.update("PMPaychannel_deleteBankImage", acccimBean);
+	}
+
+	@Override
+	public List<Map<String, Object>> selectBankDiv(AcccimModel acccimBean) {
+		return this.sqlSessionTemplate.selectList("PMPaychannel_selectBankDiv",acccimBean);
+	}
+
+	@Override
+	public AcccimModel selectLmitInfo(AcccimModel acccimBean) {
+		return this.sqlSessionTemplate.selectOne("PMPaychannel_selectLmitInfo",acccimBean);
+	}
+
+	@Override
+	public List<Map<String, Object>> getBankList() {
+		return this.sqlSessionTemplate.selectList("PMPaychannel_getBankList");
+	}
+
+	@Override
+	public int deleteAppBankLmit(AcccimModel acccimBean) {
+		//this.sqlSessionTemplate.insert("PMPaychannel_back_AppBankLmit",acccimBean);//备份
+		return this.sqlSessionTemplate.delete("PMPaychannel_deleteAppBankLmit", acccimBean);
+	}
+
+	@Override
+	public int deleteAppBankInfo(AcccimModel acccimBean) {
+		//this.sqlSessionTemplate.insert("PMPaychannel_back_Appbank",acccimBean);//备份
+		return this.sqlSessionTemplate.delete("PMPaychannel_deleteAppBankInfo", acccimBean);
+	}
+
+	@Override
+	public List<Map<String, Object>> getPlatformList() {
+		return this.sqlSessionTemplate.selectList("PMPaychannel_getPlatformList");
+	}
+
+	@Override
+	public int saveAppChannel(PMAppchannel appchannel) {
+		sqlSessionTemplate.insert("PMPaychannel_saveAppChannel",appchannel);
+		return 0;
+	}
+	
+	@Override
+	public List<Map<String, Object>> getBankLmitList(String id) {
+		return this.sqlSessionTemplate.selectList("PMPaychannel_getBankLmitList");
+	}
+
+	@Override
+	public int saveAppChannelLmit(PMAppchannellmit appchannellmit) {
+		return sqlSessionTemplate.insert("PMPaychannel_saveAppChannelLmit",appchannellmit);
+	}
+
+	@Override
+	public int updateChannelLmit(String id, String string) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("id", id);
+		map.put("cardtype", string);
+		return sqlSessionTemplate.update("PMPaychannel_updateChannel",map);
+	}
+
+	@Override
+	public String selectBankCodesByPaymentplatformIDChannelIds(long paymentPlatformId,List<String>  channelIdsList){
+		Map<String,Object> params = new HashMap<String, Object>();
+		params.put("paymentId", paymentPlatformId);
+		params.put("Ids", channelIdsList);
+		
+		return this.sqlSessionTemplate.selectOne(this.getSqlName("selectBankCodesByPaymentplatformIDChannelIds"), params);
+	}
+
+	@Override
+	public String getPaymentId(String string) {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("platform_name", string);
+		return sqlSessionTemplate.selectOne("PMPaychannel_getPaymentIdByName",map);
+	}
+
+	@Override
+	public List<Map<String, Object>> getList(String id) {
+		return this.sqlSessionTemplate.selectList("PMPaychannel_getList",id);
+	}
+
+
+}

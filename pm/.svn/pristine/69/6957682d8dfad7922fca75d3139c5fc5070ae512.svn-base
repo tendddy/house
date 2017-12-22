@@ -1,0 +1,152 @@
+package com.cninsure.payment.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class PMPaychannellmitbak implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 
+	 */
+	private Long bakId;
+
+	/**
+	 * 数据主键
+	 */
+	private Long id;
+
+	/**
+	 * 创建时间
+	 */
+	private Date createdate;
+
+	/**
+	 * 最后修改时间
+	 */
+	private Date modifydate;
+
+	/**
+	 * 
+	 */
+	private Long payChannelId;
+
+	/**
+	 * 每笔最高额度 －1为不限额度
+	 */
+	private Integer maxQuotaPerTime;
+
+	/**
+	 * 每日最高额度  －1为不限额度
+	 */
+	private Integer maxQuotaPerDay;
+
+	/**
+	 * 支持卡类型 （银行时有效） 0-储蓄卡 1-信用卡
+	 */
+	private String cardType;
+
+	/**
+	 * 支持状态 0-不支持 1-支持
+	 */
+	private String status;
+
+	/**
+	 * 结算周期 0-启用 1-禁用
+	 */
+	private String settlementInterval;
+
+	/**
+	 * 维护人
+	 */
+	private String modifyUser;
+
+	public Long getBakId() {
+		return bakId;
+	}
+
+	public void setBakId(Long bakId) {
+		this.bakId = bakId;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public Date getCreatedate() {
+		return createdate;
+	}
+
+	public void setCreatedate(Date createdate) {
+		this.createdate = createdate;
+	}
+
+	public Date getModifydate() {
+		return modifydate;
+	}
+
+	public void setModifydate(Date modifydate) {
+		this.modifydate = modifydate;
+	}
+
+	public Long getPayChannelId() {
+		return payChannelId;
+	}
+
+	public void setPayChannelId(Long payChannelId) {
+		this.payChannelId = payChannelId;
+	}
+
+	public Integer getMaxQuotaPerTime() {
+		return maxQuotaPerTime;
+	}
+
+	public void setMaxQuotaPerTime(Integer maxQuotaPerTime) {
+		this.maxQuotaPerTime = maxQuotaPerTime;
+	}
+
+	public Integer getMaxQuotaPerDay() {
+		return maxQuotaPerDay;
+	}
+
+	public void setMaxQuotaPerDay(Integer maxQuotaPerDay) {
+		this.maxQuotaPerDay = maxQuotaPerDay;
+	}
+
+	public String getCardType() {
+		return cardType;
+	}
+
+	public void setCardType(String cardType) {
+		this.cardType = cardType;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getSettlementInterval() {
+		return settlementInterval;
+	}
+
+	public void setSettlementInterval(String settlementInterval) {
+		this.settlementInterval = settlementInterval;
+	}
+
+	public String getModifyUser() {
+		return modifyUser;
+	}
+
+	public void setModifyUser(String modifyUser) {
+		this.modifyUser = modifyUser;
+	}
+
+}

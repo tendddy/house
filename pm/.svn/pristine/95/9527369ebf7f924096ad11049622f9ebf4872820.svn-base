@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cninsure.payment.entity">
+	<resultMap id="PMAppplatformuserbankcardMap" type="com.cninsure.payment.entity.PMAppplatformuserbankcard" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+	    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+	    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+	    <result column="app_platform_id" property="appPlatformId" jdbcType="BIGINT" />
+	    <result column="bankcard_id" property="bankcardId" jdbcType="BIGINT" />
+	    <result column="platform_user_id" property="platformUserId" jdbcType="VARCHAR" />
+	    <result column="idcard" property="idcard" jdbcType="CHAR" />
+ 	</resultMap>
+ 	<resultMap id="PMLogRecordsMap" type="com.cninsure.payment.entity.PMLogRecords" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+    <result column="app_id" property="appId" jdbcType="BIGINT" />
+    <result column="payment_id" property="paymentId" jdbcType="BIGINT" />
+    <result column="bankcard_id" property="bankcardId" jdbcType="BIGINT" />
+    <result column="app_orderid" property="appOrderid" jdbcType="VARCHAR" />
+    <result column="platform_user_id" property="platformUserId" jdbcType="VARCHAR" />
+    <result column="product_id" property="productId" jdbcType="BIGINT" />
+    <result column="interface_type" property="interfaceType" jdbcType="INTEGER" />
+    <result column="interface_name" property="interfaceName" jdbcType="VARCHAR" />
+    <result column="interface_method" property="interfaceMethod" jdbcType="VARCHAR" />
+    <result column="unencrypted_params" property="unencryptedParams" jdbcType="VARCHAR" />
+    <result column="request_params" property="requestParams" jdbcType="VARCHAR" />
+    <result column="response_params" property="responseParams" jdbcType="VARCHAR" />
+    <result column="exceptions" property="exceptions" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+	<!-- PMAppplatformuserbankcard -->
+	<insert id="PMAppplatformuserbankcard_insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.cninsure.payment.entity.PMAppplatformuserbankcard" >
+		insert into PMAppplatformuserbankcard
+		(createdate,modifydate,app_platform_id,bankcard_id,platform_user_id,idcard) 
+		values
+		(#{createdate, jdbcType=TIMESTAMP},#{modifydate, jdbcType=TIMESTAMP},#{appPlatformId, jdbcType=BIGINT},#{bankcardId, jdbcType=BIGINT},#{platformUserId, jdbcType=VARCHAR},#{idcard, jdbcType=CHAR}) 
+	</insert>
+	<select id="PMAppplatformuserbankcard_select" parameterType="Map" resultMap="PMAppplatformuserbankcardMap">
+		select * from PMAppplatformuserbankcard
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="appPlatformId != null">
+				and app_platform_id = #{appPlatformId, jdbcType=BIGINT}
+			</if>
+			<if test="bankcardId != null">
+				and bankcard_id = #{bankcardId, jdbcType=BIGINT}
+			</if>
+			<if test="platformUserId != null">
+				and platform_user_id = #{platformUserId, jdbcType=VARCHAR}
+			</if>
+			<if test="idcard != null">
+				and idcard = #{idcard, jdbcType=CHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMAppplatformuserbankcard_selectById" parameterType="Long" resultMap="PMAppplatformuserbankcardMap">
+		select * from PMAppplatformuserbankcard where id = #{id}
+	</select>
+	<select id="PMAppplatformuserbankcard_deleteById" parameterType="Long">
+		delete from PMAppplatformuserbankcard where id = #{id}
+	</select>
+	<select id="PMAppplatformuserbankcard_updateById" parameterType="com.cninsure.payment.entity.PMAppplatformuserbankcard">
+		update PMAppplatformuserbankcard  set id = #{id, jdbcType=BIGINT},createdate = #{createdate, jdbcType=TIMESTAMP},modifydate = #{modifydate, jdbcType=TIMESTAMP},app_platform_id = #{appPlatformId, jdbcType=BIGINT},bankcard_id = #{bankcardId, jdbcType=BIGINT},platform_user_id = #{platformUserId, jdbcType=VARCHAR},idcard = #{idcard, jdbcType=CHAR} where id = #{id}
+	</select>
+	<select id="PMAppplatformuserbankcard_selectCount" parameterType="Map" resultType="Long">
+		select count(1) from PMAppplatformuserbankcard
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="appPlatformId != null">
+				and app_platform_id = #{appPlatformId, jdbcType=BIGINT}
+			</if>
+			<if test="bankcardId != null">
+				and bankcard_id = #{bankcardId, jdbcType=BIGINT}
+			</if>
+			<if test="platformUserId != null">
+				and platform_user_id = #{platformUserId, jdbcType=VARCHAR}
+			</if>
+			<if test="idcard != null">
+				and idcard = #{idcard, jdbcType=CHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMAppplatformuserbankcard_selectOne" parameterType="Map" resultMap="PMAppplatformuserbankcardMap">
+		select * from PMAppplatformuserbankcard
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="appPlatformId != null">
+				and app_platform_id = #{appPlatformId, jdbcType=BIGINT}
+			</if>
+			<if test="bankcardId != null">
+				and bankcard_id = #{bankcardId, jdbcType=BIGINT}
+			</if>
+			<if test="platformUserId != null">
+				and platform_user_id = #{platformUserId, jdbcType=VARCHAR}
+			</if>
+			<if test="idcard != null">
+				and idcard = #{idcard, jdbcType=CHAR}
+			</if>
+		</where>
+		LIMIT 2
+	</select>
+	<delete id="PMAppplatformuserbankcard_deleteByLogicId" parameterType="Map" >
+		delete from PMAppplatformuserbankcard  
+		<where>
+			app_platform_id=#{appId} and 
+			bankcard_id in 
+			(select id as bankcard_id from pmbankcard bk where bk.customcardno=#{cardNo} and bk.payment_id=#{payplatformId}  and bk.status !='2'  ) 
+			and platform_user_id=#{userId}
+		</where>
+	</delete>
+	<select id="PMAppplatformuserbankcard_selectCountByProtocolid" parameterType="long" resultType="int">
+		select count(1) 
+		from PMAppplatformuserbankcard 
+		where bankcard_id = 
+		(select id as bankcard_id from pmbankcard bk where bk.protocolid=#{value} ) 
+	</select>
+	<select id="PMAppplatformuserbankcard_selectBindCardList" parameterType="Map" resultType="Map">
+		select bc.*,ap.platform_name,b.bank_code,b.bank_name,apu.platform_user_id,apu.createdate as createdates from pmbankcard bc 
+		left join pmappplatformuserbankcard apu on apu.bankcard_id=bc.id
+		left join pmappplatform ap on apu.app_platform_id = ap.id
+		left join pmbanks b on bc.bankcode=b.bank_code
+		<where>
+			bc.payment_platform_id = (select id from pmpaymentplatform where platform_name like concat('%','商联','%')) 
+			<if test="platformName != null and platformName != ''">
+				and ap.platform_name like concat('%',#{platformName, jdbcType=VARCHAR},'%')
+			</if>
+			<if test="bankName != null and bankName != ''">
+				and b.bank_name like concat('%',#{bankName, jdbcType=VARCHAR},'%')
+			</if>
+			<if test="cardType != null and cardType != ''">
+				and bc.card_type=#{cardType, jdbcType=VARCHAR}
+			</if>
+			<if test="customcardno != null and customcardno != ''">
+				and bc.customcardno=#{customcardno, jdbcType=VARCHAR}
+			</if>
+			<if test="customname != null and customname != ''">
+				and bc.customname=#{customname, jdbcType=VARCHAR}
+			</if>
+			<if test="identificationNumber != null and identificationNumber != ''">
+				and bc.identification_number=#{identificationNumber, jdbcType=VARCHAR}
+			</if>
+			<if test="customphone != null and customphone != ''">
+				and bc.customphone=#{customphone, jdbcType=VARCHAR}
+			</if>
+			<if test="status != null and status != ''">
+				and bc.status=#{status, jdbcType=VARCHAR}
+			</if>
+			<if test="startdate != null and startdate != ''">
+				and bc.createdate >= DATE_FORMAT(#{startdate}, '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="enddate != null and enddate != ''">
+				and DATE_FORMAT(#{enddate}, '%Y-%m-%d %H:%i:%s') >= bc.createdate 
+			</if>
+		</where>
+		<if test="sort != null and order != null">
+			order by ${sort}  ${order}
+		</if>
+		<if test="sort == null">
+			order by bc.createdate desc
+		</if>
+		limit #{offset},#{limit}
+		
+	</select>
+	<select id="PMAppplatformuserbankcard_getBindCardListCount" parameterType="Map" resultType="long">
+		select count(1) from pmbankcard bc 
+		left join pmappplatformuserbankcard apu on apu.bankcard_id=bc.id
+		left join pmappplatform ap on apu.app_platform_id = ap.id
+		left join pmbanks b on bc.bankcode=b.bank_code
+		<where>
+			bc.payment_platform_id = (select id from pmpaymentplatform where platform_name like concat('%','商联','%'))
+			<if test="platformName != null and platformName != ''">
+				and ap.platform_name like concat('%',#{platformName, jdbcType=VARCHAR},'%')
+			</if>
+			<if test="bankName != null and bankName != ''">
+				and b.bank_name like concat('%',#{bankName, jdbcType=VARCHAR},'%')
+			</if>
+			<if test="cardType != null and cardType != ''">
+				and bc.card_type=#{cardType, jdbcType=VARCHAR}
+			</if>
+			<if test="customcardno != null and customcardno != ''">
+				and bc.customcardno=#{customcardno, jdbcType=VARCHAR}
+			</if>
+			<if test="customname != null and customname != ''">
+				and bc.customname=#{customname, jdbcType=VARCHAR}
+			</if>
+			<if test="identificationNumber != null and identificationNumber != ''">
+				and bc.identification_number=#{identificationNumber, jdbcType=VARCHAR}
+			</if>
+			<if test="customphone != null and customphone != ''">
+				and bc.customphone=#{customphone, jdbcType=VARCHAR}
+			</if>
+			<if test="status != null and status != ''">
+				and bc.status=#{status, jdbcType=VARCHAR}
+			</if>
+			<if test="startdate != null and startdate != ''">
+				and bc.createdate >= DATE_FORMAT(#{startdate}, '%Y-%m-%d %H:%i:%s')
+			</if>
+			<if test="enddate != null and enddate != ''">
+				and DATE_FORMAT(#{enddate}, '%Y-%m-%d %H:%i:%s') >= bc.createdate 
+			</if>
+		</where>
+	</select>
+	<select id="PMAppplatformuserbankcard_getLogRecordsInfo" parameterType="Map" resultMap="PMLogRecordsMap">
+		select lr.* from pmlogrecords lr where lr.bankcard_id=#{paymentid} and lr.interface_name=#{interface_name} and lr.interface_type='0'
+	</select>
+	<select id="PMAppplatformuserbankcard_getLogRecordsInfoByPaymentID" parameterType="Map" resultMap="PMLogRecordsMap">
+		select lr.* from pmlogrecords lr where lr.payment_id=#{paymentid} and lr.interface_name=#{interface_name} and lr.interface_type='0'
+	</select>
+	<select id="PMAppplatformuserbankcard_getLogRecordsInfoByPaymentIDandProductID" parameterType="Map" resultMap="PMLogRecordsMap">
+		select lr.* from pmlogrecords lr where lr.payment_id=#{paymentid} and product_id=#{productId} and lr.interface_name=#{interface_name} and lr.interface_type='0'
+	</select>
+	<select id="PMAppplatformuserbankcard_getLogRecordsInfoByBankcardID" parameterType="Map" resultMap="PMLogRecordsMap">
+		select lr.* from pmlogrecords lr where lr.bankcard_id=#{paymentid} and lr.interface_name=#{interface_name} and lr.interface_type='0'
+	</select>
+	<select id="PMAppplatformuserbankcard_selectUserBankCard" parameterType="Map" resultType="Map">
+		select c.id,case when c.card_type=20 then '信用卡' else '储蓄卡' end card_type,right(c.customcardno,4) as bank_card_no,
+		c.bankcode as bank_code,b.bank_name,b.bank_logo,c.protocolid as protocol_id,right(c.customphone,4) as custom_phone
+		from pmbankcard c left join pmbanks b on c.bankcode=b.bank_code
+		where   c.id in	(
+			select  bankcard_id
+			from pmappplatformuserbankcard
+			where  app_platform_id = #{appId}
+			AND platform_user_id= #{appUserId}
+		)
+	</select>
+</mapper>

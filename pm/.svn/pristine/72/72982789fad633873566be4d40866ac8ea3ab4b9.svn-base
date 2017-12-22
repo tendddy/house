@@ -1,0 +1,105 @@
+package com.cninsure.payment.dao.impl;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import com.cninsure.core.dao.impl.BaseDaoImpl;
+import com.cninsure.payment.dao.PMAppchannelDao;
+import com.cninsure.payment.entity.PMAppchannel;
+import com.cninsure.payment.entity.PMAppchannellmit;
+import com.cninsure.payment.entity.PMPaymentplatform;
+import com.cninsure.payment.model.EachplatformModel;
+
+@Repository
+public class PMAppchannelDaoImpl extends BaseDaoImpl<PMAppchannel, Long>
+		implements PMAppchannelDao {
+
+	@Override
+	public List<PMAppchannel> queryChannelsByPaymentId(long payment,long appId) {
+		Map<String,Object> param = new HashMap<String,Object>();
+		param.put("payment", payment);
+		param.put("appId", appId);
+		return this.sqlSessionTemplate.selectList(this.getSqlName("queryChannelsByPaymentId"), param);
+	}
+
+	@Override
+	public int saveAppChannel(PMAppchannel appchannel) {
+		sqlSessionTemplate.insert("PMAppchannel_saveAppChannel",appchannel);
+		return 0;
+	}
+
+	@Override
+	public int saveAppChannellmit(PMAppchannellmit appchannellmit) {
+		return sqlSessionTemplate.insert("PMAppchannel_saveAppChannelLmit",appchannellmit);
+	}
+
+	@Override
+	public List<Map<String, Object>> getBankLmitList(String id) {
+		return this.sqlSessionTemplate.selectList("PMAppchannel_getBankLmitList",id);
+	}
+
+	@Override
+	public List<Map<String, Object>> getList() {
+		return this.sqlSessionTemplate.selectList("PMAppchannel_getList");
+	}
+
+	@Override
+	public List<Map<String, Object>> getList(String id) {
+		return this.sqlSessionTemplate.selectList("PMAppchannel_selectList",id);
+	}
+
+	@Override
+	public List<Map<String, Object>> selectBankDiv(EachplatformModel eachplatformBean) {
+		return this.sqlSessionTemplate.selectList("PMAppchannel_selectBankDiv",eachplatformBean);
+	}
+
+	@Override
+	public EachplatformModel selectBankInfo(EachplatformModel eachplatformBean) {
+		return this.sqlSessionTemplate.selectOne("PMAppchannel_selectBankInfo",eachplatformBean);
+	}
+
+	@Override
+	public EachplatformModel selectLmitInfo(EachplatformModel eachplatformBean) {
+		return this.sqlSessionTemplate.selectOne("PMAppchannel_selectLmitInfo",eachplatformBean);
+	}
+	
+	@Override
+	public long getConfigListCount(Map<String, Object> map) {
+		return this.sqlSessionTemplate.selectOne("PMAppchannel_getConfigListCount",map);
+	}
+
+	@Override
+	public List<Map<Object, Object>> selectConfigList(Map<String, Object> map) {
+		return this.sqlSessionTemplate.selectList("PMAppchannel_selectConfigList",map);
+	}
+	
+	@Override
+	public int updateChannelLmit(PMAppchannellmit appchannellmit) {
+		return sqlSessionTemplate.update("PMAppchannel_updateChannelLmit",appchannellmit);
+	}
+
+	@Override
+	public List<Map<String, String>> getAppId() {
+		String s ="";
+		return this.sqlSessionTemplate.selectList("PMAppchannel_getAppId",s);
+	}
+
+	@Override
+	public List<PMPaymentplatform> queryPaymentsByAppId(long appid,String paymentType) {
+		Map<String,Object> parameter = new HashMap<String, Object>();
+		parameter.put("appid", appid);
+		parameter.put("paymentType", paymentType);
+		return this.sqlSessionTemplate.selectList(this.getSqlName("queryPaymentsByAppIdRate"), parameter);
+	}
+	@Override
+	public List<PMPaymentplatform> queryOutsidePaymentsByAppId(long appid,int orderFee) {
+		Map<String,Object> parameter = new HashMap<String, Object>();
+		parameter.put("appid", appid);
+		parameter.put("orderFee", orderFee);
+		return this.sqlSessionTemplate.selectList(this.getSqlName("queryOutsidePaymentsByAppId"), parameter);
+	}
+
+}

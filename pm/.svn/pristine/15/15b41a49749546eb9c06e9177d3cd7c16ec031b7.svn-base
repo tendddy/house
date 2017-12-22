@@ -1,0 +1,12 @@
+package com.cninsure.payment.dao;
+
+import java.util.Map;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.payment.entity.PMAPPcustom;
+
+public interface PMAPPcustomDao extends BaseDao<PMAPPcustom, Long> {
+
+	Long queryCustomPayPwd(Map<String, Object> customAccount);
+
+}

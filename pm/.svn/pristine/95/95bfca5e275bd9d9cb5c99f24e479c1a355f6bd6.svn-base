@@ -1,0 +1,94 @@
+package com.cninsure.payment.model;
+
+/**
+ *向支付平台提交数据内容
+ */
+public class ZhongJinFormModel {
+
+	
+	/**
+	 * 数据实体
+	 */
+	private String message;
+	
+	/**
+	 * 签名
+	 */
+	private String signature;
+	
+	/**
+	 * 交易编码
+	 */
+	private String txCode;
+	
+	/**
+	 * 交易名称
+	 */
+	private String txName;
+	
+	
+	/**
+	 * 标记
+	 */
+	private String Flag;
+
+
+	public String getMessage() {
+		return message;
+	}
+
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+
+	public String getSignature() {
+		return signature;
+	}
+
+
+	public void setSignature(String signature) {
+		this.signature = signature;
+	}
+
+
+	public String getTxCode() {
+		return txCode;
+	}
+
+
+	public void setTxCode(String txCode) {
+		this.txCode = txCode;
+	}
+
+
+	public String getTxName() {
+		return txName;
+	}
+
+
+	public void setTxName(String txName) {
+		this.txName = txName;
+	}
+
+
+	public String getFlag() {
+		return Flag;
+	}
+
+
+	public void setFlag(String flag) {
+		Flag = flag;
+	}
+
+
+	@Override
+	public String toString() {
+		return (message != null ? "message=" + message + "&" : "")
+				+ (signature != null ? "signature=" + signature + "&" : "")
+				+ (txCode != null ? "txCode=" + txCode + "&" : "")
+				+ (txName != null ? "txName=" + txName + "&" : "")
+				+ (Flag != null ? "Flag=" + Flag : "");
+	}
+}

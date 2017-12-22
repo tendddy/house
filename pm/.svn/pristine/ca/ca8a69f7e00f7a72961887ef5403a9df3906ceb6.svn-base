@@ -1,0 +1,69 @@
+package com.cninsure.payment.model;
+
+
+public class AppCheckModel{
+	String id;//主键id
+	String platformName;//应用平台名称
+	String querymonth;//查询月份
+	String querydate;//查询月份
+	String corpuserid;//业务号
+	String orderid;//支付号
+	String startdate;//查询日期起
+	String enddate;//查询日期止
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getPlatformName() {
+		return platformName;
+	}
+	public void setPlatformName(String platformName) {
+		this.platformName = platformName;
+	}
+	public String getQuerymonth() {
+		return querymonth;
+	}
+	public void setQuerymonth(String querymonth) {
+		this.querymonth = querymonth;
+	}
+	public String getQuerydate() {
+		return querydate;
+	}
+	public void setQuerydate(String querydate) {
+		this.querydate = querydate;
+	}
+	public String getCorpuserid() {
+		return corpuserid;
+	}
+	public void setCorpuserid(String corpuserid) {
+		this.corpuserid = corpuserid;
+	}
+	public String getOrderid() {
+		return orderid;
+	}
+	public void setOrderid(String orderid) {
+		this.orderid = orderid;
+	}
+	public String getStartdate() {
+		return startdate;
+	}
+	public void setStartdate(String startdate) {
+		this.startdate = startdate;
+	}
+	public String getEnddate() {
+		return enddate;
+	}
+	public void setEnddate(String enddate) {
+		this.enddate = enddate;
+	}
+	
+
+
+	
+	
+	
+	
+	
+}

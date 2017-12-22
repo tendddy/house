@@ -1,0 +1,48 @@
+package com.cninsure.payment.model;
+
+import java.io.Serializable;
+
+public class QueryPaymentPlatFormModel implements Serializable{
+
+	private static final long serialVersionUID = 5604012522915150291L;
+	
+	/**
+	 * 支付平台Id
+	 */
+	private long paymentPlatformId;
+	
+	/**
+	 * 应用平台Id
+	 */
+	private long appId;
+	
+	/**
+	 * 应用平台用户Id
+	 */
+	private String appUserId;
+	
+	public long getPaymentPlatformId() {
+		return paymentPlatformId;
+	}
+	public void setPaymentPlatformId(long paymentPlatformId) {
+		this.paymentPlatformId = paymentPlatformId;
+	}
+	public long getAppId() {
+		return appId;
+	}
+	public void setAppId(long appId) {
+		this.appId = appId;
+	}
+	public String getAppUserId() {
+		return appUserId;
+	}
+	public void setAppUserId(String appUserId) {
+		this.appUserId = appUserId;
+	}
+	@Override
+	public String toString() {
+		return "QueryPaymentPlatFormModel [paymentPlatformId="
+				+ paymentPlatformId + ", appId=" + appId + ", appUserId="
+				+ appUserId + "]";
+	}
+}

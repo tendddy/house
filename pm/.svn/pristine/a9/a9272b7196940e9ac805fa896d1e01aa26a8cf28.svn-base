@@ -1,0 +1,66 @@
+package com.cninsure.payment.controller.platform;
+
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.cninsure.core.utils.BeanUtils;
+import com.cninsure.payment.model.BindCardModel;
+import com.cninsure.payment.service.PMBankcardService;
+import com.common.PagingParams;
+
+@Controller
+@RequestMapping("/interface/bankcard/*")
+public class InterfaceBankcardController {
+
+	@Resource
+	private PMBankcardService bankcardService;
+
+	/**
+	 * 绑卡记录
+	 * 
+	 * @param para
+	 * @param bindcardModel
+	 * @return
+	 */
+	@RequestMapping(value = "getbindcardlist", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> getBindCardList(@ModelAttribute PagingParams para, @ModelAttribute BindCardModel bindcardModel) {
+		Map<String, Object> map = BeanUtils.toMap(bindcardModel, para);
+		return bankcardService.getBindCardList(map);
+	}
+
+	/**
+	 * 绑卡接口调用日志
+	 * 
+	 * @param para
+	 * @param bindcardModel
+	 * @return
+	 */
+	@RequestMapping(value = "getbindlogs", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> getBindLogs(@ModelAttribute PagingParams para, @ModelAttribute BindCardModel bindcardModel) {
+		Map<String, Object> map = BeanUtils.toMap(bindcardModel, para);
+		return bankcardService.getBindLogs(map);
+	}
+
+	/**
+	 * CMS手动修改银行卡状态接口
+	 * 
+	 * @param bindcardModel
+	 * @return
+	 */
+	@RequestMapping(value = "changeCardStatus",  produces = "application/json;charset=UTF-8", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> changeCardStatus(@RequestBody BindCardModel bindcardModel) {
+		return bankcardService.changeCardStatus(bindcardModel);
+	}
+	
+}

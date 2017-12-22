@@ -1,0 +1,33 @@
+package com.cninsure.payment.model;
+
+import java.io.Serializable;
+
+
+/**
+ * 获取验证码返回页面参数
+ * 
+ */
+public class FtlCoustomBindCardModel extends BaseModel implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * 绑卡流水号
+	 */
+	private String  protocolid;
+
+	public String getProtocolid() {
+		return protocolid;
+	}
+
+	public void setProtocolid(String protocolid) {
+		this.protocolid = protocolid;
+	}
+
+	@Override
+	public String toString() {
+		return "FtlCoustomBindCardModel [protocolid=" + protocolid
+				+ ", toString()=" + super.toString() + "]";
+	}
+	
+}

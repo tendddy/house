@@ -1,0 +1,79 @@
+
+package com.cninsure.payment.dao;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.test.context.TestContext;
+import org.springframework.test.context.TestExecutionListener;
+
+import payment.api.system.PaymentEnvironment;
+
+
+public class WebappListenerTest implements ServletContextListener ,TestExecutionListener   {
+
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+    }
+
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
+        head();
+        try {
+            String paymentConfigPath = servletContextEvent.getServletContext().getInitParameter("payment.config.path");
+            ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+    		Resource[] resources = resolver.getResources(paymentConfigPath);
+    		String path = resources[0].getURI().getPath().substring(1);
+            // 初始化支付环境
+            PaymentEnvironment.initialize(path);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void head() {
+        System.out.println("==========================================");
+        System.out.println("China Payment & Clearing Network Co., Ltd.");
+        System.out.println("Payment and Settlement System");
+        System.out.println("Institution Simulator v1.7.6.6");
+        System.out.println("==========================================");
+    }
+
+	@Override
+	public void beforeTestClass(TestContext testContext) throws Exception {
+		
+	}
+
+	@Override
+	public void prepareTestInstance(TestContext testContext) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void beforeTestMethod(TestContext testContext) throws Exception {
+		try {
+		 	Resource paymentConfigPath =  testContext.getApplicationContext().getResource("classpath:config/payment");
+    		String path = paymentConfigPath.getURI().getPath().substring(1);
+            // 初始化支付环境
+            PaymentEnvironment.initialize(path);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }		
+	}
+
+	@Override
+	public void afterTestMethod(TestContext testContext) throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void afterTestClass(TestContext testContext) throws Exception {
+		
+	}
+
+}

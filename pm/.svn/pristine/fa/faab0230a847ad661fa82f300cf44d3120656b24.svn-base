@@ -1,0 +1,188 @@
+package com.cninsure.payment.entity;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class PMLogRecords implements Serializable {
+    private Long id;
+
+    private Date createdate;
+
+    private Date modifydate;
+
+    private Long appId;
+
+    private Long paymentId;
+    
+    private Long bankcardId;
+    
+    private String appOrderid;
+
+    private String platformUserId;
+
+    private Long productId;
+
+    private Integer interfaceType;
+
+    private String interfaceName;
+
+    private String interfaceMethod;
+
+    private String unencryptedParams;
+    
+    private String requestParams;
+
+    private String responseParams;
+
+    private String exceptions;
+
+    private String status;
+
+    private String remark;
+
+    private static final long serialVersionUID = 1L;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Date getCreatedate() {
+        return createdate;
+    }
+
+    public void setCreatedate(Date createdate) {
+        this.createdate = createdate;
+    }
+
+    public Date getModifydate() {
+        return modifydate;
+    }
+
+    public void setModifydate(Date modifydate) {
+        this.modifydate = modifydate;
+    }
+
+    public Long getAppId() {
+        return appId;
+    }
+
+    public void setAppId(Long appId) {
+        this.appId = appId;
+    }
+
+    public Long getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(Long paymentId) {
+        this.paymentId = paymentId;
+    }
+
+    public Long getBankcardId() {
+		return bankcardId;
+	}
+
+	public void setBankcardId(Long bankcardId) {
+		this.bankcardId = bankcardId;
+	}
+
+	public String getAppOrderid() {
+        return appOrderid;
+    }
+
+    public void setAppOrderid(String appOrderid) {
+        this.appOrderid = appOrderid == null ? null : appOrderid.trim();
+    }
+
+    public String getPlatformUserId() {
+        return platformUserId;
+    }
+
+    public void setPlatformUserId(String platformUserId) {
+        this.platformUserId = platformUserId == null ? null : platformUserId.trim();
+    }
+
+    public Long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
+    }
+
+    public Integer getInterfaceType() {
+        return interfaceType;
+    }
+
+    public void setInterfaceType(Integer interfaceType) {
+        this.interfaceType = interfaceType;
+    }
+
+    public String getInterfaceName() {
+        return interfaceName;
+    }
+
+    public void setInterfaceName(String interfaceName) {
+        this.interfaceName = interfaceName == null ? null : interfaceName.trim();
+    }
+
+    public String getInterfaceMethod() {
+        return interfaceMethod;
+    }
+
+    public void setInterfaceMethod(String interfaceMethod) {
+        this.interfaceMethod = interfaceMethod == null ? null : interfaceMethod.trim();
+    }
+    
+    public String getUnencryptedParams() {
+    	return unencryptedParams;
+    }
+    
+    public void setUnencryptedParams(String unencryptedParams) {
+    	this.unencryptedParams = unencryptedParams == null ? null : unencryptedParams.trim();
+    }
+
+    public String getRequestParams() {
+        return requestParams;
+    }
+
+	public void setRequestParams(String requestParams) {
+        this.requestParams = requestParams == null ? null : requestParams.trim();
+    }
+
+    public String getResponseParams() {
+        return responseParams;
+    }
+
+    public void setResponseParams(String responseParams) {
+        this.responseParams = responseParams == null ? null : responseParams.trim();
+    }
+
+    public String getExceptions() {
+        return exceptions;
+    }
+
+    public void setExceptions(String exceptions) {
+        this.exceptions = exceptions == null ? null : exceptions.trim();
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status == null ? null : status.trim();
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark == null ? null : remark.trim();
+    }
+}

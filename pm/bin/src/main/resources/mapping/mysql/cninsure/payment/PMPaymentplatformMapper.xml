@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cninsure.payment.entity">
+	<resultMap id="PMPaymentplatformMap" type="com.cninsure.payment.entity.PMPaymentplatform" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+    <result column="platform_no" property="platformNo" jdbcType="VARCHAR" />
+    <result column="platform_name" property="platformName" jdbcType="VARCHAR" />
+    <result column="platform_logo" property="platformLogo" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="pp_type" property="ppType" jdbcType="CHAR" />
+    <result column="settlement_interval" property="settlementInterval" jdbcType="INTEGER" />
+    <result column="settlement_type" property="settlementType" jdbcType="CHAR" />
+    <result column="settlement_bank" property="settlementBank" jdbcType="VARCHAR" />
+    <result column="settlement_card" property="settlementCard" jdbcType="VARCHAR" />
+    <result column="settlement_party" property="settlementParty" jdbcType="CHAR" />
+    <result column="minimum_amount" property="minimumAmount" jdbcType="INTEGER" />
+    <result column="maximum_amount" property="maximumAmount" jdbcType="INTEGER" />
+  </resultMap>
+	<!-- PMPaymentplatform -->
+	<insert id="PMPaymentplatform_insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.cninsure.payment.entity.PMPaymentplatform" >
+		insert into PMPaymentplatform
+		(createdate,modifydate,platform_no,platform_name,platform_logo,status,pp_type,settlement_interval,settlement_type,settlement_bank,settlement_card,settlement_party,minimum_amount,maximum_amount) 
+		values
+		(#{createdate, jdbcType=TIMESTAMP},#{modifydate, jdbcType=TIMESTAMP},#{platformNo, jdbcType=VARCHAR},#{platformName, jdbcType=VARCHAR},#{platformLogo, jdbcType=VARCHAR},#{status, jdbcType=CHAR},#{ppType, jdbcType=CHAR},#{settlementInterval, jdbcType=INTEGER},#{settlementType, jdbcType=CHAR},#{settlementBank, jdbcType=VARCHAR},#{settlementCard, jdbcType=VARCHAR},#{settlementParty, jdbcType=CHAR},#{minimumAmount, jdbcType=INTEGER},#{maximumAmount, jdbcType=INTEGER}) 
+	</insert>
+	<select id="PMPaymentplatform_select" parameterType="Map" resultMap="PMPaymentplatformMap">
+		select * from PMPaymentplatform
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="platformNo != null">
+				and platform_no = #{platformNo, jdbcType=VARCHAR}
+			</if>
+			<if test="platformName != null">
+				and platform_name = #{platformName, jdbcType=VARCHAR}
+			</if>
+			<if test="platformLogo != null">
+				and platform_logo = #{platformLogo, jdbcType=VARCHAR}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+			<if test="pp_type != null">
+				and pp_type = #{ppType, jdbcType=CHAR}
+			</if>
+			<if test="settlementInterval != null">
+				and settlement_interval = #{settlementInterval, jdbcType=INTEGER}
+			</if>
+			<if test="settlementType != null">
+				and settlement_type = #{settlementType, jdbcType=CHAR}
+			</if>
+			<if test="settlementBank != null">
+				and settlement_bank = #{settlementBank, jdbcType=VARCHAR}
+			</if>
+			<if test="settlementCard != null">
+				and settlement_card = #{settlementCard, jdbcType=VARCHAR}
+			</if>
+			<if test="settlementParty != null">
+				and settlement_party = #{settlementParty, jdbcType=CHAR}
+			</if>
+			<if test="minimumAmount != null">
+				and minimum_amount = #{minimumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="maximumAmount != null">
+				and maximum_amount = #{maximumAmount, jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+	<select id="PMPaymentplatform_selectById" parameterType="Long" resultMap="PMPaymentplatformMap">
+		select * from PMPaymentplatform where id = #{id}
+	</select>
+	<select id="PMPaymentplatform_deleteById" parameterType="Long">
+		delete from PMPaymentplatform where id = #{id}
+	</select>
+	<select id="PMPaymentplatform_updateById" parameterType="com.cninsure.payment.entity.PMPaymentplatform">
+		update PMPaymentplatform  set id = #{id, jdbcType=BIGINT},createdate = #{createdate, jdbcType=TIMESTAMP},modifydate = #{modifydate, jdbcType=TIMESTAMP},platform_no = #{platformNo, jdbcType=VARCHAR},platform_name = #{platformName, jdbcType=VARCHAR},platform_logo = #{platformLogo, jdbcType=VARCHAR},status = #{status, jdbcType=CHAR},settlement_interval = #{settlementInterval, jdbcType=INTEGER},settlement_type = #{settlementType, jdbcType=CHAR},settlement_bank = #{settlementBank, jdbcType=VARCHAR},settlement_card = #{settlementCard, jdbcType=VARCHAR},settlement_party = #{settlementParty, jdbcType=CHAR},minimum_amount = #{minimumAmount, jdbcType=INTEGER},maximum_amount = #{maximumAmount, jdbcType=INTEGER} where id = #{id}
+	</select>
+	<select id="PMPaymentplatform_selectCount" parameterType="Map" resultType="Long">
+		select count(1) from PMPaymentplatform
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="platformNo != null">
+				and platform_no = #{platformNo, jdbcType=VARCHAR}
+			</if>
+			<if test="platformName != null">
+				and platform_name = #{platformName, jdbcType=VARCHAR}
+			</if>
+			<if test="platformLogo != null">
+				and platform_logo = #{platformLogo, jdbcType=VARCHAR}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+			<if test="settlementInterval != null">
+				and settlement_interval = #{settlementInterval, jdbcType=INTEGER}
+			</if>
+			<if test="ppType != null">
+				and pp_type = #{ppType, jdbcType=CHAR}
+			</if>
+			<if test="settlementType != null">
+				and settlement_type = #{settlementType, jdbcType=CHAR}
+			</if>
+			<if test="settlementBank != null">
+				and settlement_bank = #{settlementBank, jdbcType=VARCHAR}
+			</if>
+			<if test="settlementCard != null">
+				and settlement_card = #{settlementCard, jdbcType=VARCHAR}
+			</if>
+			<if test="settlementParty != null">
+				and settlement_party = #{settlementParty, jdbcType=CHAR}
+			</if>
+			<if test="minimumAmount != null">
+				and minimum_amount = #{minimumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="maximumAmount != null">
+				and maximum_amount = #{maximumAmount, jdbcType=INTEGER}
+			</if>
+		</where>
+	</select>
+	<select id="PMPaymentplatform_selectOne" parameterType="Map" resultMap="PMPaymentplatformMap">
+		select * from PMPaymentplatform
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="platformNo != null">
+				and platform_no = #{platformNo, jdbcType=VARCHAR}
+			</if>
+			<if test="platformName != null">
+				and platform_name = #{platformName, jdbcType=VARCHAR}
+			</if>
+			<if test="platformLogo != null">
+				and platform_logo = #{platformLogo, jdbcType=VARCHAR}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+			<if test="ppType != null">
+				and pp_type = #{ppType, jdbcType=CHAR}
+			</if>
+			<if test="settlementInterval != null">
+				and settlement_interval = #{settlementInterval, jdbcType=INTEGER}
+			</if>
+			<if test="settlementType != null">
+				and settlement_type = #{settlementType, jdbcType=CHAR}
+			</if>
+			<if test="settlementBank != null">
+				and settlement_bank = #{settlementBank, jdbcType=VARCHAR}
+			</if>
+			<if test="settlementCard != null">
+				and settlement_card = #{settlementCard, jdbcType=VARCHAR}
+			</if>
+			<if test="settlementParty != null">
+				and settlement_party = #{settlementParty, jdbcType=CHAR}
+			</if>
+			<if test="minimumAmount != null">
+				and minimum_amount = #{minimumAmount, jdbcType=INTEGER}
+			</if>
+			<if test="maximumAmount != null">
+				and maximum_amount = #{maximumAmount, jdbcType=INTEGER}
+			</if>
+		</where>
+		LIMIT 2
+	</select>
+	
+	<select id="PMPaymentplatform_getConfigListCount" resultType="long" parameterType="Map">
+		select count(1) 
+			from pmpaymentplatform 
+		<where>
+			status!='2'
+			<if test="platformNo != null and platformNo != ''">
+				and platform_no = #{platformNo, jdbcType=VARCHAR}
+			</if>
+			<if test="platformName != null and platformName != ''">
+				and platform_name like concat('%',#{platformName},'%')  
+			</if>
+		</where>
+	</select>
+	<select id="PMPaymentplatform_selectConfigList" resultType="Map" parameterType="Map">
+		select id,platform_no platformNo,platform_name platformName,`status` from pmpaymentplatform 
+		<where>
+			status!='2'
+			<if test="platformNo != null and platformNo != ''">
+				and platform_no = #{platformNo, jdbcType=VARCHAR}
+			</if>
+			<if test="platformName != null and platformName != ''">
+				and platform_name like concat('%',#{platformName},'%')  
+			</if>
+		</where>
+		<if test="sort != null and order != null">
+			order by ${sort}  ${order}
+		</if>
+		<if test="sort == null">
+			order by createdate desc
+		</if>
+		limit #{offset},#{limit}
+	</select>
+	<insert id="PMPaymentplatform_saveProtocol" parameterType="com.cninsure.payment.entity.PMPaymentplatform" useGeneratedKeys="true" keyProperty="id" >
+		INSERT INTO `pmpaymentplatform` (`createdate`, `modifydate`, `platform_no`, `platform_name`, `platform_logo`, `status`,`pp_type`, `settlement_interval`,
+		 `settlement_type`, `settlement_bank`, `settlement_card`, `settlement_party`, `minimum_amount`, `maximum_amount`) VALUES (
+		 sysdate(),sysdate(), 'YYPT', #{platformName, jdbcType=VARCHAR}, null, #{status, jdbcType=CHAR}, #{ppType, jdbcType=CHAR}, 
+		 #{settlementInterval, jdbcType=INTEGER}, #{settlementType, jdbcType=CHAR}, #{settlementBank, jdbcType=INTEGER}, #{settlementCard, jdbcType=INTEGER}, 
+		 #{settlementParty, jdbcType=CHAR}, #{minimumAmount, jdbcType=VARCHAR}, #{maximumAmount, jdbcType=VARCHAR})
+	</insert>
+	<select id="PMPaymentplatform_updateProtocolName" parameterType="com.cninsure.payment.entity.PMPaymentplatform" resultType="int">
+			UPDATE pmpaymentplatform SET  `platform_no`=#{platformNo, jdbcType=VARCHAR} where id=#{id, jdbcType=BIGINT}
+	</select>
+	<select id="PMPaymentplatform_updateProtocol" parameterType="com.cninsure.payment.entity.PMPaymentplatform" resultType="int">
+		UPDATE pmpaymentplatform SET  modifydate=sysdate(),platform_name=#{platformName,jdbcType=VARCHAR},
+		platform_logo=null,status=#{status,jdbcType=CHAR},settlement_interval=#{settlementInterval,jdbcType=VARCHAR},pp_type=#{ppType,jdbcType=CHAR},
+		settlement_type=#{settlementType,jdbcType=VARCHAR},settlement_bank=#{settlementBank,jdbcType=VARCHAR},settlement_card=#{settlementCard,jdbcType=VARCHAR},
+		settlement_party=#{settlementParty, jdbcType=VARCHAR},minimum_amount=#{minimumAmount,jdbcType=VARCHAR},maximum_amount=#{maximumAmount,jdbcType=VARCHAR} 
+		   where id=#{id, jdbcType=BIGINT}
+	</select>
+	<select id="PMPaymentplatform_getProtocolList" parameterType="String" resultMap="PMPaymentplatformMap">
+			select `id`,`createdate`, `modifydate`, `platform_no` platformNo, `platform_name` platformName, `platform_logo` platformLogo, `status`, 
+			`pp_type` ppType,`settlement_interval` settlementInterval, `settlement_type` settlementType, `settlement_bank` settlementBank, 
+			`settlement_card` settlementCard, `settlement_party` settlementParty, `minimum_amount` minimumAmount, `maximum_amount` maximumAmount 
+		 from pmpaymentplatform  where id=#{_parameter }
+	</select>
+	<select id="PMPaymentplatform_getBankCodeByName" parameterType="Map" resultType="String">
+		select channel_code from pmpaychannel pc 
+		where pc.payment_id in 
+		(select id from pmpaymentplatform pp where pp.platform_name like concat('%',#{platformName,jdbcType=VARCHAR},'%') and pp.`status`='0')
+		and pc.channel_name like concat('%',
+		(select bank_name from pmbanks pb where pb.bank_code =#{bankcode,jdbcType=VARCHAR} and pb.`status`='0')
+		 ,'%')
+		and pc.`status`='0'
+	</select>
+</mapper>

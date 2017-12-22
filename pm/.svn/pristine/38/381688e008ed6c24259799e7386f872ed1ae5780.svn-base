@@ -1,0 +1,157 @@
+package com.cninsure.payment.model;
+
+import java.io.Serializable;
+
+public class OrdersDetailModel implements Serializable{
+
+	private static final long serialVersionUID = -4715317375945230174L;
+	String app_name;//
+	String app_orderid;//
+	String platform_name;//
+	String bankcode;//
+	String bankname;//
+	String card_type;//
+	String customphone;//
+	String customcardno;//
+	String validdate;//
+	String cvn2;//
+	String protocolid;//
+	String payprotocolid;//
+	String orderid;//
+	String orderfee;//
+	String payfee;//
+	String orderdatetime;//
+	String status;//
+	String receiveurl;//
+	String userinfourl;//
+	String app_user_id;//
+	String pay_type;//
+	public String getApp_name() {
+		return app_name;
+	}
+	public void setApp_name(String app_name) {
+		this.app_name = app_name;
+	}
+	public String getApp_orderid() {
+		return app_orderid;
+	}
+	public void setApp_orderid(String app_orderid) {
+		this.app_orderid = app_orderid;
+	}
+	public String getPlatform_name() {
+		return platform_name;
+	}
+	public void setPlatform_name(String platform_name) {
+		this.platform_name = platform_name;
+	}
+	public String getBankcode() {
+		return bankcode;
+	}
+	public void setBankcode(String bankcode) {
+		this.bankcode = bankcode;
+	}
+	public String getBankname() {
+		return bankname;
+	}
+	public void setBankname(String bankname) {
+		this.bankname = bankname;
+	}
+	public String getCard_type() {
+		return card_type;
+	}
+	public void setCard_type(String card_type) {
+		this.card_type = card_type;
+	}
+	public String getCustomphone() {
+		return customphone;
+	}
+	public void setCustomphone(String customphone) {
+		this.customphone = customphone;
+	}
+	public String getCustomcardno() {
+		return customcardno;
+	}
+	public void setCustomcardno(String customcardno) {
+		this.customcardno = customcardno;
+	}
+	public String getValiddate() {
+		return validdate;
+	}
+	public void setValiddate(String validdate) {
+		this.validdate = validdate;
+	}
+	public String getCvn2() {
+		return cvn2;
+	}
+	public void setCvn2(String cvn2) {
+		this.cvn2 = cvn2;
+	}
+	public String getProtocolid() {
+		return protocolid;
+	}
+	public void setProtocolid(String protocolid) {
+		this.protocolid = protocolid;
+	}
+	public String getPayprotocolid() {
+		return payprotocolid;
+	}
+	public void setPayprotocolid(String payprotocolid) {
+		this.payprotocolid = payprotocolid;
+	}
+	public String getOrderid() {
+		return orderid;
+	}
+	public void setOrderid(String orderid) {
+		this.orderid = orderid;
+	}
+	public String getOrderfee() {
+		return orderfee;
+	}
+	public void setOrderfee(String orderfee) {
+		this.orderfee = orderfee;
+	}
+	public String getPayfee() {
+		return payfee;
+	}
+	public void setPayfee(String payfee) {
+		this.payfee = payfee;
+	}
+	public String getOrderdatetime() {
+		return orderdatetime;
+	}
+	public void setOrderdatetime(String orderdatetime) {
+		this.orderdatetime = orderdatetime;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public String getReceiveurl() {
+		return receiveurl;
+	}
+	public void setReceiveurl(String receiveurl) {
+		this.receiveurl = receiveurl;
+	}
+	public String getUserinfourl() {
+		return userinfourl;
+	}
+	public void setUserinfourl(String userinfourl) {
+		this.userinfourl = userinfourl;
+	}
+	public String getApp_user_id() {
+		return app_user_id;
+	}
+	public void setApp_user_id(String app_user_id) {
+		this.app_user_id = app_user_id;
+	}
+	public String getPay_type() {
+		return pay_type;
+	}
+	public void setPay_type(String pay_type) {
+		this.pay_type = pay_type;
+	}
+	
+
+}

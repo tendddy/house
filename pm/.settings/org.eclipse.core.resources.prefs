@@ -1,0 +1,11 @@
+eclipse.preferences.version=1
+encoding//src/main/java=UTF-8
+encoding//src/main/resources=UTF-8
+encoding//src/main/resources/config/config.properties=UTF-8
+encoding//src/main/webapp/WEB-INF/freemaker/platfrom/order.ftl=UTF-8
+encoding//src/test/java=UTF-8
+encoding//src/test/resources=UTF-8
+encoding/<project>=UTF-8
+encoding/filter-dev.properties=UTF-8
+encoding/filter-pro.properties=UTF-8
+encoding/filter-uat.properties=UTF-8

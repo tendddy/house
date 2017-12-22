@@ -1,0 +1,417 @@
+package com.common;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.ParseException;
+
+import com.cninsure.core.utils.StringUtil;
+
+/**
+ * 调用工作流接口
+ * 
+ * @author hejie
+ *
+ */
+public class WorkFlowUtil {
+
+	private static String WORKFLOW = "";
+
+	static {
+		// 读取相关的配置
+		ResourceBundle resourceBundle = ResourceBundle
+				.getBundle("config/config");
+		WORKFLOW = resourceBundle.getString("workflow.url");
+	}
+
+	/**
+	 * 启动流程
+	 * 
+	 * @param renewal
+	 *            0 投保 1 快速续保
+	 * @return
+	 */
+	public static String startWorkflowProcess(String renewal) {
+		String path = WORKFLOW + "/process/startWorkflowProcess";
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("renewal", renewal);
+		String result = HttpClientUtil.doGet(path, map);
+		JSONObject jsonObject = JSONObject.fromObject(result);
+		return null == jsonObject.getString("processinstanceid") ? ""
+				: jsonObject.getString("processinstanceid");
+	}
+
+	/**
+	 * 获得用户待办信息
+	 * 
+	 * @param userName
+	 * @return
+	 */
+	public static String getUserTaskInfo(String userName) {
+		String path = WORKFLOW + "/process/getTasksByUserid";
+		Map<String, String> userMap = new HashMap<String, String>();
+		userMap.put("userid", userName);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("datas", JSONObject.fromObject(userMap).toString());
+		String result = HttpClientUtil.doGet(path, params);
+		if (result != null) {
+			try {
+				result = java.net.URLDecoder.decode(result, "UTF-8");
+				if (result != null) {
+					result = java.net.URLDecoder.decode(result, "UTF-8");
+				}
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 规则报价
+	 * 
+	 * @param ruleResult
+	 * @param subtaskid
+	 * @param userid
+	 * @return
+	 */
+	public static String completeSubTask(String ruleResult, String subtaskid,
+			String userid) {
+		String path = WORKFLOW + "/process/completeSubTask";
+		int rresult = 1;// 失败
+		if (StringUtils.isNotBlank(ruleResult)) {
+			JSONObject jobj = JSONObject.fromObject(ruleResult);
+			if (jobj != null) {
+				boolean success = jobj.getBoolean("success");
+				if (success) {
+					rresult = 3;// 成功
+				}
+			}
+		}
+
+		Map<String, String> rMap = new HashMap<String, String>();
+		rMap.put("result", rresult + "");
+
+		Map<String, Object> userMap = new HashMap<String, Object>();
+		userMap.put("processinstanceid", subtaskid);
+		userMap.put("userid", userid);
+		userMap.put("taskName", "规则报价");
+		userMap.put("data", rMap);
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("datas", JSONObject.fromObject(userMap).toString());
+
+		String result = HttpClientUtil.doGet(path, params);
+
+		return result;
+	}
+
+	/**
+	 * 投保开始 通知工作流是投保，还是快速续保
+	 * 
+	 * @param renewal
+	 *            0 投保 1 快速续保
+	 * @param taskId
+	 *            流程id
+	 * @param createby
+	 *            操作人
+	 * @param processInstanceId
+	 *            主流程id
+	 */
+	public static void noticeWorkflowRenewalOrInsure(String taskId,
+			String createby, String processInstanceId) {
+		String path = WORKFLOW + "/process/completeMessageInput";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("userid", createby);
+		map.put("claim", 1);
+		map.put("taskid", Long.parseLong(taskId));
+		map.put("processinstanceid", Long.parseLong(processInstanceId));
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("datas", jsonObject.toString());
+		HttpClientUtil.doGet(path, params);
+	}
+
+	/**
+	 * 投保信息录入完成，启动报价，按照供应商
+	 * 
+	 * @param createby
+	 * 
+	 * @param processInstanceId
+	 *            主流程id
+	 * @param incoids
+	 *            报价公司列表 json字符串
+	 * @param renewal
+	 *            0 投保 1快速续保
+	 */
+	public static String noticeWorkflowStartQuote(String createby,
+			String processInstanceId, List<String> incoids,String renewal) {
+		String path = WORKFLOW + "/process/completeMessageInput";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("userid", createby);
+		map.put("processinstanceid", Long.parseLong(processInstanceId));
+		map.put("incoids", incoids);
+		map.put("renewal", renewal);
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("datas", jsonObject.toString());
+		return HttpClientUtil.doGet(path, params);
+	}
+
+	/**
+	 * 拒绝任务
+	 * 
+	 * @param userid
+	 *            拒绝人
+	 * @param process
+	 *            流程类型
+	 * @param processinstanceid
+	 *            流程实例id
+	 * @return
+	 * @throws IOException
+	 * @throws UnsupportedEncodingException
+	 * @throws ParseException
+	 */
+	public static String releaseTaskWorkflow(String mainprocessinstanceid,
+			String incoid, String userid, String processinstanceid)
+			throws ParseException, UnsupportedEncodingException, IOException {
+		String path = WORKFLOW + "/process/releaseTask";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("mainprocessinstanceid", mainprocessinstanceid);
+		map.put("incoid", incoid);
+		map.put("userid", userid);
+		map.put("processinstanceid", Long.parseLong(processinstanceid));
+
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("datas", jsonObject.toString());
+		return HttpClientUtil.doTaskGet(path, params);
+	}
+
+	public static String completeTaskWorkflow(String ruleResult,
+			String processinstanceid, String userid, String taskName) {
+		String path = WORKFLOW + "/process/completeSubTask";
+		Map<String, Object> map1 = new HashMap<String, Object>();
+		map1.put("result", ruleResult);
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("data", map1);
+		map.put("userid", userid);
+		map.put("taskName", taskName);
+		map.put("processinstanceid", Long.parseLong(processinstanceid));
+
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("datas", jsonObject.toString());
+		System.out.println(params);
+		return HttpClientUtil.doGet(path, params);
+	}
+
+	/**
+	 * 改派任务
+	 * 
+	 * @param mainprocessinstanceid
+	 *            主实例id
+	 * @param incoid
+	 *            供应商id
+	 * @param userid
+	 *            以前操作人
+	 * @param processinstanceid
+	 *            实例id
+	 * @param targetuserid
+	 *            目标业管
+	 * @return
+	 * @throws IOException
+	 * @throws UnsupportedEncodingException
+	 * @throws ParseException
+	 */
+	public static String delegateTaskWorkflow(String mainprocessinstanceid,
+			String incoid, String userid, String processinstanceid,
+			String targetuserid) throws ParseException,
+			UnsupportedEncodingException, IOException {
+		String path = WORKFLOW + "/process/delegateTask";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("mainprocessinstanceid", mainprocessinstanceid);
+		map.put("incoid", incoid);
+		map.put("userid", userid);
+		map.put("processinstanceid", processinstanceid);
+		map.put("targetuserid", targetuserid);
+
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("datas", jsonObject.toString());
+		return HttpClientUtil.doTaskGet(path, params);
+	}
+
+	/**
+	 * 认领任务
+	 * 
+	 * @param mainprocessinstanceid
+	 * @param incoid
+	 * @param userid
+	 * @param processinstanceid
+	 * @param targetuserid
+	 * @return
+	 * @throws IOException
+	 * @throws UnsupportedEncodingException
+	 * @throws ParseException
+	 */
+	public static String claimTaskWorkflow(String mainprocessinstanceid,
+			String incoid, String userid, String processinstanceid)
+			throws ParseException, UnsupportedEncodingException, IOException {
+		String path = WORKFLOW + "/process/claimTask";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("mainprocessinstanceid", mainprocessinstanceid);
+		map.put("incoid", incoid);
+		map.put("userid", userid);
+		map.put("processinstanceid", processinstanceid);
+
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("datas", jsonObject.toString());
+		return HttpClientUtil.doTaskGet(path, params);
+	}
+
+	/**
+	 * 重新获取报价途径
+	 * 
+	 * @param processinstanceid
+	 *            实例id
+	 * @param userid
+	 *            用户
+	 * @return
+	 * @throws IOException
+	 * @throws UnsupportedEncodingException
+	 * @throws ParseException
+	 */
+	public static String workFlowCompleteSubTask(String processinstanceid,
+			String userid) throws ParseException, UnsupportedEncodingException,
+			IOException {
+		String path = WORKFLOW + "/process/completeSubTask";
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("processinstanceid", Long.parseLong(processinstanceid));
+		jsonObject.put("userid", userid);
+		jsonObject.put("taskName", "选择投保");// 节点名称
+		JSONObject json = new JSONObject();
+		json.put("result", "1");
+		jsonObject.put("data", json);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("datas", jsonObject.toString());
+		return HttpClientUtil.doTaskGet(path, params);
+	}
+
+	/**
+	 * 增加报价公司
+	 * 
+	 * @param processInstanceId
+	 * @param createby
+	 * @param incoids
+	 * @return
+	 */
+	public static String workFlowOnlyStartSubProcess(String processInstanceId,
+			String createby, List<String> incoids) {
+		String path = WORKFLOW + "/process/onlyStartSubProcess";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("userid", createby);
+		map.put("processinstanceid", Long.parseLong(processInstanceId));
+		map.put("incoids", incoids);
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("datas", jsonObject.toString());
+		return HttpClientUtil.doGet(path, params);
+	}
+
+	/**
+	 * 待承保打单
+	 * 
+	 * @param processInstanceId
+	 * @param userid
+	 * @param taskName
+	 * @param data
+	 * @return
+	 */
+	public static String undwrtSuccess(String processInstanceId, String userid,
+			String taskName, Map<String, Object> data) {
+		String path = WORKFLOW + "/process/completeTask";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("userid", userid);
+		map.put("processinstanceid", Long.parseLong(processInstanceId));
+		if (taskName != null) {
+			map.put("taskName", taskName);
+		}
+		if (data != null) {
+			map.put("data", data);
+		}
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("datas", jsonObject.toString());
+		return HttpClientUtil.doGet(path, params);
+	}
+
+	/**
+	 * 重新查询承保结果
+	 * 
+	 * @param processInstanceId
+	 * @param userid
+	 * @param taskName
+	 * @param data
+	 * @return
+	 */
+	public static String undwrtSearch(String processInstanceId, String userid,
+			String taskName, Map<String, Object> data) {
+		String path = WORKFLOW + "/process/completeTask";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("userid", userid);
+		map.put("processinstanceid", Long.parseLong(processInstanceId));
+		map.put("taskName", taskName);
+		map.put("data", data);
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("datas", jsonObject.toString());
+		return HttpClientUtil.doGet(path, params);
+	}
+
+	/**
+	 * 报价退回，核保退回 修改投保信息
+	 * @param result 
+	 * @param processinstanceid 流程实例ID
+	 * @param userid 用户id
+	 * @param taskName 节点名称
+	 * @return
+	 */
+	public static String updateInsuredInfoNoticeWorkflow(String processinstanceid, String userid, String taskName,String result) {
+		String path = WORKFLOW + "/process/completeSubTask";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("userid", userid);
+		map.put("taskName", taskName);
+		if(!StringUtil.isEmpty(result)){
+			Map<String, String> data = new HashMap<String, String>();
+			data.put("result", result);
+			map.put("data", data);
+		}
+		map.put("processinstanceid", Long.parseLong(processinstanceid));
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("datas", jsonObject.toString());
+		return HttpClientUtil.doGet(path, params);
+	}
+	
+	public static void main(String[] args) throws Exception, IOException {
+		// noticeWorkflowRenewalOrInsure("","","");
+		// {"processinstanceid":138,"renewal":0,"userId":"zhangjc","incoids":
+		// ["pingan","taipingyang"],"taskId":163}
+		List<String> list = new ArrayList<String>();
+		list.add("2022");
+		list.add("2085");
+		String res = noticeWorkflowStartQuote("zhangjc", "1287", list,"0");
+		System.out.println(res);
+	}
+}

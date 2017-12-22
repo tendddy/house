@@ -1,0 +1,23 @@
+package com.cninsure.payment.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.payment.entity.PMAppplatform;
+
+public interface PMAppplatformDao extends BaseDao<PMAppplatform,Long> {
+	
+	long getConfigListCount(Map<String, Object> map);
+
+	List<Map<Object, Object>> selectConfigList(Map<String, Object> map);
+	
+	int saveplatform(PMAppplatform pmappplatform);
+
+	int updateplatformeName(PMAppplatform pmappplatform);
+
+	int updateplatform(PMAppplatform pmappplatform);
+	
+	PMAppplatform getplatformList(String id);
+
+}

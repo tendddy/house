@@ -1,0 +1,321 @@
+package com.cninsure.payment.controller.manager;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.cninsure.core.exception.ControllerException;
+import com.cninsure.core.utils.BeanUtils;
+import com.cninsure.core.utils.StringUtil;
+import com.cninsure.payment.entity.PMAppplatform;
+import com.cninsure.payment.entity.PMApprate;
+import com.cninsure.payment.model.EachplatformModel;
+import com.cninsure.payment.service.PMAppchannelService;
+import com.cninsure.payment.service.PMAppplatformService;
+import com.cninsure.payment.service.PMApprateService;
+import com.cninsure.system.entity.INSCUser;
+import com.common.PagingParams;
+
+
+@Controller
+@RequestMapping("/configurtion/*")
+public class ConfigurationController {
+	@Resource
+	private PMAppplatformService PMAppplatformservice;
+	@Resource
+	private PMApprateService PMApprateservice;
+	@Resource
+	private PMAppchannelService PMAppchannelService;
+	@Autowired
+	private HttpServletRequest request;
+	
+	/**
+	 * 跳转到各应用平台配置页面
+	 * @return
+	 * @throws ControllerException
+	 */
+	@RequestMapping(value="configure",method=RequestMethod.GET)
+	public ModelAndView showConfigure()throws ControllerException{
+		ModelAndView mav = new ModelAndView("payment/configure");
+		return mav;
+	}
+	
+	/**
+	 * 跳转新增或修改页面
+	 * @return
+	 * @throws ControllerException
+	 */
+	@RequestMapping(value="platform",method=RequestMethod.GET)
+	public ModelAndView showPlatform(@RequestParam(value = "id", required = false) String id)throws ControllerException{
+		ModelAndView mav = new ModelAndView("payment/addappplatform");
+		if(StringUtil.isNotEmpty(id)){//非空为修改操作
+			PMAppplatform pmappplatform = PMAppplatformservice.getPlatformList(id);//得到选中的应用平台信息
+			List<Map<String,Object>> ratelist = PMApprateservice.getRateList(id);//得到选中的应用平台的费率信息
+			List<Map<String,Object>> banklist = PMAppchannelService.getList(id);//得到选中的应用平台的银行信息
+			mav.addObject("platformid", id);
+			mav.addObject("platformNo", pmappplatform.getPlatformNo());
+			mav.addObject("platformName", pmappplatform.getPlatformName());
+			mav.addObject("domain", pmappplatform.getDomain());
+			mav.addObject("status", pmappplatform.getStatus());
+			mav.addObject("settlementType", pmappplatform.getSettlementType());
+			mav.addObject("settlementInterval", pmappplatform.getSettlementInterval());
+			mav.addObject("settlementBank", pmappplatform.getSettlementBank());
+			mav.addObject("settlementCard", pmappplatform.getSettlementCard());
+			mav.addObject("minimumAmount",new DecimalFormat("#,##0.00").format(new BigDecimal(pmappplatform.getMinimumAmount()).movePointLeft(2)));
+			mav.addObject("maximumAmount",new DecimalFormat("#,##0.00").format(new BigDecimal(pmappplatform.getMaximumAmount()).movePointLeft(2)));
+			mav.addObject("settlementParty", pmappplatform.getSettlementParty());
+			
+			//费率模块拼装
+			System.out.println(ratelist.toString());
+			String ratediv="";
+			if(!StringUtil.isEmpty(ratelist)){
+				for(int i=0;i<ratelist.size();i++){
+					Map<String, Object> rates = ratelist.get(i);
+					Object rateid = rates.get("id");
+					Object rateType = rates.get("rateType");
+					String rate0="0".equals(rateType)?"selected":"";
+					String rate1="1".equals(rateType)?"selected":"";
+					Object rate = rates.get("rate");
+					String ratestr = String.valueOf(new DecimalFormat("###.##").format(new BigDecimal(String.valueOf(rate))));
+					if("1".equals(rateType)){//固定金额
+						ratestr= String.valueOf(new DecimalFormat("###.##").format(new BigDecimal(String.valueOf(rate)).movePointLeft(2)));
+					}
+					Object minimumAmount = rates.get("minimumAmount");
+					Object maximumAmount = rates.get("maximumAmount");
+					String minimumAmounts = new DecimalFormat("#,###").format(new BigDecimal(String.valueOf(minimumAmount)).movePointLeft(2));
+					String maximumAmounts = new DecimalFormat("#,###").format(new BigDecimal(String.valueOf(maximumAmount)).movePointLeft(2));
+					String bai="<option "+rate0+" value=\"0\">百分比</option>";
+					if("3".equals(pmappplatform.getSettlementType())){
+						bai="";
+					}
+					ratediv+="<tr class=\"feilv\"><td style=\"text-align:center;vertical-align:middle;\"><i " +
+							"class=\"deleteratediv glyphicon glyphicon-minus\" ></i></td><td style=\"text-align:center;vertical-align:middle;\">" +
+							"<input type=\"text\" readonly class=\"form-control col-md-2\"style=\"width:80px;\" id=\"minimumAmount\" "
+							+ "onkeyup=\"constraintMoneyLength(12,0);\" onblur=\"constraintMoneyLength(12,0);\" value=\""+minimumAmounts+"\" >" +
+							"<label class=\"col-md-2 control-label\"style=\"height:30px;line-height:30px;padding-left:9px;\">TO</label>" +
+							"<input type=\"text\" readonly class=\"form-control col-md-2\"style=\"width:80px;\" id=\"maximumAmount\" "
+							+ "onkeyup=\"constraintMoneyLength(12,0);\" onblur=\"constraintMoneyLength(12,0);\" value=\""+maximumAmounts+"\" " +
+							" ></td><td><select disabled name=\"rateType\"class=\"form-control\"id=\"rateType\" value=\"\">" +
+							"<option value=\"\"></option>"+bai+"<option "+rate1+" value=\"1\">固定金额</option></select><input " +
+							"type=\"hidden\"id=\"rateTypes\"value=\"\"></td><td><input type=\"text\" readonly class=\"form-control\"id=\"rate\"name=\"rate\"" +
+							"value=\""+ratestr+"\" ></td><td><button type=\"button\" disabled class=\"saverate btn btn-primary\">保存</button>" +
+							" <button type=\"button\" disabled class=\"cancelrate btn btn-primary\">取消</button> " +
+							"<button type=\"button\" class=\"modifyrate btn btn-primary\">修改</button></td><input " +
+							"type=\"hidden\"id=\"id\"value=\""+rateid+"\"></tr>"; 
+				}
+			}
+			mav.addObject("ratediv", ratediv);
+			//银行模块拼装
+			System.out.println(banklist.toString());
+			String bankdiv="";
+			if(!StringUtil.isEmpty(banklist)){
+				for(int i=0;i<banklist.size();i++){
+					Map<String, Object> banks = banklist.get(i);
+					Object bankid = banks.get("id");
+					Object platform_name = banks.get("platform_name");
+					Object channel_name = banks.get("channel_name");
+					Object channel_code = banks.get("channel_code");
+					String card_type0 = String.valueOf(banks.get("card_type0"))=="null"?"":String.valueOf(banks.get("card_type0"));
+					String card_type1 = String.valueOf(banks.get("card_type1"))=="null"?"":String.valueOf(banks.get("card_type1"));
+					String type0="0".equals(card_type0)?"checked":"";
+					String type1="1".equals(card_type1)?"checked":"";
+					String max_quota_per_day0 = String.valueOf(banks.get("max_quota_per_day0"))=="null"?"":String.valueOf(banks.get("max_quota_per_day0"));
+					String max_quota_per_day1 = String.valueOf(banks.get("max_quota_per_day1"))=="null"?"":String.valueOf(banks.get("max_quota_per_day1"));
+					String max_quota_per_time0 = String.valueOf(banks.get("max_quota_per_time0"))=="null"?"":String.valueOf(banks.get("max_quota_per_time0"));
+					String max_quota_per_time1 = String.valueOf(banks.get("max_quota_per_time1"))=="null"?"":String.valueOf(banks.get("max_quota_per_time1"));
+					max_quota_per_day0 = StringUtil.isEmpty(max_quota_per_day0)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_day0).movePointLeft(2));
+					max_quota_per_day1 = StringUtil.isEmpty(max_quota_per_day1)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_day1).movePointLeft(2));
+					max_quota_per_time0 = StringUtil.isEmpty(max_quota_per_time0)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_time0).movePointLeft(2));
+					max_quota_per_time1 = StringUtil.isEmpty(max_quota_per_time1)?"":new DecimalFormat("#,##0.00").format(new BigDecimal(max_quota_per_time1).movePointLeft(2));
+					Object status0 = banks.get("status0");
+					String status00="0".equals(status0)?"selected":"";
+					String status01="1".equals(status0)?"selected":"";
+					Object status1 = banks.get("status1");
+					String status10="0".equals(status1)?"selected":"";
+					String status11="1".equals(status1)?"selected":"";
+					Object settlementInterval0 = banks.get("settlementInterval0");
+					String settlementInterval00="01".equals(settlementInterval0)?"selected":"";
+					String settlementInterval01="02".equals(settlementInterval0)?"selected":"";
+					Object settlementInterval1 = banks.get("settlementInterval1");
+					String settlementInterval10="01".equals(settlementInterval1)?"selected":"";
+					String settlementInterval11="02".equals(settlementInterval1)?"selected":"";
+					
+					Object status2 = banks.get("status2");
+					String status20="0".equals(status2)?"selected":"";
+					String status21="1".equals(status2)?"selected":"";
+					Object status3 = banks.get("status3");
+					String status30="0".equals(status3)?"selected":"";
+					String status31="1".equals(status3)?"selected":"";
+					
+					String lmitid0 = String.valueOf(banks.get("lmitid0"))=="null"?"":String.valueOf(banks.get("lmitid0"));
+					String lmitid1 = String.valueOf(banks.get("lmitid1"))=="null"?"":String.valueOf(banks.get("lmitid1"));
+					
+					bankdiv+="<tr style=\"border-left: 1px solid #dddddd;\" class=\"yinhang\"><td style=\"text-align:center;vertical-align:middle;\">" +
+				"<label  class=\"col-md-2 control-label\" style=\"height:30px;line-height:30px;padding-left: 9px;\">"+(i+1)+"</label> </td>" +
+				"<td style=\"text-align:center;vertical-align:middle;\"><input type=\"text\" class=\"form-control\" id=\"platform_name\" readonly value=\""+platform_name+"\" ></td>" +		
+				"<td style=\"text-align:center;vertical-align:middle;\"><input type=\"text\" class=\"form-control\" id=\"channel_name\" readonly value=\""+channel_name+"\" ></td>" +
+				"<td style=\"text-align:center;vertical-align:middle;\"><input type=\"text\" class=\"form-control\" id=\"channel_code\" readonly value=\""+channel_code+"\" ></td>" +
+				"<td style=\"text-align:center;vertical-align:middle;\">" +
+				"<div class=\"checkbox\" style=\"padding-bottom:10px;\"><input type=\"checkbox\" style=\"position:static;\" disabled "+type0+" id=\"card_type00\" value=\"0\" >支持储蓄卡<input " +
+				"type=\"hidden\" id=\"lmitid0\" value=\""+lmitid0+"\"></div>" +
+				"<div class=\"checkbox\" style=\"padding-bottom:10px;\"><input type=\"checkbox\" style=\"position:static;\" disabled "+type1+" id=\"card_type11\" value=\"1\">支持信用卡</div><input " +
+				"type=\"hidden\" id=\"lmitid1\" value=\""+lmitid1+"\"></td>" +
+				"<td style=\"text-align:center;vertical-align:middle;\"><input type=\"text\" class=\"form-control\" id=\"max_quota_per_time0\" "
+				+ "onkeyup=\"constraintMoneyLength(12,2);\" onblur=\"constraintMoneyLength(12,2);\" value=\""+max_quota_per_time0+"\" readonly >" +
+				"&nbsp;<input type=\"text\" class=\"form-control\" id=\"max_quota_per_time1\" value=\""+max_quota_per_time1+"\" readonly "
+				+ "onkeyup=\"constraintMoneyLength(12,2);\" onblur=\"constraintMoneyLength(12,2);\"></td><td style=\"text-align:center;vertical-align:middle;\">" +
+				"<input type=\"text\" class=\"form-control\" id=\"max_quota_per_day0\" value=\""+max_quota_per_day0+"\" readonly "
+				+ "onkeyup=\"constraintMoneyLength(12,2);\" onblur=\"constraintMoneyLength(12,2);\">&nbsp;<input type=\"text\" class=\"form-control\" "
+				+ "id=\"max_quota_per_day1\" value=\""+max_quota_per_day1+"\" readonly onkeyup=\"constraintMoneyLength(12,2);\" onblur=\"constraintMoneyLength(12,2);\"></td>" +
+				"<td style=\"text-align:center;vertical-align:middle;\"><select class=\"col-md-1 form-control col-md-2\" disabled id=\"settlementInterval0\">" +
+				"<option value=\"\"></option><option "+settlementInterval00+" value=\"01\">即时</option><option "+settlementInterval01+" value=\"02\">T+1</option></select>&nbsp;" +
+				"<select class=\"col-md-1 form-control col-md-2\" disabled id=\"settlementInterval1\"><option value=\"\"></option><option "+settlementInterval10+" value=\"01\">即时</option>" +
+				"<option "+settlementInterval11+" value=\"02\">T+1</option></select></td>" + 
+				"<td style=\"text-align:center;vertical-align:middle;\">" +
+				"<select class=\"form-control m-left-1 col-md-2\" disabled id=\"status0\" ><option value=\"\"></option><option "+status00+" value=\"0\">启用</option>" +
+				"<option "+status01+" value=\"1\">禁用</option></select>&nbsp;<select class=\"form-control m-left-1 col-md-2\" disabled id=\"status1\" >" +
+				"<option value=\"\"></option><option "+status10+" value=\"0\">启用</option><option "+status11+" value=\"1\">禁用</option></select></td>"+ 
+				"<td style=\"text-align:center;vertical-align:middle;\">" +
+				"<select class=\"form-control m-left-1 col-md-2\" disabled id=\"status2\" ><option value=\"\"></option><option "+status20+" value=\"0\">启用</option>" +
+				"<option "+status21+" value=\"1\">禁用</option></select>&nbsp;<select class=\"form-control m-left-1 col-md-2\" disabled id=\"status3\" >" +
+				"<option value=\"\"></option><option "+status30+" value=\"0\">启用</option><option "+status31+" value=\"1\">禁用</option></select></td>"+ 
+				"<td style=\"text-align:center;vertical-align:middle;\">" +
+				"<button  type=\"button\"  id=\"savebank\" disabled class=\"btn btn-primary\">保存</button> " +
+				"<button  type=\"button\"  id=\"cancelbank\" disabled class=\"btn btn-primary\">取消</button> " +
+				"<button  type=\"button\"  id=\"modifybank\" class=\"btn btn-primary\">修改</button></td><input " +
+				"type=\"hidden\"id=\"id\"value=\""+bankid+"\"></tr>"; 
+				}
+			}
+			mav.addObject("bankdiv", bankdiv);
+		}
+		return mav;
+	}
+	
+	//平台列表查看	
+	@RequestMapping(value = "initPlatformList", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String,Object> initPlatformList(
+			@ModelAttribute PagingParams para,@ModelAttribute PMAppplatform pmappplatform)
+					throws ControllerException {
+		if(pmappplatform!=null){
+			if(pmappplatform.getPlatformName()!=null&&pmappplatform.getPlatformName().equals("")){
+				pmappplatform.setPlatformName(null);
+			}
+			if(pmappplatform.getPlatformNo()!=null&&pmappplatform.getPlatformNo().equals("")){
+				pmappplatform.setPlatformNo(null);
+			}
+		}
+		Map<String, Object> map = BeanUtils.toMap(pmappplatform,para);
+		return PMAppplatformservice.initPlatformList(map);
+	}
+	
+	//查看页面点击取消//放弃支付平台信息保存操作，修改信息初始化
+	@RequestMapping(value = "selectPlatform", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> selectPlatformInfo(@ModelAttribute PagingParams para,@ModelAttribute PMAppplatform pmappplatform)
+				throws ControllerException {
+		return PMAppplatformservice.selectPlatformInfo(pmappplatform);
+	}
+	
+	//保存支付平台
+	@RequestMapping(value = "saveplatform", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> savePlatformInfo(@ModelAttribute PagingParams para,@ModelAttribute PMAppplatform pmappplatform)
+				throws ControllerException {
+		return PMAppplatformservice.saveOrUpdateplatformInfo(pmappplatform);
+	}
+	
+	//保存费率信息
+	@RequestMapping(value = "saverate", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> saveRateInfo(HttpSession session,@ModelAttribute PagingParams para,@ModelAttribute PMApprate pmapprate)
+				throws ControllerException {
+		INSCUser loginUser = (INSCUser) session.getAttribute("insc_user");
+		pmapprate.setModifyUser(loginUser.getUsercode());
+		return PMApprateservice.saveOrUpdateRateInfo(pmapprate);
+	}
+	
+	//删除费率信息
+	@RequestMapping(value = "deleterate", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> deleteRateInfo(HttpSession session,@ModelAttribute PagingParams para,@ModelAttribute PMApprate pmapprate)
+				throws ControllerException {
+		INSCUser loginUser = (INSCUser) session.getAttribute("insc_user");
+		pmapprate.setModifyUser(loginUser.getUsercode());
+		return PMApprateservice.deleteRateInfo(pmapprate);
+	}
+	
+	//查询费率信息 
+	@RequestMapping(value = "selectrate", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> selectRateInfo(@ModelAttribute PagingParams para,@ModelAttribute PMApprate pmapprate)
+				throws ControllerException {
+		return PMApprateservice.selectRateInfo(pmapprate);
+	}
+	
+	//跳转轨迹信息
+	@RequestMapping(value = "showTrack", method = RequestMethod.GET)
+	@ResponseBody
+	public ModelAndView showTrack(@ModelAttribute PagingParams para,@ModelAttribute EachplatformModel eachplatformBean)
+			throws ControllerException {
+		ModelAndView mav = new ModelAndView("payment/showTrack");
+		mav.addObject("id", eachplatformBean.getId());
+		return mav;
+	}
+	
+	//显示轨迹信息信息
+	@RequestMapping(value = "getTrack", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String,Object> getTrackInfo(@ModelAttribute PagingParams para,@ModelAttribute EachplatformModel eachplatformBean)
+			throws ControllerException {
+		Map<String, Object> map = BeanUtils.toMap(eachplatformBean,para);
+		return PMApprateservice.selectRateTrackInfo(map);
+	}
+		
+	//查询银行模块信息
+	@RequestMapping(value = "selectyinhang", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> selectBankDiv(@ModelAttribute PagingParams para,@ModelAttribute EachplatformModel eachplatformBean)
+				throws ControllerException {
+		return PMAppchannelService.selectBankDiv(eachplatformBean);
+	}
+		
+	//保存银行信息
+	@RequestMapping(value = "savebank", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> saveBankInfo(HttpSession session,@ModelAttribute PagingParams para,@ModelAttribute EachplatformModel eachplatformBean)
+				throws ControllerException {
+		return PMAppchannelService.saveOrUpdateBankInfo(eachplatformBean);
+	}
+		
+	//查询银行信息
+	@RequestMapping(value = "selectbank", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> selectBankInfo(@ModelAttribute PagingParams para,@ModelAttribute EachplatformModel eachplatformBean)
+				throws ControllerException {
+		return PMAppchannelService.selectBankInfo(eachplatformBean);
+	}
+	
+	//查询银行卡类型信息
+	@RequestMapping(value = "selectlmit", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> selectLmitInfo(@ModelAttribute PagingParams para,@ModelAttribute EachplatformModel eachplatformBean)
+			throws ControllerException {
+		return PMAppchannelService.selectLmitInfo(eachplatformBean);
+	}
+		
+}

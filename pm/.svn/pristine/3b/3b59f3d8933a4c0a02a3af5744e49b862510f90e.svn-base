@@ -1,0 +1,13 @@
+package com.cninsure.payment.dao.impl;
+
+import org.springframework.stereotype.Repository;
+
+import com.cninsure.core.dao.impl.BaseDaoImpl;
+import com.cninsure.payment.dao.PMAPPplatformaccountbillDao;
+import com.cninsure.payment.entity.PMAPPplatformaccountbill;
+
+@Repository
+public class PMAPPplatformaccountbillDaoImpl extends BaseDaoImpl<PMAPPplatformaccountbill,Long> implements
+		PMAPPplatformaccountbillDao {
+
+}

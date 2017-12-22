@@ -1,0 +1,49 @@
+package com.cninsure.payment.enumm;
+
+
+public enum TxBizIdTypeEnum {
+	
+	TYPE1("0","01","身份证"),
+	TYPE2("1","02","户口簿"),
+	TYPE3("2","03","护照"),
+	TYPE4("3","04","军官证"),
+	TYPE5("4","05","士兵证"),
+	TYPE6("5","06","港澳居民来往内地通行证"),
+	TYPE7("6","07","台湾同胞来往内地通行证"),
+	TYPE8("7","08","临时身份证"),
+	TYPE9("8","09","外国人居留证"),
+	TYPE10("9","10","警官证"),
+	TYPE11("X","99","其他证件");
+
+	private final String tx;
+	private final String biz;
+	private final String describe;
+	
+	private TxBizIdTypeEnum(String tx, String biz,String describe) {
+		this.biz = biz;
+		this.tx = tx;
+		this.describe=describe;
+	}
+
+	public String getTx() {
+		return tx;
+	}
+	
+	public String getBiz() {
+		return biz;
+	}
+
+	public String getDescribe() {
+		return describe;
+	}
+	
+	public static String getBizByTx(String tx){
+		for(TxBizIdTypeEnum e:values()){
+			if(tx.equals(e.getTx())){
+				return e.getBiz();
+			}
+		}
+		throw new IllegalArgumentException("no such alert result,result:"+tx);
+	}
+	
+}

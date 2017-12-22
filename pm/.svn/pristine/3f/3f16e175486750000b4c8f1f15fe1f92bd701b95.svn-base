@@ -1,0 +1,24 @@
+package com.cninsure.payment.model;
+
+import com.cninsure.payment.entity.PMBankcard;
+
+/**
+ * 银行卡信息交互model
+ * 
+ * @author chengxt1202
+ *
+ */
+public class PMBankcardModel extends BaseModel {
+
+	private static final long serialVersionUID = 1L;
+
+	private PMBankcard bankcard;
+
+	public PMBankcard getBankcard() {
+		return bankcard;
+	}
+
+	public void setBankcard(PMBankcard bankcard) {
+		this.bankcard = bankcard;
+	}
+}

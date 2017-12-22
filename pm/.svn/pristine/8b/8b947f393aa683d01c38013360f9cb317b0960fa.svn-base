@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cninsure.payment.entity">
+	<resultMap id="PMBankcardMap" type="com.cninsure.payment.entity.PMBankcard" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+	    <result column="createdate" property="createdate" jdbcType="TIMESTAMP" />
+	    <result column="modifydate" property="modifydate" jdbcType="TIMESTAMP" />
+	    <result column="payment_platform_id" property="paymentPlatformId" jdbcType="BIGINT" />
+	    <result column="channel_id" property="channelId" jdbcType="BIGINT" />
+	    <result column="protocolid" property="protocolid" jdbcType="VARCHAR" />
+	    <result column="cprotocalid" property="cprotocalid" jdbcType="VARCHAR" />
+	    <result column="customphone" property="customphone" jdbcType="CHAR" />
+	    <result column="customcardno" property="customcardno" jdbcType="VARCHAR" />
+	    <result column="customname" property="customname" jdbcType="VARCHAR" />
+	    <result column="card_type" property="cardType" jdbcType="CHAR" />
+	    <result column="identification_type" property="identificationType" jdbcType="CHAR" />
+	    <result column="identification_number" property="identificationNumber" jdbcType="VARCHAR" />
+	    <result column="validdate" property="validdate" jdbcType="CHAR" />
+	    <result column="cvn2" property="cvn2" jdbcType="CHAR" />
+	    <result column="bankcode" property="bankcode" jdbcType="VARCHAR" />
+	    <result column="bankname" property="bankname" jdbcType="VARCHAR" />
+	    <result column="remove_time" property="removeTime" jdbcType="TIMESTAMP" />
+	    <result column="status" property="status" jdbcType="CHAR" />
+	</resultMap>
+	<!-- PMBankcard -->
+	<resultMap id="PMPaychannelResultMap" type="com.cninsure.payment.model.PMPaychannelModel" >
+	    <id column="id" property="id" jdbcType="BIGINT" />
+	    <result column="payment_id" property="paymentId" jdbcType="BIGINT" />
+	    <result column="channel_type" property="channelType" jdbcType="CHAR" />
+	    <result column="channel_name" property="channelName" jdbcType="VARCHAR" />
+	    <result column="channel_code" property="channelCode" jdbcType="VARCHAR" />
+	    <result column="channel_logo" property="channelLogo" jdbcType="VARCHAR" />
+	    <result column="customcardno" property="customCardNo" jdbcType="VARCHAR" />
+	    <result column="shortcardno" property="shortCardNo" jdbcType="CHAR" />
+	    <result column="card_type" property="cardtype" jdbcType="VARCHAR" />
+	    <result column="protocolid" property="protocolId" jdbcType="VARCHAR" />
+	    <result column="max_quota_per_day" property="maxQuotaPerDay" jdbcType="VARCHAR" />
+	    <result column="max_quota_per_time" property="maxQuotaPerTime" jdbcType="VARCHAR" />
+  </resultMap>
+  
+	<insert id="PMBankcard_insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.cninsure.payment.entity.PMBankcard" >
+		insert into PMBankcard
+		(createdate,modifydate,payment_platform_id,channel_id,protocolid,cprotocalid,customphone,customcardno,customname,card_type,identification_type,identification_number,validdate,cvn2,bankcode,bankname,remove_time,status)
+		values
+		(#{createdate, jdbcType=TIMESTAMP},#{modifydate, jdbcType=TIMESTAMP},#{paymentPlatformId, jdbcType=BIGINT},
+		#{channelId, jdbcType=BIGINT},#{protocolid, jdbcType=VARCHAR},#{cprotocalid, jdbcType=VARCHAR},#{customphone, jdbcType=CHAR},#{customcardno, jdbcType=VARCHAR},#{customname, jdbcType=VARCHAR},#{cardType, jdbcType=CHAR},#{identificationType, jdbcType=CHAR},#{identificationNumber, jdbcType=VARCHAR},#{validdate, jdbcType=CHAR},#{cvn2, jdbcType=CHAR},#{bankcode, jdbcType=VARCHAR},#{bankname, jdbcType=VARCHAR},#{removeTime, jdbcType=TIMESTAMP},#{status, jdbcType=CHAR}) 
+	</insert>
+	<select id="PMBankcard_select" parameterType="Map" resultMap="PMBankcardMap">
+		select * from PMBankcard
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="paymentPlatformId != null">
+				and payment_platform_id = #{paymentPlatformId, jdbcType=BIGINT}
+			</if>
+			<if test="channelId != null">
+				and channel_id = #{channelId, jdbcType=BIGINT}
+			</if>
+			<if test="protocolid != null">
+				and protocolid = #{protocolid, jdbcType=VARCHAR}
+			</if>
+			<if test="cprotocalid != null">
+				and cprotocalid = #{cprotocalid, jdbcType=VARCHAR}
+			</if>
+			<if test="customphone != null">
+				and customphone = #{customphone, jdbcType=CHAR}
+			</if>
+			<if test="customcardno != null">
+				and customcardno = #{customcardno, jdbcType=VARCHAR}
+			</if>
+			<if test="customname != null">
+				and customname = #{customname, jdbcType=VARCHAR}
+			</if>
+			<if test="cardType != null">
+				and card_type = #{cardType, jdbcType=CHAR}
+			</if>
+			<if test="identificationType != null">
+				and identification_type = #{identificationType,
+				jdbcType=CHAR}
+			</if>
+			<if test="identificationNumber != null">
+				and identification_number = #{identificationNumber,
+				jdbcType=VARCHAR}
+			</if>
+			<if test="validdate != null">
+				and validdate = #{validdate, jdbcType=CHAR}
+			</if>
+			<if test="cvn2 != null">
+				and cvn2 = #{cvn2, jdbcType=CHAR}
+			</if>
+			<if test="bankcode != null">
+				and bankcode = #{bankcode, jdbcType=VARCHAR}
+			</if>
+			<if test="bankname != null">
+				and bankname = #{bankname, jdbcType=VARCHAR}
+			</if>
+			<if test="removeTime != null">
+				and remove_time = #{removeTime, jdbcType=TIMESTAMP}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMBankcard_selectById" parameterType="Long" resultMap="PMBankcardMap">
+		select * from PMBankcard where id = #{id}
+	</select>
+	<select id="PMBankcard_deleteById" parameterType="Long">
+		delete from PMBankcard where id = #{id}
+	</select>
+	<select id="PMBankcard_updateById" parameterType="com.cninsure.payment.entity.PMBankcard">
+		update
+		PMBankcard set id = #{id, jdbcType=BIGINT},createdate = #{createdate,jdbcType=TIMESTAMP},modifydate = #{modifydate,jdbcType=TIMESTAMP},
+		payment_platform_id = #{paymentPlatformId,jdbcType=BIGINT},channel_id = #{channelId, jdbcType=BIGINT},protocolid = #{protocolid, jdbcType=VARCHAR},
+		cprotocalid = #{cprotocalid,jdbcType=VARCHAR},customphone = #{customphone,jdbcType=CHAR},customcardno = #{customcardno,	jdbcType=VARCHAR},
+		customname = #{customname,jdbcType=VARCHAR},card_type = #{cardType,	jdbcType=CHAR},identification_type = #{identificationType,jdbcType=CHAR},
+		identification_number = #{identificationNumber,jdbcType=VARCHAR},validdate = #{validdate, jdbcType=CHAR},cvn2 =	#{cvn2, jdbcType=CHAR},
+		bankcode = #{bankcode,jdbcType=VARCHAR},bankname = #{bankname, jdbcType=VARCHAR},remove_time= #{removeTime, jdbcType=TIMESTAMP},
+		status = #{status, jdbcType=CHAR}
+		where id = #{id}
+	</select>
+	<select id="PMBankcard_selectCount" parameterType="Map" resultType="Long">
+		select count(1) from PMBankcard
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="paymentPlatformId != null">
+				and payment_platform_id = #{paymentPlatformId, jdbcType=BIGINT}
+			</if>
+			<if test="channelId != null">
+				and channel_id = #{channelId, jdbcType=BIGINT}
+			</if>
+			<if test="protocolid != null">
+				and protocolid = #{protocolid, jdbcType=VARCHAR}
+			</if>
+			<if test="cprotocalid != null">
+				and cprotocalid = #{cprotocalid, jdbcType=VARCHAR}
+			</if>
+			<if test="customphone != null">
+				and customphone = #{customphone, jdbcType=CHAR}
+			</if>
+			<if test="customcardno != null">
+				and customcardno = #{customcardno, jdbcType=VARCHAR}
+			</if>
+			<if test="customname != null">
+				and customname = #{customname, jdbcType=VARCHAR}
+			</if>
+			<if test="cardType != null">
+				and card_type = #{cardType, jdbcType=CHAR}
+			</if>
+			<if test="identificationType != null">
+				and identification_type = #{identificationType,
+				jdbcType=CHAR}
+			</if>
+			<if test="identificationNumber != null">
+				and identification_number = #{identificationNumber,
+				jdbcType=VARCHAR}
+			</if>
+			<if test="validdate != null">
+				and validdate = #{validdate, jdbcType=CHAR}
+			</if>
+			<if test="cvn2 != null">
+				and cvn2 = #{cvn2, jdbcType=CHAR}
+			</if>
+			<if test="bankcode != null">
+				and bankcode = #{bankcode, jdbcType=VARCHAR}
+			</if>
+			<if test="bankname != null">
+				and bankname = #{bankname, jdbcType=VARCHAR}
+			</if>
+			<if test="removeTime != null">
+				and remove_time = #{removeTime, jdbcType=TIMESTAMP}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+		</where>
+	</select>
+	<select id="PMBankcard_selectOne" parameterType="Map"
+		resultMap="PMBankcardMap">
+		select * from PMBankcard
+		<where>
+			<if test="id != null">
+				and id = #{id, jdbcType=BIGINT}
+			</if>
+			<if test="createdate != null">
+				and createdate = #{createdate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="modifydate != null">
+				and modifydate = #{modifydate, jdbcType=TIMESTAMP}
+			</if>
+			<if test="paymentPlatformId != null">
+				and payment_platform_id = #{paymentPlatformId, jdbcType=BIGINT}
+			</if>
+			<if test="channelId != null">
+				and channel_id = #{channelId, jdbcType=BIGINT}
+			</if>
+			<if test="protocolid != null">
+				and protocolid = #{protocolid, jdbcType=VARCHAR}
+			</if>
+			<if test="cprotocalid != null">
+				and cprotocalid = #{cprotocalid, jdbcType=VARCHAR}
+			</if>
+			<if test="customphone != null">
+				and customphone = #{customphone, jdbcType=CHAR}
+			</if>
+			<if test="customcardno != null">
+				and customcardno = #{customcardno, jdbcType=VARCHAR}
+			</if>
+			<if test="customname != null">
+				and customname = #{customname, jdbcType=VARCHAR}
+			</if>
+			<if test="cardType != null">
+				and card_type = #{cardType, jdbcType=CHAR}
+			</if>
+			<if test="identificationType != null">
+				and identification_type = #{identificationType,
+				jdbcType=CHAR}
+			</if>
+			<if test="identificationNumber != null">
+				and identification_number = #{identificationNumber,
+				jdbcType=VARCHAR}
+			</if>
+			<if test="validdate != null">
+				and validdate = #{validdate, jdbcType=CHAR}
+			</if>
+			<if test="cvn2 != null">
+				and cvn2 = #{cvn2, jdbcType=CHAR}
+			</if>
+			<if test="bankcode != null">
+				and bankcode = #{bankcode, jdbcType=VARCHAR}
+			</if>
+			<if test="bankname != null">
+				and bankname = #{bankname, jdbcType=VARCHAR}
+			</if>
+			<if test="removeTime != null">
+				and remove_time = #{removeTime, jdbcType=TIMESTAMP}
+			</if>
+			<if test="status != null">
+				and status = #{status, jdbcType=CHAR}
+			</if>
+		</where>
+		LIMIT 2
+	</select>
+	<select id="PMBankcard_getChannelsByPaymentIdAndCustomerId" parameterType="Map" resultMap="PMPaychannelResultMap">
+		select ch.*,bk.customcardno as customcardno,bk.protocolid as protocolid ,right(bk.customcardno,4) as shortcardno,
+		case when applimit.card_type=0 then '储蓄卡'else '信用卡' END cardtype,applimit.max_quota_per_day,applimit.max_quota_per_time
+		from pmappplatformuserbankcard appBank 
+		left join PMBankcard bk on appBank.bankcard_id=bk.id and bk.payment_platform_id=#{paymentId} 
+		left join pmpaychannel ch on bk.channel_id = ch.id and ch.status='0' 
+		LEFT JOIN pmappchannel appchannel on appchannel.channel_id=ch.id and appchannel.app_id=#{appId}
+		LEFT JOIN pmappchannellmit applimit ON applimit.app_channel_id = appchannel.id
+		<where>
+			appBank.app_platform_id=#{appId}
+			and appBank.platform_user_id=#{customerId} and bk.status='1'
+		</where>  
+	</select>
+	
+	<select id="PMBankcard_selectBankCardByLogicKey" parameterType="Map" resultMap="PMBankcardMap">
+		select * from PMBankcard
+		<where>
+			customcardno=#{customcardno}
+			and identification_number=#{identificationNumber}
+			and customname=#{customname}
+			and status !=2
+		</where>  
+		limit 1
+	</select>
+	
+	<select id="PMBankcard_selectDataByProtocolid" parameterType="String" resultMap="PMBankcardMap">
+		select * from PMBankcard
+		<where>
+			protocolid=#{protocolid}
+			and status !=2
+		</where>  
+		limit 1
+	</select>
+	<select id="PMBankcard_selectCountByProtocolid" parameterType="String" resultType="int">
+		select count(1) from PMBankcard
+		<where>
+			protocolid=#{value}
+		</where>  
+		limit 1
+	</select>
+	<update id="PMBankcard_updateCardStatusByProtocolid" parameterType="String" >
+		update PMBankcard set status='2',`modifydate`=SYSDATE(),cprotocalid=#{cprotocalid} where protocolid=#{protocolid}
+	</update>
+	<update id="PMBankcard_updateStatusAndPayidByProtocolId" parameterType="Map" >
+		update PMBankcard set status=#{status},`modifydate`=SYSDATE(),payment_platform_id=#{payid} where protocolid=#{protocolid}
+	</update>
+	<update id="PMBankcard_updateStatusByProtocolId" parameterType="Map" >
+		update PMBankcard set status=#{status},`modifydate`=SYSDATE() where protocolid=#{protocolid}
+	</update>
+	<select id="PMBankcard_getProtocolidsByCardNo" parameterType="String" resultType="String">
+		select protocolid from PMBankcard where customcardno=#{value}
+	</select>
+</mapper>

@@ -1,0 +1,123 @@
+package com.cninsure.payment.service.impl;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.core.dao.impl.BaseServiceImpl;
+import com.cninsure.core.utils.StringUtil;
+import com.cninsure.payment.dao.PMPaymentrateDao;
+import com.cninsure.payment.entity.PMPaymentrate;
+import com.cninsure.payment.service.PMPaymentrateService;
+
+@Service
+@Transactional
+public class PMPaymentrateServiceImpl extends BaseServiceImpl<PMPaymentrate,Long> implements
+		PMPaymentrateService {
+	@Resource
+	private PMPaymentrateDao pmPaymentrateDao;
+
+	@Override
+	protected BaseDao<PMPaymentrate,Long> getBaseDao() {
+		return pmPaymentrateDao;
+	}
+
+	@Override
+	public Map<String, Object> saveOrUpdateRateInfo(PMPaymentrate pmpaymentrate) {
+		pmpaymentrate.setChannelType("01");
+		if("1".equals(pmpaymentrate.getRateType())){//固定金额
+			pmpaymentrate.setRate(pmpaymentrate.getRate().movePointRight(2));
+		}
+		pmpaymentrate.setMinimumAmount(new DecimalFormat("####").format(new BigDecimal(pmpaymentrate.getMinimumAmount().replace(",", "")).movePointRight(2)));
+		pmpaymentrate.setMaximumAmount(new DecimalFormat("####").format(new BigDecimal(pmpaymentrate.getMaximumAmount().replace(",", "")).movePointRight(2)));
+		if(StringUtil.isEmpty(pmpaymentrate.getId())){
+			pmPaymentrateDao.saveRate(pmpaymentrate);
+		}else{
+			pmPaymentrateDao.updateRate(pmpaymentrate);
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("id", pmpaymentrate.getId());
+		map.put("paymentId", pmpaymentrate.getPaymentId());
+		map.put("rateType", pmpaymentrate.getRateType());
+		if("1".equals(pmpaymentrate.getRateType())){//固定金额
+			map.put("rate", new DecimalFormat("###.##").format(pmpaymentrate.getRate().movePointLeft(2)));
+		}else{
+			map.put("rate", pmpaymentrate.getRate());
+		}
+		map.put("minimumAmount", new DecimalFormat("#,###").format(new BigDecimal(pmpaymentrate.getMinimumAmount()).movePointLeft(2)));
+		map.put("maximumAmount", new DecimalFormat("#,###").format(new BigDecimal(pmpaymentrate.getMaximumAmount()).movePointLeft(2)));
+		return map;
+	}
+
+	@Override
+	public Map<String, Object> deleteRateInfo(PMPaymentrate pmpaymentrate) {
+		pmPaymentrateDao.deleteRate(pmpaymentrate);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("message", "删除成功");
+		return map;
+	}
+
+	@Override
+	public Map<String, Object> selectRateInfo(PMPaymentrate pmpaymentrate) {
+		pmpaymentrate=pmPaymentrateDao.selectRate(pmpaymentrate);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("id", pmpaymentrate.getId());
+		map.put("paymentId", pmpaymentrate.getPaymentId());
+		map.put("rateType", pmpaymentrate.getRateType());
+		if("1".equals(pmpaymentrate.getRateType())){//固定金额
+			map.put("rate", new DecimalFormat("###.##").format(pmpaymentrate.getRate().movePointLeft(2)));
+		}else{
+			map.put("rate", pmpaymentrate.getRate());
+		}
+		map.put("minimumAmount", new DecimalFormat("#,###").format(new BigDecimal(pmpaymentrate.getMinimumAmount()).movePointLeft(2)));
+		map.put("maximumAmount", new DecimalFormat("#,###").format(new BigDecimal(pmpaymentrate.getMaximumAmount()).movePointLeft(2)));
+		
+		return map;
+	}
+
+	@Override
+	public List<Map<String, Object>> getRateList(String id) {
+		return pmPaymentrateDao.selectRateList(id);
+	}
+
+	@Override
+	public Map<String, Object> selectRateTrajectoryInfo(Map<String, Object> map) {
+		Map<String, Object> data = new HashMap<String, Object>();
+		long total = pmPaymentrateDao.getRateTrajectoryCount(map);
+		List<Map<Object, Object>> infoList = pmPaymentrateDao.selectRateTrajectoryList(map);
+		for (int i = 0; i < infoList.size(); i++) {
+			Map<Object, Object> map2 = infoList.get(i);
+			Object rateType = map2.get("rateType");
+			if(rateType!=null&&!"".equals(rateType)){
+				if(rateType.equals("0")){
+					map2.put("rateType", "百分比");
+				}else if(rateType.equals("1")){
+					map2.put("rateType", "固定金额");
+					double rate = Double.parseDouble( map2.get("rate").toString());
+					map2.put("rate",new DecimalFormat("###.##").format(new BigDecimal(rate).movePointLeft(2)));
+				}
+			}
+			Object createdate = map2.get("createdate");
+			if(createdate!=null&&!"".equals(createdate)){
+				map2.put("createdate", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(createdate));
+			}
+			int minimumAmount = Integer.parseInt( map2.get("minimumAmount").toString());
+			map2.put("minimumAmount",new DecimalFormat("#,###").format(new BigDecimal(minimumAmount).movePointLeft(2)));
+			int maximumAmount = Integer.parseInt( map2.get("maximumAmount").toString());
+			map2.put("maximumAmount",new DecimalFormat("#,###").format(new BigDecimal(maximumAmount).movePointLeft(2)));
+		}
+		data.put("total", total);
+		data.put("rows", infoList);
+		return data;
+	}
+
+}

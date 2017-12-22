@@ -1,0 +1,8 @@
+package com.cninsure.payment.dao;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.payment.entity.PMAPPcustomcard;
+
+public interface PMAPPcustomcardDao extends BaseDao<PMAPPcustomcard,Long> {
+
+}

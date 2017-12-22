@@ -1,0 +1,111 @@
+package com.cninsure.payment.service;
+
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.cninsure.core.dao.BaseService;
+import com.cninsure.payment.entity.PMBankcard;
+import com.cninsure.payment.entity.PMLogRecords;
+import com.cninsure.payment.model.BaseModel;
+import com.cninsure.payment.model.BizCallBackBindCardModel;
+import com.cninsure.payment.model.CustomBaseModel;
+import com.cninsure.payment.model.CustomBind4ActionModel;
+import com.cninsure.payment.model.CustomBindWithCodeModel;
+import com.cninsure.payment.model.CustomUnBindModel;
+import com.cninsure.payment.model.FtlCoustomBindCardModel;
+import com.cninsure.payment.model.FtlCoustomBindedCardModel;
+import com.cninsure.system.entity.INSCUser;
+
+/**
+ *客户绑卡操作
+ */
+public interface PMBankcardService extends BaseService<PMBankcard,Long> {
+
+	/**
+	 * 建立绑定关系2501
+	 * 
+	 * 返回绑卡流水号
+	 */
+	public BaseModel bindBankCardTx2051(CustomBind4ActionModel cBindModel);
+	
+	/**
+	 * 
+	 * 绑卡发送验证码
+	 * 
+	 * 验证银行卡是否正确
+	 * 
+	 * @param cBindModel
+	 * @return
+	 */
+	public FtlCoustomBindCardModel bindBankCardSendVerificationCode(HttpServletRequest request,CustomBind4ActionModel cBindModel);
+	
+	/**
+	 * 建立绑定关系（发送验证短信）2531
+	 * @return
+	 */
+	public BaseModel bindBankCardTx2531(CustomBind4ActionModel cBindModel,Map<String, Object> pmDataResult);
+	
+	/**
+	 * 
+	 * 绑卡操作 使用短信验证码
+	 * 
+	 * @param protocolid 绑卡流水号
+	 * @param SMSValidationCode 短信验证码
+	 * @return
+	 */
+	public FtlCoustomBindedCardModel bindBankCardTx2532(CustomBindWithCodeModel codeModel);
+	
+	/**
+	 * 绑定关系查询2502
+	 * 
+	 * @param protocolid 绑卡流水号
+	 * @return
+	 */
+	public BaseModel queryBindBankCardTx2052(CustomBaseModel cbaseModel,String protocolid);
+	
+	/**
+	 * 解绑银行卡
+	 * <br>
+	 * 1：删除绑卡信息用户关联关系（业务上解除绑定关系）<br>
+	 * 2：当前卡号信息关联关系全部删除，调用中金解绑银行卡（同时解绑多个绑卡流水号）
+	 * 
+	 * @param appId 应用平台ID
+	 * @param userId 用户ID
+	 * @param cardNo 银行卡号
+	 * @param protocolid 绑卡流水号
+	 * @return
+	 */
+	public BaseModel unBindBankCard(CustomUnBindModel model);
+	
+	
+	/**
+	 * 商联回调绑卡接口
+	 * 
+	 * @param callBackModel
+	 * @return
+	 */
+	public BaseModel bizCallBackBindBankCard(BizCallBackBindCardModel callBackModel);
+
+	public Map<String, Object> selectBindCardList(Map<String, Object> map);
+	/**
+	 * 通过绑卡信息的id查到对应绑卡日志
+	 * @param map
+	 * @return
+	 */
+	public PMLogRecords getLogRecordsInfo(Map<String, Object> map);
+	/**
+	 * 通过日志id找到日志信息，再次访问商联的信息
+	 * @param map
+	 * @return
+	 */
+	public Map<String, Object> visitAgain(Map<String, Object> map,INSCUser loginUser,HttpServletRequest request);
+
+	/**
+	 * 商联银行卡验证签约接口
+	 * @param bankcard
+	 * @return
+	 */
+	BaseModel BizCheckbankCard(CustomBind4ActionModel cBindModel);
+	
+}

@@ -1,0 +1,37 @@
+package com.cninsure.payment.model;
+
+import java.io.Serializable;
+
+public class OrderPayModel implements Serializable{
+
+
+	private static final long serialVersionUID = -2038156286819838043L;
+	
+	private  String payProtocolid;
+	
+	private String smsValidationCode;
+
+	public String getPayProtocolid() {
+		return payProtocolid;
+	}
+
+	public void setPayProtocolid(String payProtocolid) {
+		this.payProtocolid = payProtocolid;
+	}
+
+	public String getSmsValidationCode() {
+		return smsValidationCode;
+	}
+
+	public void setSmsValidationCode(String smsValidationCode) {
+		this.smsValidationCode = smsValidationCode;
+	}
+
+	@Override
+	public String toString() {
+		return "OrderPayModel [payProtocolid=" + payProtocolid
+				+ ", smsValidationCode=" + smsValidationCode + "]";
+	}
+	
+	
+}

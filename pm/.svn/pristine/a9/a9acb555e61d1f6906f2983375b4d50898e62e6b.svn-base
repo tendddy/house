@@ -1,0 +1,64 @@
+package com.cninsure.payment.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import com.cninsure.core.dao.BaseDao;
+import com.cninsure.payment.entity.PMAppchannel;
+import com.cninsure.payment.entity.PMAppchannellmit;
+import com.cninsure.payment.entity.PMPaymentplatform;
+import com.cninsure.payment.model.EachplatformModel;
+
+public interface PMAppchannelDao extends BaseDao<PMAppchannel,Long> {
+	
+	/**
+	 * 得到应用平台配置支付平台信息
+	 * 
+	 * @param appid 应用平台ID
+	 * @param paymentType 支付平台类型
+	 * @return
+	 */
+	public List<PMPaymentplatform> queryPaymentsByAppId(long appid,String paymentType);
+	
+	/**
+	 * 得到第三方支付平台
+	 * 
+	 * @param appid
+	 * @return
+	 */
+	public List<PMPaymentplatform> queryOutsidePaymentsByAppId(long appid,int orderFee);
+
+	/**
+	 * 得到应用平台配置银行信息
+	 * 
+	 * @param payment
+	 * @return
+	 */
+	public List<PMAppchannel> queryChannelsByPaymentId(long payment,long appId);
+
+	int saveAppChannel(PMAppchannel pMAppchannel);
+
+	int saveAppChannellmit(PMAppchannellmit pMAppchannellmit);
+
+	public List<Map<String, Object>> getBankLmitList(String id);
+
+	public List<Map<String, Object>> getList();
+
+	public List<Map<String, Object>> getList(String id);
+
+	List<Map<String, Object>> selectBankDiv(EachplatformModel eachplatformBean);
+
+	EachplatformModel selectBankInfo(EachplatformModel eachplatformBean);
+
+	EachplatformModel selectLmitInfo(EachplatformModel eachplatformBean);
+	 
+	List<Map<String, String>> getAppId();
+	 
+	long getConfigListCount(Map<String, Object> map);
+
+	List<Map<Object, Object>> selectConfigList(Map<String, Object> map);
+
+	int updateChannelLmit(PMAppchannellmit appchannellmit);
+
+	
+}

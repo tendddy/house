@@ -1,0 +1,33 @@
+package com.cninsure.payment.controller.c2b;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.cninsure.payment.model.BizCallBackBindCardModel;
+import com.cninsure.payment.service.PMBankcardService;
+
+
+/**
+ *商联回调支付平台接口
+ */
+@Controller
+@RequestMapping("/BizCallBack/")
+public class BizCallBackController {
+	
+	@Resource
+	private PMBankcardService bankcardService;
+	
+	
+	@RequestMapping(value="bankcardVerify",method=RequestMethod.GET)
+	public void callBackBindCard(BizCallBackBindCardModel callBackModel ){
+		try {
+			bankcardService.bizCallBackBindBankCard(callBackModel);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+}
