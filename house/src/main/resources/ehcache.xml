@@ -8,8 +8,13 @@
 	<defaultCache maxElementsInMemory="1000" eternal="false"
 		timeToIdleSeconds="120" timeToLiveSeconds="120" overflowToDisk="false" />
 
-	<!-- 菜单缓存 -->
+	<!-- 字典信息缓存 -->
 	<cache name="initCache" maxElementsInMemory="1000" eternal="true"
+		timeToIdleSeconds="120" timeToLiveSeconds="120" overflowToDisk="false"
+		memoryStoreEvictionPolicy="LRU" />
+		
+	<!-- 楼栋单元缓存 -->
+	<cache name="initDanyuan" maxElementsInMemory="1000" eternal="true"
 		timeToIdleSeconds="120" timeToLiveSeconds="120" overflowToDisk="false"
 		memoryStoreEvictionPolicy="LRU" />
 

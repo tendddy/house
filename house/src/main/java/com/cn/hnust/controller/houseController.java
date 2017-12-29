@@ -44,11 +44,18 @@ public class houseController {
 	@Resource
 	private ICodeService codeService;
 	
-	@RequestMapping(value = "/flash", method = RequestMethod.GET,produces="application/json;charset=UTF-8")
+	@RequestMapping(value = "/flashInit", method = RequestMethod.GET,produces="application/json;charset=UTF-8")
 	@ResponseBody
 	@CacheEvict(value = { "initCache" },allEntries=true)
 	public String flashInitInfo(){
-		return "ok";
+		return JSONObject.toJSONString("ok");
+	}
+	
+	@RequestMapping(value = "/flashDanyuan", method = RequestMethod.GET,produces="application/json;charset=UTF-8")
+	@ResponseBody
+	@CacheEvict(value = "initDanyuan" )
+	public String flashDanyuan(@RequestParam(value = "loudongId") String loudongId,@RequestParam(value = "tabIndex") String tabIndex){
+		return JSONObject.toJSONString("ok");
 	}
 	
 	@RequestMapping(value = "/initInfo", method = RequestMethod.GET,produces="application/json;charset=UTF-8")
@@ -64,7 +71,7 @@ public class houseController {
 	
 	@RequestMapping(value = "/initDanyuan", method = RequestMethod.GET,produces="application/json;charset=UTF-8")
 	@ResponseBody
-	@Cacheable(value = { "initCache" })
+	@Cacheable(value = { "initDanyuan" })
 	public String initDanyuan(@RequestParam(value = "loudongId") String loudongId,@RequestParam(value = "tabIndex") String tabIndex){
 		List<String> codes = new ArrayList<>();
 		Map<String, Object> parm = new HashMap<>();
