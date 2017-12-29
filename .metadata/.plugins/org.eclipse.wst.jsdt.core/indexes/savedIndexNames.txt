@@ -1,6 +1,4 @@
 INDEX VERSION 1.4+D:\new_workspace\dubbo\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
-3028602488.index
-1906578059.index
 1803134895.index
 1906578059.index
 1650469615.index

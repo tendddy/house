@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,8 +44,16 @@ public class houseController {
 	@Resource
 	private ICodeService codeService;
 	
+	@RequestMapping(value = "/flash", method = RequestMethod.GET,produces="application/json;charset=UTF-8")
+	@ResponseBody
+	@CacheEvict(value = { "initCache" },allEntries=true)
+	public String flashInitInfo(){
+		return "ok";
+	}
+	
 	@RequestMapping(value = "/initInfo", method = RequestMethod.GET,produces="application/json;charset=UTF-8")
 	@ResponseBody
+	@Cacheable(value = { "initCache" })
 	public String initInfo(@RequestParam(value = "parentcode") String parentcode){
 		Map<String,String> parm = new HashMap<>();
 		parm.put("parentcode", parentcode);
@@ -54,6 +64,7 @@ public class houseController {
 	
 	@RequestMapping(value = "/initDanyuan", method = RequestMethod.GET,produces="application/json;charset=UTF-8")
 	@ResponseBody
+	@Cacheable(value = { "initCache" })
 	public String initDanyuan(@RequestParam(value = "loudongId") String loudongId,@RequestParam(value = "tabIndex") String tabIndex){
 		List<String> codes = new ArrayList<>();
 		Map<String, Object> parm = new HashMap<>();
