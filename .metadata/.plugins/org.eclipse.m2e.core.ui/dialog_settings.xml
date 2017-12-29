@@ -57,6 +57,7 @@
 	</section>
 	<section name="Maven2ProjectWizardArchifactPage">
 		<list key="package">
+			<item value="www.vvkp.cn.house"/>
 			<item value="www.vvkp.cn.springmvc"/>
 			<item value="springMVC.springMVC"/>
 		</list>
@@ -65,6 +66,7 @@
 			<item value="springMVC"/>
 		</list>
 		<list key="artifactId">
+			<item value="house"/>
 			<item value="springmvc"/>
 			<item value="springMVC"/>
 		</list>

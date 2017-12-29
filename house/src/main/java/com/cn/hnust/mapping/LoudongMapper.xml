@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cn.hnust.dao.ILoudongDao">
+	<resultMap id="BaseResultMap" type="com.cn.hnust.pojo.Loudong">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="loupanid" property="loupanid" jdbcType="VARCHAR" />
+		<result column="createtime" property="createtime" jdbcType="TIMESTAMP" />
+		<result column="modifytime" property="modifytime" jdbcType="TIMESTAMP" />
+		<result column="loudongmingcheng" property="loudongmingcheng"
+			jdbcType="VARCHAR" />
+		<result column="loudongxiaoshouxukezheng" property="loudongxiaoshouxukezheng"
+			jdbcType="VARCHAR" />
+		<result column="loudongkaipanshijian" property="loudongkaipanshijian"
+			jdbcType="VARCHAR" />
+		<result column="loudongzongtaoshu" property="loudongzongtaoshu"
+			jdbcType="VARCHAR" />
+		<result column="loudongkeshoutaoshu" property="loudongkeshoutaoshu"
+			jdbcType="VARCHAR" />
+		<result column="jiagequjian" property="jiagequjian"
+			jdbcType="VARCHAR" />
+		<result column="mianjiqujian" property="mianjiqujian"
+			jdbcType="VARCHAR" />
+		<result column="zongjiaqujian" property="zongjiaqujian"
+			jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id,loupanid,createtime,modifytime,loudongmingcheng,loudongxiaoshouxukezheng,loudongkaipanshijian,loudongzongtaoshu,loudongkeshoutaoshu,jiagequjian,mianjiqujian,zongjiaqujian
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="Map">
+		select
+		<include refid="Base_Column_List" />
+		from ${tabIndex}loudong
+		where id = #{id,jdbcType=VARCHAR}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="Map">
+		delete from
+		${tabIndex}loudong
+		where id = #{id,jdbcType=VARCHAR}
+	</delete>
+	<insert id="insert" parameterType="com.cn.hnust.pojo.Loudong">
+		insert into ${tabIndex}loudong
+		(id,loupanid,createtime,modifytime,loudongmingcheng,loudongxiaoshouxukezheng,loudongkaipanshijian,loudongzongtaoshu,loudongkeshoutaoshu,jiagequjian,mianjiqujian,zongjiaqujian)
+		values
+		(#{id,jdbcType=VARCHAR},#{loupanid,jdbcType=VARCHAR},#{createtime,jdbcType=TIMESTAMP},#{modifytime,jdbcType=TIMESTAMP},#{loudongmingcheng,jdbcType=VARCHAR},#{loudongxiaoshouxukezheng,jdbcType=VARCHAR},#{loudongkaipanshijian,jdbcType=VARCHAR},#{loudongzongtaoshu,jdbcType=VARCHAR},#{loudongkeshoutaoshu,jdbcType=VARCHAR},#{jiagequjian,jdbcType=VARCHAR},#{mianjiqujian,jdbcType=VARCHAR},#{zongjiaqujian,jdbcType=VARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="com.cn.hnust.pojo.Loudong">
+		insert into ${tabIndex}loudong
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="loupanid != null">
+				loupanid,
+			</if>
+			<if test="createtime != null">
+				createtime,
+			</if>
+			<if test="modifytime != null">
+				modifytime,
+			</if>
+			<if test="loudongmingcheng != null">
+				loudongmingcheng,
+			</if>
+			<if test="loudongxiaoshouxukezheng != null">
+				loudongxiaoshouxukezheng,
+			</if>
+			<if test="loudongkaipanshijian != null">
+				loudongkaipanshijian,
+			</if>
+			<if test="loudongzongtaoshu != null">
+				loudongzongtaoshu,
+			</if>
+			<if test="loudongkeshoutaoshu != null">
+				loudongkeshoutaoshu,
+			</if>
+			<if test="jiagequjian != null">
+				jiagequjian,
+			</if>
+			<if test="mianjiqujian != null">
+				mianjiqujian,
+			</if>
+			<if test="zongjiaqujian != null">
+				zongjiaqujian,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="loupanid != null">
+				#{loupanid,jdbcType=VARCHAR},
+			</if>
+			<if test="createtime != null">
+				#{createtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifytime != null">
+				#{modifytime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="loudongmingcheng != null">
+				#{loudongmingcheng,jdbcType=VARCHAR},
+			</if>
+			<if test="loudongxiaoshouxukezheng != null">
+				#{loudongxiaoshouxukezheng,jdbcType=VARCHAR},
+			</if>
+			<if test="loudongkaipanshijian != null">
+				#{loudongkaipanshijian,jdbcType=VARCHAR},
+			</if>
+			<if test="loudongzongtaoshu != null">
+				#{loudongzongtaoshu,jdbcType=VARCHAR},
+			</if>
+			<if test="loudongkeshoutaoshu != null">
+				#{loudongkeshoutaoshu,jdbcType=VARCHAR},
+			</if>
+			<if test="jiagequjian != null">
+				#{jiagequjian,jdbcType=VARCHAR},
+			</if>
+			<if test="mianjiqujian != null">
+				#{mianjiqujian,jdbcType=VARCHAR},
+			</if>
+			<if test="zongjiaqujian != null">
+				#{zongjiaqujian,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.cn.hnust.pojo.Loudong">
+		update ${tabIndex}loudong
+		<set>
+			<if test="loupanid != null">
+				loupanid = #{loupanid,jdbcType=VARCHAR},
+			</if>
+			<if test="createtime != null">
+				createtime = #{createtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifytime != null">
+				modifytime = #{modifytime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="loudongmingcheng != null">
+				loudongmingcheng = #{loudongmingcheng,jdbcType=VARCHAR},
+			</if>
+			<if test="loudongxiaoshouxukezheng != null">
+				loudongxiaoshouxukezheng =
+				#{loudongxiaoshouxukezheng,jdbcType=VARCHAR},
+			</if>
+			<if test="loudongkaipanshijian != null">
+				loudongkaipanshijian =
+				#{loudongkaipanshijian,jdbcType=VARCHAR},
+			</if>
+			<if test="loudongzongtaoshu != null">
+				loudongzongtaoshu =
+				#{loudongzongtaoshu,jdbcType=VARCHAR},
+			</if>
+			<if test="loudongkeshoutaoshu != null">
+				loudongkeshoutaoshu =
+				#{loudongkeshoutaoshu,jdbcType=VARCHAR},
+			</if>
+			<if test="jiagequjian != null">
+				jiagequjian = #{jiagequjian,jdbcType=VARCHAR},
+			</if>
+			<if test="mianjiqujian != null">
+				mianjiqujian = #{mianjiqujian,jdbcType=VARCHAR},
+			</if>
+			<if test="zongjiaqujian != null">
+				zongjiaqujian = #{zongjiaqujian,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.cn.hnust.pojo.Loudong">
+		update ${tabIndex}loudong
+		set
+		loupanid = #{loupanid,jdbcType=VARCHAR},
+		createtime = #{createtime,jdbcType=TIMESTAMP},
+		modifytime = #{modifytime,jdbcType=TIMESTAMP},
+		loudongmingcheng = #{loudongmingcheng,jdbcType=VARCHAR},
+		loudongxiaoshouxukezheng = #{loudongxiaoshouxukezheng,jdbcType=VARCHAR},
+		loudongkaipanshijian = #{loudongkaipanshijian,jdbcType=VARCHAR},
+		loudongzongtaoshu = #{loudongzongtaoshu,jdbcType=VARCHAR},
+		loudongkeshoutaoshu = #{loudongkeshoutaoshu,jdbcType=VARCHAR},
+		jiagequjian = #{jiagequjian,jdbcType=VARCHAR},
+		mianjiqujian = #{mianjiqujian,jdbcType=VARCHAR},
+		zongjiaqujian = #{zongjiaqujian,jdbcType=VARCHAR}
+		where id =
+		#{id,jdbcType=VARCHAR}
+	</update>
+	<select id="selectByEntity" parameterType="Map" resultType="com.cn.hnust.pojo.Loudong">
+		select * from ${tabIndex}loudong
+		<where>
+			<if test="loupanid != null">
+				and loupanid = #{loupanid}
+			</if>
+			<if test="jiagequjian != null">
+				and jiagequjian like CONCAT('%', #{jiagequjian},'%')
+			</if>
+			<if test="mianjiqujian != null">
+				and mianjiqujian like CONCAT('%', #{mianjiqujian},'%')
+			</if>
+			<if test="zongjiaqujian != null">
+				and zongjiaqujian like CONCAT('%', #{zongjiaqujian},'%')
+			</if>
+		</where>
+		limit #{offset},#{limit}
+	</select>
+	<select id="selectByEntityCount" parameterType="Map" resultType="java.lang.Long">
+		select count(1) from ${tabIndex}loudong
+		<where>
+			<if test="loupanid != null">
+				and loupanid = #{loupanid}
+			</if>
+			<if test="jiagequjian != null">
+				and jiagequjian like CONCAT('%', #{jiagequjian},'%')
+			</if>
+			<if test="mianjiqujian != null">
+				and mianjiqujian like CONCAT('%', #{mianjiqujian},'%')
+			</if>
+			<if test="zongjiaqujian != null">
+				and zongjiaqujian like CONCAT('%', #{zongjiaqujian},'%')
+			</if>
+		</where>
+	</select>
+</mapper>

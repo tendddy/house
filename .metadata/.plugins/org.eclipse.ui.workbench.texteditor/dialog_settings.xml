@@ -2,15 +2,24 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value=" " key="selection"/>
-		<item value="false" key="casesensitive"/>
+		<item value="querybutton" key="selection"/>
+		<item value="true" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
-			<item value=" "/>
+			<item value="querybutton"/>
+			<item value="queryb"/>
+			<item value="querybo"/>
+			<item value="queryParams"/>
+			<item value="city"/>
+			<item value="com.cn.hnust.pojo.Code"/>
+			<item value="getloudonginfo"/>
+			<item value="queryLoudong"/>
 		</list>
 		<list key="replacehistory">
+			<item value="楼栋"/>
+			<item value="Code"/>
 		</list>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">

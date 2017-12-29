@@ -1,8 +1,0 @@
-package com.cninsure.payment.dao;
-
-import com.cninsure.core.dao.BaseDao;
-import com.cninsure.payment.entity.PMAPPcustom;
-
-public interface PMAPPcustomDao extends BaseDao<PMAPPcustom,Long> {
-
-}

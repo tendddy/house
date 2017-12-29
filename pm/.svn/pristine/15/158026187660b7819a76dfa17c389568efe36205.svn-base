@@ -1,8 +1,0 @@
-package com.cninsure.payment.service;
-
-import com.cninsure.core.dao.BaseService;
-import com.cninsure.payment.entity.PMAPPcustomwithdraw;
-
-public interface PMAPPcustomwithdrawService extends BaseService<PMAPPcustomwithdraw,Long> {
-
-}

@@ -1,8 +1,0 @@
-package com.cninsure.payment.dao;
-
-import com.cninsure.core.dao.BaseDao;
-import com.cninsure.payment.entity.PMInterfacelog;
-
-public interface PMInterfacelogDao extends BaseDao<PMInterfacelog,Long> {
-
-}

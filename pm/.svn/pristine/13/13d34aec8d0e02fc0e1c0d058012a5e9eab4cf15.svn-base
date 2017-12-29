@@ -1,9 +1,0 @@
-package com.cninsure.payment.model;
-
-import java.io.Serializable;
-
-
-public class Tx2531Model extends TxBaseResponseModel implements Serializable {
-
-
-}

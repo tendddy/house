@@ -1,8 +1,0 @@
-package com.cninsure.payment.service;
-
-import com.cninsure.core.dao.BaseService;
-import com.cninsure.payment.entity.PMAPPplatformaccountbill;
-
-public interface PMAPPplatformaccountbillService extends BaseService<PMAPPplatformaccountbill,Long> {
-
-}
